@@ -1,7 +1,7 @@
 {
   "_comment": "SDLC Framework v6.0.6 default settings — run 'tinysdlc sdlc init' to apply",
   "workspace": {
-    "path": "~/tinyclaw-workspace",
+    "path": "~/tinysdlc-workspace",
     "name": "my-sdlc-project"
   },
   "channels": {
@@ -20,42 +20,42 @@
       "provider": "anthropic",
       "model": "sonnet",
       "sdlc_role": "pm",
-      "working_directory": "~/tinyclaw-workspace/pm"
+      "working_directory": "~/tinysdlc-workspace/pm"
     },
     "architect": {
       "name": "Solution Architect",
       "provider": "anthropic",
       "model": "opus",
       "sdlc_role": "architect",
-      "working_directory": "~/tinyclaw-workspace/architect"
+      "working_directory": "~/tinysdlc-workspace/architect"
     },
     "coder": {
       "name": "Developer",
       "provider": "anthropic",
       "model": "sonnet",
       "sdlc_role": "coder",
-      "working_directory": "~/tinyclaw-workspace/coder"
+      "working_directory": "~/tinysdlc-workspace/coder"
     },
     "reviewer": {
       "name": "Code Reviewer",
       "provider": "anthropic",
       "model": "opus",
       "sdlc_role": "reviewer",
-      "working_directory": "~/tinyclaw-workspace/reviewer"
+      "working_directory": "~/tinysdlc-workspace/reviewer"
     },
     "tester": {
       "name": "QA Tester",
       "provider": "anthropic",
       "model": "sonnet",
       "sdlc_role": "tester",
-      "working_directory": "~/tinyclaw-workspace/tester"
+      "working_directory": "~/tinysdlc-workspace/tester"
     },
     "devops": {
       "name": "DevOps Engineer",
       "provider": "anthropic",
       "model": "sonnet",
       "sdlc_role": "devops",
-      "working_directory": "~/tinyclaw-workspace/devops"
+      "working_directory": "~/tinysdlc-workspace/devops"
     }
   },
   "teams": {

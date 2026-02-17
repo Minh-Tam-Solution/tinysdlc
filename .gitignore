@@ -4,8 +4,8 @@ node_modules/
 # TypeScript build output
 dist/
 
-# TinyClaw runtime files
-.tinyclaw
+# TinySDLC runtime files
+.tinysdlc
 
 .wwebjs_cache
 *.log

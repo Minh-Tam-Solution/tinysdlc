@@ -1,10 +1,10 @@
 {
   "version": "1.0.0",
   "project": {
-    "id": "tinyclaw-001",
+    "id": "tinysdlc-001",
     "name": "TinySDLC",
     "description": "Multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator",
-    "repository": "https://github.com/dttai71/tinysdlc"
+    "repository": "https://github.com/Minh-Tam-Solution/tinysdlc"
   },
   "sdlc": {
     "frameworkVersion": "6.0.6",
@@ -30,6 +30,6 @@
     "**/node_modules/**",
     "**/.git/**",
     "**/dist/**",
-    "**/.tinyclaw/**"
+    "**/.tinysdlc/**"
   ]
 }

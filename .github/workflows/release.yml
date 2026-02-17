@@ -50,9 +50,9 @@ jobs:
       - name: Create bundle tarball
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          BUNDLE_NAME="tinyclaw-bundle.tar.gz"
+          BUNDLE_NAME="tinysdlc-bundle.tar.gz"
           TEMP_DIR=$(mktemp -d)
-          BUNDLE_DIR="$TEMP_DIR/tinyclaw"
+          BUNDLE_DIR="$TEMP_DIR/tinysdlc"
 
           mkdir -p "$BUNDLE_DIR"
 
@@ -66,7 +66,7 @@ jobs:
           cp -r docs/ "$BUNDLE_DIR/"
           cp -r .agents/ "$BUNDLE_DIR/"
 
-          cp tinyclaw.sh "$BUNDLE_DIR/"
+          cp tinysdlc.sh "$BUNDLE_DIR/"
 
           cp package.json "$BUNDLE_DIR/"
           cp package-lock.json "$BUNDLE_DIR/"
@@ -79,8 +79,8 @@ jobs:
           cp .gitignore "$BUNDLE_DIR/"
 
           # Make scripts executable
-          chmod +x "$BUNDLE_DIR/bin/tinyclaw"
-          chmod +x "$BUNDLE_DIR/tinyclaw.sh"
+          chmod +x "$BUNDLE_DIR/bin/tinysdlc"
+          chmod +x "$BUNDLE_DIR/tinysdlc.sh"
           chmod +x "$BUNDLE_DIR/scripts/install.sh"
           chmod +x "$BUNDLE_DIR/scripts/uninstall.sh"
           chmod +x "$BUNDLE_DIR/scripts/bundle.sh"
@@ -91,7 +91,7 @@ jobs:
 
           # Create tarball
           cd "$TEMP_DIR"
-          tar -czf "$GITHUB_WORKSPACE/$BUNDLE_NAME" tinyclaw/
+          tar -czf "$GITHUB_WORKSPACE/$BUNDLE_NAME" tinysdlc/
 
           # Get bundle info
           BUNDLE_SIZE=$(du -h "$GITHUB_WORKSPACE/$BUNDLE_NAME" | cut -f1)
@@ -109,7 +109,7 @@ jobs:
             echo "$TAG_MESSAGE" > release_notes.md
           else
             cat > release_notes.md <<EOF
-          ## TinyClaw $VERSION
+          ## TinySDLC $VERSION
 
           See commits since last release for detailed changes.
           EOF
@@ -121,7 +121,7 @@ jobs:
         with:
           body_path: release_notes.md
           files: |
-            tinyclaw-bundle.tar.gz
+            tinysdlc-bundle.tar.gz
           draft: false
           prerelease: false
         env:
@@ -131,6 +131,6 @@ jobs:
         if: github.ref_type != 'tag'
         uses: actions/upload-artifact@v4
         with:
-          name: tinyclaw-bundle
-          path: tinyclaw-bundle.tar.gz
+          name: tinysdlc-bundle
+          path: tinysdlc-bundle.tar.gz
           retention-days: 7
