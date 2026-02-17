@@ -32,9 +32,9 @@ if [ -n "$GIT_TAG" ]; then
     VERSION="$GIT_TAG"
 fi
 
-BUNDLE_NAME="tinyclaw-bundle-${VERSION}.tar.gz"
+BUNDLE_NAME="tinysdlc-bundle-${VERSION}.tar.gz"
 TEMP_DIR=$(mktemp -d)
-BUNDLE_DIR="$TEMP_DIR/tinyclaw"
+BUNDLE_DIR="$TEMP_DIR/tinysdlc"
 
 echo -e "${BLUE}Version: ${GREEN}$VERSION${NC}"
 echo -e "${BLUE}Output: ${GREEN}$BUNDLE_NAME${NC}"
@@ -81,7 +81,7 @@ cp -r lib "$BUNDLE_DIR/"
 cp -r docs "$BUNDLE_DIR/" 2>/dev/null || true
 cp -r .agents "$BUNDLE_DIR/" 2>/dev/null || true
 
-cp tinyclaw.sh "$BUNDLE_DIR/"
+cp tinysdlc.sh "$BUNDLE_DIR/"
 cp package.json "$BUNDLE_DIR/"
 cp package-lock.json "$BUNDLE_DIR/"
 cp tsconfig.json "$BUNDLE_DIR/"
@@ -96,8 +96,8 @@ cp .gitignore "$BUNDLE_DIR/"
 [ -f "LICENSE" ] && cp LICENSE "$BUNDLE_DIR/"
 
 # Make scripts executable
-chmod +x "$BUNDLE_DIR/bin/tinyclaw"
-chmod +x "$BUNDLE_DIR/tinyclaw.sh"
+chmod +x "$BUNDLE_DIR/bin/tinysdlc"
+chmod +x "$BUNDLE_DIR/tinysdlc.sh"
 chmod +x "$BUNDLE_DIR/scripts/install.sh"
 chmod +x "$BUNDLE_DIR/scripts/uninstall.sh"
 chmod +x "$BUNDLE_DIR/scripts/bundle.sh"
@@ -112,7 +112,7 @@ echo ""
 # Step 5: Create tarball
 echo -e "${BLUE}[5/5] Creating tarball...${NC}"
 cd "$TEMP_DIR"
-tar -czf "$SCRIPT_DIR/$BUNDLE_NAME" tinyclaw/
+tar -czf "$SCRIPT_DIR/$BUNDLE_NAME" tinysdlc/
 
 cd "$SCRIPT_DIR"
 rm -rf "$TEMP_DIR"
@@ -129,7 +129,7 @@ echo "Bundle location: $SCRIPT_DIR/$BUNDLE_NAME"
 echo "Bundle size: $BUNDLE_SIZE"
 echo ""
 echo "Upload to GitHub Release:"
-echo "  1. Create a new release: https://github.com/jlia0/tinyclaw/releases/new"
+echo "  1. Create a new release: https://github.com/Minh-Tam-Solution/tinysdlc/releases/new"
 echo "  2. Upload: $BUNDLE_NAME"
 echo "  3. Remote install will automatically use it!"
 echo ""

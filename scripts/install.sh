@@ -5,7 +5,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-WRAPPER="$PROJECT_ROOT/bin/tinyclaw"
+WRAPPER="$PROJECT_ROOT/bin/tinysdlc"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -40,10 +40,10 @@ else
 fi
 
 # Check if already installed
-if [ -L "$INSTALL_DIR/tinyclaw" ]; then
-    EXISTING_TARGET="$(readlink "$INSTALL_DIR/tinyclaw")"
+if [ -L "$INSTALL_DIR/tinysdlc" ]; then
+    EXISTING_TARGET="$(readlink "$INSTALL_DIR/tinysdlc")"
     if [ "$EXISTING_TARGET" = "$WRAPPER" ]; then
-        echo -e "${YELLOW}TinySDLC is already installed at $INSTALL_DIR/tinyclaw${NC}"
+        echo -e "${YELLOW}TinySDLC is already installed at $INSTALL_DIR/tinysdlc${NC}"
         echo ""
         if [ -t 0 ]; then
             read -p "Reinstall? (y/N) " -n 1 -r
@@ -53,9 +53,9 @@ if [ -L "$INSTALL_DIR/tinyclaw" ]; then
                 exit 0
             fi
         fi
-        rm "$INSTALL_DIR/tinyclaw"
+        rm "$INSTALL_DIR/tinysdlc"
     else
-        echo -e "${RED}Warning: $INSTALL_DIR/tinyclaw exists but points to a different location${NC}"
+        echo -e "${RED}Warning: $INSTALL_DIR/tinysdlc exists but points to a different location${NC}"
         echo "  Current: $EXISTING_TARGET"
         echo "  New:     $WRAPPER"
         echo ""
@@ -67,10 +67,10 @@ if [ -L "$INSTALL_DIR/tinyclaw" ]; then
                 exit 0
             fi
         fi
-        rm "$INSTALL_DIR/tinyclaw"
+        rm "$INSTALL_DIR/tinysdlc"
     fi
-elif [ -e "$INSTALL_DIR/tinyclaw" ]; then
-    echo -e "${RED}Error: $INSTALL_DIR/tinyclaw exists but is not a symlink${NC}"
+elif [ -e "$INSTALL_DIR/tinysdlc" ]; then
+    echo -e "${RED}Error: $INSTALL_DIR/tinysdlc exists but is not a symlink${NC}"
     echo "Please remove it manually and try again."
     exit 1
 fi
@@ -78,20 +78,20 @@ fi
 # Create symlink
 echo ""
 echo "Creating symlink..."
-ln -s "$WRAPPER" "$INSTALL_DIR/tinyclaw"
+ln -s "$WRAPPER" "$INSTALL_DIR/tinysdlc"
 
 echo -e "${GREEN}✓ TinySDLC CLI installed successfully!${NC}"
 echo ""
-echo "You can now run 'tinyclaw' from any directory:"
+echo "You can now run 'tinysdlc' from any directory:"
 echo ""
 echo -e "  ${GREEN}tinysdlc start${NC}     - Start TinySDLC"
-echo -e "  ${GREEN}tinyclaw status${NC}    - Check status"
-echo -e "  ${GREEN}tinyclaw --help${NC}    - Show all commands"
+echo -e "  ${GREEN}tinysdlc status${NC}    - Check status"
+echo -e "  ${GREEN}tinysdlc --help${NC}    - Show all commands"
 echo ""
 
 # Verify it works — if not in PATH, add it to the shell profile
-if command -v tinyclaw &> /dev/null; then
-    echo -e "${GREEN}✓ 'tinyclaw' command is available${NC}"
+if command -v tinysdlc &> /dev/null; then
+    echo -e "${GREEN}✓ 'tinysdlc' command is available${NC}"
 elif [ "$INSTALL_DIR" = "$HOME/.local/bin" ]; then
     # Determine the user's shell profile
     SHELL_NAME="$(basename "$SHELL")"
@@ -123,7 +123,7 @@ elif [ "$INSTALL_DIR" = "$HOME/.local/bin" ]; then
 
     echo -e "${YELLOW}⚠ Restart your terminal or run:  source ${SHELL_PROFILE/#$HOME/\~}${NC}"
 else
-    echo -e "${YELLOW}⚠ 'tinyclaw' command not found in PATH${NC}"
+    echo -e "${YELLOW}⚠ 'tinysdlc' command not found in PATH${NC}"
     echo "  Add $INSTALL_DIR to your PATH."
 fi
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # TinySDLC Remote Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/jlia0/tinyclaw/main/scripts/remote-install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/Minh-Tam-Solution/tinysdlc/main/scripts/remote-install.sh | bash
 
 set -e
 
@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Configuration
-GITHUB_REPO="jlia0/tinyclaw"
+GITHUB_REPO="Minh-Tam-Solution/tinysdlc"
 DEFAULT_BRANCH="main"
 INSTALL_DIR=""
 
@@ -103,7 +103,7 @@ echo -e "${BLUE}[3/6] Selecting installation method...${NC}"
 LATEST_RELEASE=$(curl -fsSL "https://api.github.com/repos/$GITHUB_REPO/releases/latest" 2>/dev/null | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/' || echo "")
 
 if [ -n "$LATEST_RELEASE" ]; then
-    BUNDLE_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_RELEASE/tinyclaw-bundle.tar.gz"
+    BUNDLE_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_RELEASE/tinysdlc-bundle.tar.gz"
 
     # Check if bundle exists
     if curl -fsSL -I "$BUNDLE_URL" >/dev/null 2>&1; then
@@ -173,8 +173,8 @@ echo -e "${BLUE}[6/6] Installing CLI command...${NC}"
 cd "$INSTALL_DIR"
 
 # Make scripts executable
-chmod +x bin/tinyclaw
-chmod +x tinyclaw.sh
+chmod +x bin/tinysdlc
+chmod +x tinysdlc.sh
 chmod +x scripts/install.sh
 chmod +x scripts/uninstall.sh
 chmod +x lib/setup-wizard.sh
@@ -191,9 +191,9 @@ echo -e "${GREEN}✓ CLI command installed${NC}"
 # the remote-install output gives the user the right guidance)
 NEED_RESTART=false
 
-if ! command -v tinyclaw &> /dev/null; then
+if ! command -v tinysdlc &> /dev/null; then
     # Check if the symlink landed in ~/.local/bin
-    if [ -L "$HOME/.local/bin/tinyclaw" ]; then
+    if [ -L "$HOME/.local/bin/tinysdlc" ]; then
         SHELL_NAME="$(basename "$SHELL")"
         case "$SHELL_NAME" in
             zsh)  SHELL_PROFILE="$HOME/.zshrc" ;;
@@ -230,7 +230,7 @@ echo -e "Installation directory: ${BLUE}$INSTALL_DIR${NC}"
 echo ""
 
 if [ "$NEED_RESTART" = true ]; then
-    echo -e "${YELLOW}Important: Restart your terminal (or run 'source ${SHELL_PROFILE/#$HOME/\~}') to use the 'tinyclaw' command.${NC}"
+    echo -e "${YELLOW}Important: Restart your terminal (or run 'source ${SHELL_PROFILE/#$HOME/\~}') to use the 'tinysdlc' command.${NC}"
     echo ""
 fi
 
@@ -240,10 +240,10 @@ echo -e "  ${GREEN}1.${NC} Start TinySDLC:"
 echo -e "     ${BLUE}tinysdlc start${NC}"
 echo ""
 echo -e "  ${GREEN}2.${NC} Check status:"
-echo -e "     ${BLUE}tinyclaw status${NC}"
+echo -e "     ${BLUE}tinysdlc status${NC}"
 echo ""
 echo -e "  ${GREEN}3.${NC} View all commands:"
-echo -e "     ${BLUE}tinyclaw --help${NC}"
+echo -e "     ${BLUE}tinysdlc --help${NC}"
 echo ""
 echo "Documentation: https://github.com/$GITHUB_REPO"
 echo ""

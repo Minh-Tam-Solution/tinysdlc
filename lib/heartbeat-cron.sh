@@ -45,7 +45,7 @@ while true; do
     # Get workspace path
     WORKSPACE_PATH=$(jq -r '.workspace.path // empty' "$SETTINGS_FILE" 2>/dev/null)
     if [ -z "$WORKSPACE_PATH" ]; then
-        WORKSPACE_PATH="$HOME/tinyclaw-workspace"
+        WORKSPACE_PATH="$HOME/tinysdlc-workspace"
     fi
 
     # Get all agent IDs

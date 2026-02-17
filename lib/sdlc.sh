@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SDLC Framework v6.0.6 commands for TinySDLC
-# Sourced by tinyclaw.sh
+# Sourced by tinysdlc.sh
 
 # Requires: jq, SETTINGS_FILE, SCRIPT_DIR (from common.sh)
 

@@ -2,7 +2,7 @@
 # Update management for TinySDLC
 
 # GitHub repository info
-GITHUB_REPO="jlia0/tinyclaw"
+GITHUB_REPO="Minh-Tam-Solution/tinysdlc"
 UPDATE_CHECK_CACHE="$HOME/.tinysdlc/.update_check"
 UPDATE_CHECK_TTL=3600  # Check once per hour
 
@@ -176,9 +176,9 @@ do_update() {
     echo ""
 
     # Download bundle
-    local bundle_url="https://github.com/$GITHUB_REPO/releases/download/v${latest_version}/tinyclaw-bundle.tar.gz"
+    local bundle_url="https://github.com/$GITHUB_REPO/releases/download/v${latest_version}/tinysdlc-bundle.tar.gz"
     local temp_dir=$(mktemp -d)
-    local bundle_file="$temp_dir/tinyclaw-bundle.tar.gz"
+    local bundle_file="$temp_dir/tinysdlc-bundle.tar.gz"
 
     echo -e "${BLUE}[1/4] Downloading...${NC}"
     if ! curl -fSL -o "$bundle_file" "$bundle_url" 2>&1 | grep -v "^  "; then
@@ -199,7 +199,7 @@ do_update() {
     cp -r "$SCRIPT_DIR/src" "$backup_dir/" 2>/dev/null || true
     cp -r "$SCRIPT_DIR/dist" "$backup_dir/" 2>/dev/null || true
     cp -r "$SCRIPT_DIR/lib" "$backup_dir/" 2>/dev/null || true
-    cp "$SCRIPT_DIR/tinyclaw.sh" "$backup_dir/" 2>/dev/null || true
+    cp "$SCRIPT_DIR/tinysdlc.sh" "$backup_dir/" 2>/dev/null || true
     cp "$SCRIPT_DIR/package.json" "$backup_dir/" 2>/dev/null || true
 
     echo -e "${GREEN}✓ Backed up to: $backup_dir${NC}"
@@ -213,12 +213,12 @@ do_update() {
     # Copy all bundle files into install dir.
     # User data (settings.json, queue/, logs/, etc.) is not in the bundle
     # so it won't be overwritten.
-    cp -a tinyclaw/. "$SCRIPT_DIR/"
+    cp -a tinysdlc/. "$SCRIPT_DIR/"
 
     # Make scripts executable
     find "$SCRIPT_DIR/bin" "$SCRIPT_DIR/lib" "$SCRIPT_DIR/scripts" \
         -type f \( -name "*.sh" -o -name "tinysdlc" \) -exec chmod +x {} +
-    chmod +x "$SCRIPT_DIR/tinyclaw.sh"
+    chmod +x "$SCRIPT_DIR/tinysdlc.sh"
 
     rm -rf "$temp_dir"
 

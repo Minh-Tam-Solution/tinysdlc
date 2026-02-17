@@ -157,8 +157,8 @@ echo ""
 echo "Workspace name (where agent directories will be stored)?"
 echo -e "${YELLOW}(Creates ~/your-workspace-name/)${NC}"
 echo ""
-read -rp "Workspace name [default: tinyclaw-workspace]: " WORKSPACE_INPUT
-WORKSPACE_NAME=${WORKSPACE_INPUT:-tinyclaw-workspace}
+read -rp "Workspace name [default: tinysdlc-workspace]: " WORKSPACE_INPUT
+WORKSPACE_NAME=${WORKSPACE_INPUT:-tinysdlc-workspace}
 # Clean workspace name
 WORKSPACE_NAME=$(echo "$WORKSPACE_NAME" | tr ' ' '-' | tr -cd 'a-zA-Z0-9_-')
 WORKSPACE_PATH="$HOME/$WORKSPACE_NAME"

@@ -17,11 +17,11 @@ echo ""
 FOUND=false
 
 for INSTALL_DIR in "/usr/local/bin" "$HOME/.local/bin"; do
-    if [ -L "$INSTALL_DIR/tinyclaw" ]; then
+    if [ -L "$INSTALL_DIR/tinysdlc" ]; then
         FOUND=true
-        TARGET="$(readlink "$INSTALL_DIR/tinyclaw")"
+        TARGET="$(readlink "$INSTALL_DIR/tinysdlc")"
 
-        echo -e "Found TinySDLC at: ${YELLOW}$INSTALL_DIR/tinyclaw${NC}"
+        echo -e "Found TinySDLC at: ${YELLOW}$INSTALL_DIR/tinysdlc${NC}"
         echo -e "Points to: ${YELLOW}$TARGET${NC}"
         echo ""
 
@@ -29,8 +29,8 @@ for INSTALL_DIR in "/usr/local/bin" "$HOME/.local/bin"; do
         echo ""
 
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            rm "$INSTALL_DIR/tinyclaw"
-            echo -e "${GREEN}✓ Removed $INSTALL_DIR/tinyclaw${NC}"
+            rm "$INSTALL_DIR/tinysdlc"
+            echo -e "${GREEN}✓ Removed $INSTALL_DIR/tinysdlc${NC}"
         else
             echo "Skipped."
         fi
@@ -42,8 +42,8 @@ if [ "$FOUND" = false ]; then
     echo -e "${YELLOW}No TinySDLC installation found${NC}"
     echo ""
     echo "Checked locations:"
-    echo "  - /usr/local/bin/tinyclaw"
-    echo "  - ~/.local/bin/tinyclaw"
+    echo "  - /usr/local/bin/tinysdlc"
+    echo "  - ~/.local/bin/tinysdlc"
 fi
 
 echo -e "${GREEN}Uninstallation complete${NC}"
