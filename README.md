@@ -324,10 +324,8 @@ See [Troubleshooting Guide](docs/04-build/troubleshooting-guide.md) for more.
 
 ## Credits
 
-This project combines two open-source efforts:
-
-- **[TinyClaw](https://github.com/jlia0/tinyclaw)** by jlia0 — Multi-agent orchestrator foundation
-- **[SDLC Enterprise Framework v6.0.6](https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework)** by Minh-Tam-Solution — AI+Human governance methodology
+- **[TinyClaw](https://github.com/jlia0/tinyclaw)** by jlia0 — Multi-agent orchestrator foundation (MIT)
+- **SDLC Enterprise Framework v6.0.6** by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) — AI+Human governance methodology
 
 ## License
 

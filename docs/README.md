@@ -7,7 +7,7 @@
 
 ## Documentation Structure
 
-This project follows the [SDLC Enterprise Framework v6.0.6](https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework) documentation standard.
+This project follows the SDLC Enterprise Framework v6.0.6 documentation standard.
 
 | Stage | Folder | Purpose | Status |
 |-------|--------|---------|--------|

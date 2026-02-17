@@ -48,7 +48,7 @@ This project follows **SDLC Enterprise Framework v6.0.6** at **LITE tier**.
 
 TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that integrates the SDLC Enterprise Framework v6.0.6 for AI+Human team governance. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, or Ollama) organized into teams with SDLC roles (PM, Architect, Coder, Reviewer, Tester, DevOps). Messages arrive from Discord, WhatsApp, and Telegram through a file-based queue system with atomic operations. Agents collaborate via `[@teammate: message]` tags, enabling chain execution and parallel fan-out within teams.
 
-The project is a fork of [TinyClaw](https://github.com/jlia0/tinyclaw) by jlia0, combined with the [SDLC Framework v6.0.6](https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework) to create a governance-aware agent orchestration platform.
+The project is a fork of [TinyClaw](https://github.com/jlia0/tinyclaw) by jlia0, combined with SDLC Enterprise Framework v6.0.6 by Minh-Tam-Solution to create a governance-aware agent orchestration platform.
 
 **Repository**: [Minh-Tam-Solution/tinysdlc](https://github.com/Minh-Tam-Solution/tinysdlc)
 
