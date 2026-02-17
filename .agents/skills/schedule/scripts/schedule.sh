@@ -28,9 +28,9 @@ PROJECT_ROOT="${TINYCLAW_PROJECT_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
 # Resolve TINYSDLC_HOME (same logic as the TypeScript config)
 if [ -z "$TINYSDLC_HOME" ]; then
     if [ -f "$PROJECT_ROOT/.tinysdlc/settings.json" ]; then
-        TINYSDLC_HOME="$PROJECT_ROOT/.tinyclaw"
+        TINYSDLC_HOME="$PROJECT_ROOT/.tinysdlc"
     else
-        TINYSDLC_HOME="$HOME/.tinyclaw"
+        TINYSDLC_HOME="$HOME/.tinysdlc"
     fi
 fi
 

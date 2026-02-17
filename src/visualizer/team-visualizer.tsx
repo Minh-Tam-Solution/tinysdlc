@@ -19,10 +19,10 @@ import { execSync } from 'child_process';
 // ─── Paths ──────────────────────────────────────────────────────────────────
 const __filename_ = fileURLToPath(import.meta.url);
 const __dirname_ = path.dirname(__filename_);
-const _localTinyclaw = path.join(__dirname_, '..', '..', '.tinyclaw');
-const TINYSDLC_HOME = fs.existsSync(path.join(_localTinyclaw, 'settings.json'))
-    ? _localTinyclaw
-    : path.join(os.homedir(), '.tinyclaw');
+const _localTinysdlc = path.join(__dirname_, '..', '..', '.tinysdlc');
+const TINYSDLC_HOME = fs.existsSync(path.join(_localTinysdlc, 'settings.json'))
+    ? _localTinysdlc
+    : path.join(os.homedir(), '.tinysdlc');
 const EVENTS_DIR = path.join(TINYSDLC_HOME, 'events');
 const SETTINGS_FILE = path.join(TINYSDLC_HOME, 'settings.json');
 

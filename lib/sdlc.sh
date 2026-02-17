@@ -205,7 +205,7 @@ sdlc_reinit() {
             fi
         fi
 
-        mkdir -p "$working_dir/.claude" "$working_dir/.tinyclaw"
+        mkdir -p "$working_dir/.claude" "$working_dir/.tinysdlc"
 
         if [ -f "$template_src" ]; then
             cp "$template_src" "$working_dir/AGENTS.md"

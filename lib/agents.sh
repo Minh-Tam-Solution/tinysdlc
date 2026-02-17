@@ -189,9 +189,9 @@ agent_add() {
     # Create agent directory and copy configuration files
     if [ -z "$TINYSDLC_HOME" ]; then
         if [ -f "$SCRIPT_DIR/.tinysdlc/settings.json" ]; then
-            TINYSDLC_HOME="$SCRIPT_DIR/.tinyclaw"
+            TINYSDLC_HOME="$SCRIPT_DIR/.tinysdlc"
         else
-            TINYSDLC_HOME="$HOME/.tinyclaw"
+            TINYSDLC_HOME="$HOME/.tinysdlc"
         fi
     fi
     mkdir -p "$AGENTS_DIR/$AGENT_ID"
@@ -243,8 +243,8 @@ agent_add() {
         fi
     fi
 
-    # Create .tinyclaw directory and copy SOUL.md
-    mkdir -p "$AGENTS_DIR/$AGENT_ID/.tinyclaw"
+    # Create .tinysdlc directory and copy SOUL.md
+    mkdir -p "$AGENTS_DIR/$AGENT_ID/.tinysdlc"
     if [ -f "$SCRIPT_DIR/SOUL.md" ]; then
         cp "$SCRIPT_DIR/SOUL.md" "$AGENTS_DIR/$AGENT_ID/.tinysdlc/SOUL.md"
         echo "  → Copied SOUL.md to .tinysdlc/"

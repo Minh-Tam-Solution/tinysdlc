@@ -311,8 +311,8 @@ fi
 mkdir -p "$WORKSPACE_PATH"
 echo -e "${GREEN}✓ Created workspace: $WORKSPACE_PATH${NC}"
 
-# Create ~/.tinyclaw with templates
-TINYSDLC_HOME="$HOME/.tinyclaw"
+# Create ~/.tinysdlc with templates
+TINYSDLC_HOME="$HOME/.tinysdlc"
 mkdir -p "$TINYSDLC_HOME"
 mkdir -p "$TINYSDLC_HOME/logs"
 if [ -d "$PROJECT_ROOT/.claude" ]; then
@@ -324,7 +324,7 @@ fi
 if [ -f "$PROJECT_ROOT/AGENTS.md" ]; then
     cp "$PROJECT_ROOT/AGENTS.md" "$TINYSDLC_HOME/"
 fi
-echo -e "${GREEN}✓ Created ~/.tinyclaw with templates${NC}"
+echo -e "${GREEN}✓ Created ~/.tinysdlc with templates${NC}"
 
 # Create default agent directory with config files
 mkdir -p "$DEFAULT_AGENT_DIR"

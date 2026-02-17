@@ -11,13 +11,13 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # TINYSDLC_HOME = data directory (settings, queue, logs, etc.)
-# - Installed CLI sets this to ~/.tinyclaw via bin/tinyclaw
-# - Local dev: detect from local .tinysdlc/ or fall back to ~/.tinyclaw
+# - Installed CLI sets this to ~/.tinysdlc via bin/tinysdlc
+# - Local dev: detect from local .tinysdlc/ or fall back to ~/.tinysdlc
 if [ -z "$TINYSDLC_HOME" ]; then
     if [ -f "$SCRIPT_DIR/.tinysdlc/settings.json" ]; then
-        TINYSDLC_HOME="$SCRIPT_DIR/.tinyclaw"
+        TINYSDLC_HOME="$SCRIPT_DIR/.tinysdlc"
     else
-        TINYSDLC_HOME="$HOME/.tinyclaw"
+        TINYSDLC_HOME="$HOME/.tinysdlc"
     fi
 fi
 

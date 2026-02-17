@@ -73,7 +73,7 @@ echo ""
 # Determine installation directory
 echo -e "${BLUE}[2/6] Choosing installation directory...${NC}"
 
-INSTALL_DIR="$HOME/.tinyclaw"
+INSTALL_DIR="$HOME/.tinysdlc"
 INSTALL_TYPE="user"
 echo -e "Installing to: ${GREEN}$INSTALL_DIR${NC}"
 echo ""

@@ -16,11 +16,11 @@ import http from 'http';
 import { ensureSenderPaired } from '../lib/pairing';
 
 const SCRIPT_DIR = path.resolve(__dirname, '..', '..');
-const _localTinyclaw = path.join(SCRIPT_DIR, '.tinyclaw');
+const _localTinysdlc = path.join(SCRIPT_DIR, '.tinysdlc');
 const TINYSDLC_HOME = process.env.TINYSDLC_HOME
-    || (fs.existsSync(path.join(_localTinyclaw, 'settings.json'))
-        ? _localTinyclaw
-        : path.join(require('os').homedir(), '.tinyclaw'));
+    || (fs.existsSync(path.join(_localTinysdlc, 'settings.json'))
+        ? _localTinysdlc
+        : path.join(require('os').homedir(), '.tinysdlc'));
 const QUEUE_INCOMING = path.join(TINYSDLC_HOME, 'queue/incoming');
 const QUEUE_OUTGOING = path.join(TINYSDLC_HOME, 'queue/outgoing');
 const LOG_FILE = path.join(TINYSDLC_HOME, 'logs/telegram.log');

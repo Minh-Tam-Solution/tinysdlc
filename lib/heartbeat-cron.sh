@@ -5,9 +5,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 if [ -z "$TINYSDLC_HOME" ]; then
     if [ -f "$PROJECT_ROOT/.tinysdlc/settings.json" ]; then
-        TINYSDLC_HOME="$PROJECT_ROOT/.tinyclaw"
+        TINYSDLC_HOME="$PROJECT_ROOT/.tinysdlc"
     else
-        TINYSDLC_HOME="$HOME/.tinyclaw"
+        TINYSDLC_HOME="$HOME/.tinysdlc"
     fi
 fi
 LOG_FILE="$TINYSDLC_HOME/logs/heartbeat.log"

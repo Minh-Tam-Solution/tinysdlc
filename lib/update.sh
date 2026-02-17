@@ -194,7 +194,7 @@ do_update() {
     local backup_dir="$HOME/.tinysdlc/backups/v${current_version}-$(date +%Y%m%d_%H%M%S)"
     mkdir -p "$backup_dir"
 
-    # Backup key files (not .tinyclaw data)
+    # Backup key files (not .tinysdlc data)
     cp -r "$SCRIPT_DIR/bin" "$backup_dir/" 2>/dev/null || true
     cp -r "$SCRIPT_DIR/src" "$backup_dir/" 2>/dev/null || true
     cp -r "$SCRIPT_DIR/dist" "$backup_dir/" 2>/dev/null || true

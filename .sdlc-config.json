@@ -4,7 +4,7 @@
     "id": "tinyclaw-001",
     "name": "TinySDLC",
     "description": "Multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator",
-    "repository": "https://github.com/dttai71/tinyclaw"
+    "repository": "https://github.com/dttai71/tinysdlc"
   },
   "sdlc": {
     "frameworkVersion": "6.0.6",
