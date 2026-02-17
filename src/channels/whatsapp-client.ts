@@ -134,7 +134,7 @@ function getTeamListText(): string {
         const settings = JSON.parse(settingsData);
         const teams = settings.teams;
         if (!teams || Object.keys(teams).length === 0) {
-            return 'No teams configured.\n\nCreate a team with: tinyclaw team add';
+            return 'No teams configured.\n\nCreate a team with: tinysdlc team add';
         }
         let text = '*Available Teams:*\n';
         for (const [id, team] of Object.entries(teams) as [string, any][]) {
@@ -156,7 +156,7 @@ function getAgentListText(): string {
         const settings = JSON.parse(settingsData);
         const agents = settings.agents;
         if (!agents || Object.keys(agents).length === 0) {
-            return 'No agents configured. Using default single-agent mode.\n\nConfigure agents in .tinysdlc/settings.json or run: tinyclaw agent add';
+            return 'No agents configured. Using default single-agent mode.\n\nConfigure agents in .tinysdlc/settings.json or run: tinysdlc agent add';
         }
         let text = '*Available Agents:*\n';
         for (const [id, agent] of Object.entries(agents) as [string, any][]) {
@@ -178,7 +178,7 @@ function pairingMessage(code: string): string {
         'This sender is not paired yet.',
         `Your pairing code: ${code}`,
         'Ask the TinySDLC owner to approve you with:',
-        `tinyclaw pairing approve ${code}`,
+        `tinysdlc pairing approve ${code}`,
     ].join('\n');
 }
 
@@ -209,7 +209,7 @@ client.on('qr', (qr: string) => {
     // Display in tmux pane
     qrcode.generate(qr, { small: true });
 
-    // Save to file for tinyclaw.sh to display (avoids tmux capture distortion)
+    // Save to file for tinysdlc.sh to display (avoids tmux capture distortion)
     const channelsDir = path.join(SCRIPT_DIR, '.tinysdlc/channels');
     if (!fs.existsSync(channelsDir)) {
         fs.mkdirSync(channelsDir, { recursive: true });
@@ -234,7 +234,7 @@ client.on('ready', () => {
     log('INFO', '✓ WhatsApp client connected and ready!');
     log('INFO', 'Listening for messages...');
 
-    // Create ready flag for tinyclaw.sh
+    // Create ready flag for tinysdlc.sh
     const readyFile = path.join(SCRIPT_DIR, '.tinysdlc/channels/whatsapp_ready');
     fs.writeFileSync(readyFile, Date.now().toString());
 });
@@ -330,7 +330,7 @@ client.on('message_create', async (message: Message) => {
                 const settingsData = fs.readFileSync(SETTINGS_FILE, 'utf8');
                 const settings = JSON.parse(settingsData);
                 const agents = settings.agents || {};
-                const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinyclaw-workspace');
+                const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinysdlc-workspace');
                 const resetResults: string[] = [];
                 for (const agentId of agentArgs) {
                     if (!agents[agentId]) {

@@ -75,7 +75,7 @@ export function getDefaultAgentFromModels(settings: Settings): AgentConfig {
     }
 
     // Get workspace path from settings or use default
-    const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinyclaw-workspace');
+    const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinysdlc-workspace');
     const defaultAgentDir = path.join(workspacePath, 'default');
 
     return {

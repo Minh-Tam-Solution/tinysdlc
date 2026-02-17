@@ -252,7 +252,7 @@ async function processMessage(messageFile: string): Promise<void> {
         const teams = getTeams(settings);
 
         // Get workspace path from settings
-        const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinyclaw-workspace');
+        const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinysdlc-workspace');
 
         // Route message to agent (or team)
         let agentId: string;

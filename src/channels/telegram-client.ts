@@ -113,7 +113,7 @@ function getTeamListText(): string {
         const settings = JSON.parse(settingsData);
         const teams = settings.teams;
         if (!teams || Object.keys(teams).length === 0) {
-            return 'No teams configured.\n\nCreate a team with: tinyclaw team add';
+            return 'No teams configured.\n\nCreate a team with: tinysdlc team add';
         }
         let text = 'Available Teams:\n';
         for (const [id, team] of Object.entries(teams) as [string, any][]) {
@@ -135,7 +135,7 @@ function getAgentListText(): string {
         const settings = JSON.parse(settingsData);
         const agents = settings.agents;
         if (!agents || Object.keys(agents).length === 0) {
-            return 'No agents configured. Using default single-agent mode.\n\nConfigure agents in .tinysdlc/settings.json or run: tinyclaw agent add';
+            return 'No agents configured. Using default single-agent mode.\n\nConfigure agents in .tinysdlc/settings.json or run: tinysdlc agent add';
         }
         let text = 'Available Agents:\n';
         for (const [id, agent] of Object.entries(agents) as [string, any][]) {
@@ -274,7 +274,7 @@ function pairingMessage(code: string): string {
         'This sender is not paired yet.',
         `Your pairing code: ${code}`,
         'Ask the TinySDLC owner to approve you with:',
-        `tinyclaw pairing approve ${code}`,
+        `tinysdlc pairing approve ${code}`,
     ].join('\n');
 }
 
@@ -424,7 +424,7 @@ bot.on('message', async (msg: TelegramBot.Message) => {
                 const settingsData = fs.readFileSync(SETTINGS_FILE, 'utf8');
                 const settings = JSON.parse(settingsData);
                 const agents = settings.agents || {};
-                const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinyclaw-workspace');
+                const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinysdlc-workspace');
                 const resetResults: string[] = [];
                 for (const agentId of agentArgs) {
                     if (!agents[agentId]) {

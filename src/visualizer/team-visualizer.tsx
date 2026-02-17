@@ -512,7 +512,7 @@ function App({ filterTeamId }: { filterTeamId: string | null }) {
             {Object.keys(settings.teams).length === 0 ? (
                 <Box flexDirection="column" marginBottom={1}>
                     <Text color="yellow">No teams configured.</Text>
-                    <Text color="gray">Create a team with: tinyclaw team add</Text>
+                    <Text color="gray">Create a team with: tinysdlc team add</Text>
                 </Box>
             ) : (
                 <>
