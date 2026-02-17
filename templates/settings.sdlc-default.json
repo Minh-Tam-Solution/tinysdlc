@@ -1,0 +1,101 @@
+{
+  "_comment": "SDLC Framework v6.0.6 default settings — run 'tinysdlc sdlc init' to apply",
+  "workspace": {
+    "path": "~/tinyclaw-workspace",
+    "name": "my-sdlc-project"
+  },
+  "channels": {
+    "enabled": [],
+    "discord": {
+      "bot_token": ""
+    },
+    "telegram": {
+      "bot_token": ""
+    },
+    "whatsapp": {}
+  },
+  "agents": {
+    "pm": {
+      "name": "Product Manager",
+      "provider": "anthropic",
+      "model": "sonnet",
+      "sdlc_role": "pm",
+      "working_directory": "~/tinyclaw-workspace/pm"
+    },
+    "architect": {
+      "name": "Solution Architect",
+      "provider": "anthropic",
+      "model": "opus",
+      "sdlc_role": "architect",
+      "working_directory": "~/tinyclaw-workspace/architect"
+    },
+    "coder": {
+      "name": "Developer",
+      "provider": "anthropic",
+      "model": "sonnet",
+      "sdlc_role": "coder",
+      "working_directory": "~/tinyclaw-workspace/coder"
+    },
+    "reviewer": {
+      "name": "Code Reviewer",
+      "provider": "anthropic",
+      "model": "opus",
+      "sdlc_role": "reviewer",
+      "working_directory": "~/tinyclaw-workspace/reviewer"
+    },
+    "tester": {
+      "name": "QA Tester",
+      "provider": "anthropic",
+      "model": "sonnet",
+      "sdlc_role": "tester",
+      "working_directory": "~/tinyclaw-workspace/tester"
+    },
+    "devops": {
+      "name": "DevOps Engineer",
+      "provider": "anthropic",
+      "model": "sonnet",
+      "sdlc_role": "devops",
+      "working_directory": "~/tinyclaw-workspace/devops"
+    }
+  },
+  "teams": {
+    "planning": {
+      "name": "Planning Team",
+      "agents": ["pm", "architect"],
+      "leader_agent": "pm",
+      "description": "Foundation & Planning — Stage 00-01 — Gates G0.1, G1"
+    },
+    "dev": {
+      "name": "Development Team",
+      "agents": ["coder", "reviewer"],
+      "leader_agent": "coder",
+      "description": "Build & Review — Stage 04-05 — Sprint Gate"
+    },
+    "qa": {
+      "name": "QA Team",
+      "agents": ["tester", "reviewer"],
+      "leader_agent": "tester",
+      "description": "Quality Assurance — Stage 05 — Gate G3 (required for Ship Ready)"
+    },
+    "fullstack": {
+      "name": "Full Stack Team",
+      "agents": ["pm", "architect", "coder", "reviewer"],
+      "leader_agent": "pm",
+      "description": "End-to-End — all stages — LITE tier for small projects"
+    }
+  },
+  "models": {
+    "provider": "anthropic",
+    "anthropic": {
+      "model": "sonnet"
+    }
+  },
+  "providers": {
+    "ollama": {
+      "url": "http://localhost:11434"
+    }
+  },
+  "monitoring": {
+    "heartbeat_interval": 3600
+  }
+}

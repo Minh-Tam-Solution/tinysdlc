@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "id": "tinyclaw-001",
+    "name": "TinySDLC",
+    "description": "Multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator",
+    "repository": "https://github.com/dttai71/tinyclaw"
+  },
+  "sdlc": {
+    "frameworkVersion": "6.0.6",
+    "tier": "LITE",
+    "stages": {
+      "00-foundation": "docs/00-foundation",
+      "01-planning": "docs/01-planning",
+      "02-design": "docs/02-design",
+      "03-integrate": "docs/03-integrate",
+      "04-build": "docs/04-build"
+    }
+  },
+  "gates": {
+    "current": "G0.1",
+    "passed": []
+  },
+  "validation": {
+    "fail_on_error": false,
+    "fail_on_warning": false,
+    "required_score": 60
+  },
+  "ignore": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/dist/**",
+    "**/.tinyclaw/**"
+  ]
+}

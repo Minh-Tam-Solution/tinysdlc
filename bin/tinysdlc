@@ -1,0 +1,26 @@
+#!/bin/bash
+# TinySDLC CLI Wrapper
+# This wrapper allows tinysdlc to be run from any directory
+
+# Resolve the real installation directory (follow symlinks)
+TINYSDLC_BIN="$0"
+
+# Follow symlinks to find the real script location
+while [ -L "$TINYSDLC_BIN" ]; do
+    TINYSDLC_DIR="$(cd "$(dirname "$TINYSDLC_BIN")" && pwd)"
+    TINYSDLC_BIN="$(readlink "$TINYSDLC_BIN")"
+    # Handle relative symlinks
+    [[ "$TINYSDLC_BIN" != /* ]] && TINYSDLC_BIN="$TINYSDLC_DIR/$TINYSDLC_BIN"
+done
+
+# Get the directory where this wrapper is located
+TINYSDLC_DIR="$(cd "$(dirname "$TINYSDLC_BIN")" && pwd)"
+
+# The actual installation is one directory up from bin/
+REPO_ROOT="$(dirname "$TINYSDLC_DIR")"
+
+# Installed CLI always uses ~/.tinysdlc for data
+export TINYSDLC_HOME="$HOME/.tinysdlc"
+
+# Execute the main script with all arguments
+exec "$REPO_ROOT/tinysdlc.sh" "$@"

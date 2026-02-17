@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# TypeScript build output
+dist/
+
+# TinyClaw runtime files
+.tinyclaw
+
+.wwebjs_cache
+*.log
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# SDLC Framework reference (local symlink)
+.sdlc-framework
+
+# Local Claude settings (may contain API keys)
+.claude/settings.local.json
