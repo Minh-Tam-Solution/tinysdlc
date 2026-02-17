@@ -241,7 +241,7 @@ start_daemon() {
 
     echo ""
     echo -e "${GREEN}Commands:${NC}"
-    echo "  Status:  tinyclaw status"
+    echo "  Status:  tinysdlc status"
     echo "  Logs:    tinysdlc logs [$channel_names|queue]"
     echo "  Attach:  tmux attach -t $TMUX_SESSION"
     echo ""
@@ -279,7 +279,7 @@ restart_daemon() {
             local bash_bin
             bash_bin=$(command -v bash)
             log "Restart requested from inside tmux session; scheduling detached restart..."
-            nohup "$bash_bin" "$SCRIPT_DIR/tinyclaw.sh" __delayed_start >/dev/null 2>&1 &
+            nohup "$bash_bin" "$SCRIPT_DIR/tinysdlc.sh" __delayed_start >/dev/null 2>&1 &
             stop_daemon
             return
         fi
