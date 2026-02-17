@@ -1,4 +1,4 @@
-# Sprint Plan: SDLC Framework v6.0.6 Support
+# TinySDLC - Sprint Plan: SDLC Framework v6.0.6 Support
 
 **SDLC Version**: 6.0.6
 **Stage**: 01 - PLANNING
@@ -97,7 +97,7 @@ Make TinySDLC SDLC Framework v6.0.6 ready out of the box. Any user who understan
 | Task | Command | Acceptance |
 |------|---------|------------|
 | TypeScript compile | `npm run build` | 0 errors |
-| Restart services | `./tinyclaw.sh restart` | All panes running |
+| Restart services | `./tinysdlc.sh restart` | All panes running |
 | Verify SDLC init | `tinysdlc sdlc init` | Agents created |
 | Verify roles listing | `tinysdlc sdlc roles` | Table displayed |
 | End-to-end test | `@planning define X` via Telegram | pm responds |
@@ -108,7 +108,7 @@ Make TinySDLC SDLC Framework v6.0.6 ready out of the box. Any user who understan
 ## Definition of Done
 
 - [ ] `npm run build` passes with 0 TypeScript errors
-- [ ] `tinysdlc sdlc init` creates all 6 SDLC agents + 4 teams in `~/.tinyclaw/settings.json`
+- [ ] `tinysdlc sdlc init` creates all 6 SDLC agents + 4 teams in `~/.tinysdlc/settings.json`
 - [ ] New agent with `sdlc_role: 'pm'` gets role-specific AGENTS.md in its workspace
 - [ ] Ollama agent responds when `provider: 'ollama'` and `OLLAMA_URL` is set
 - [ ] All 4 documentation files created with SDLC headers

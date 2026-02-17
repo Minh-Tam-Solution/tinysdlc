@@ -1,4 +1,4 @@
-# Troubleshooting Guide
+# TinySDLC - Troubleshooting Guide
 
 **SDLC Version**: 6.0.6
 **Stage**: 04 - BUILD
@@ -48,11 +48,11 @@ PUPPETEER_SKIP_DOWNLOAD=true npm install
 
 ```bash
 # Check logs
-tinyclaw logs whatsapp
+tinysdlc logs whatsapp
 
 # Reset WhatsApp authentication
-tinyclaw channels reset whatsapp
-tinyclaw restart
+tinysdlc channels reset whatsapp
+tinysdlc restart
 ```
 
 **Common causes:**
@@ -61,15 +61,15 @@ tinyclaw restart
 - Multiple WhatsApp Web sessions active
 
 **Solution:**
-1. Delete session: `rm -rf .tinyclaw/whatsapp-session/`
-2. Restart: `tinyclaw restart`
+1. Delete session: `rm -rf .tinysdlc/whatsapp-session/`
+2. Restart: `tinysdlc restart`
 3. Scan new QR code immediately
 
 ### Discord bot not responding
 
 ```bash
 # Check logs
-tinyclaw logs discord
+tinysdlc logs discord
 
 # Update Discord bot token
 tinysdlc setup
@@ -85,7 +85,7 @@ tinysdlc setup
 
 ```bash
 # Check logs
-tinyclaw logs telegram
+tinysdlc logs telegram
 
 # Update Telegram bot token
 tinysdlc setup
@@ -100,13 +100,13 @@ tinysdlc setup
 
 ```bash
 # Attach to tmux to see the QR code
-tmux attach -t tinyclaw
+tmux attach -t tinysdlc
 ```
 
 The QR code appears in the WhatsApp pane. If it's not visible:
-1. Check if WhatsApp is enabled: `cat .tinyclaw/settings.json | jq '.channels.enabled'`
+1. Check if WhatsApp is enabled: `cat .tinysdlc/settings.json | jq '.channels.enabled'`
 2. Check WhatsApp process: `pgrep -f whatsapp-client.ts`
-3. View logs: `tail -f .tinyclaw/logs/whatsapp.log`
+3. View logs: `tail -f .tinysdlc/logs/whatsapp.log`
 
 ## Queue Issues
 
@@ -114,19 +114,19 @@ The QR code appears in the WhatsApp pane. If it's not visible:
 
 ```bash
 # Check queue processor status
-tinyclaw status
+tinysdlc status
 
 # Check incoming queue
-ls -la .tinyclaw/queue/incoming/
+ls -la .tinysdlc/queue/incoming/
 
 # View queue logs
-tinyclaw logs queue
+tinysdlc logs queue
 ```
 
 **Checklist:**
 - ✅ Queue processor is running
 - ✅ Claude Code CLI is installed: `claude --version`
-- ✅ Messages aren't stuck in processing: `ls .tinyclaw/queue/processing/`
+- ✅ Messages aren't stuck in processing: `ls .tinysdlc/queue/processing/`
 
 ### Messages stuck in processing
 
@@ -134,22 +134,22 @@ This happens when the queue processor crashes mid-message:
 
 ```bash
 # Clear stuck messages
-rm -rf .tinyclaw/queue/processing/*
+rm -rf .tinysdlc/queue/processing/*
 
 # Restart TinySDLC
-tinyclaw restart
+tinysdlc restart
 ```
 
 ### Responses not being sent
 
 ```bash
 # Check outgoing queue
-ls -la .tinyclaw/queue/outgoing/
+ls -la .tinysdlc/queue/outgoing/
 
 # Check channel client logs
-tinyclaw logs discord
-tinyclaw logs telegram
-tinyclaw logs whatsapp
+tinysdlc logs discord
+tinysdlc logs telegram
+tinysdlc logs whatsapp
 ```
 
 ## Agent Issues
@@ -165,12 +165,12 @@ If you see "Agent 'xyz' not found":
 
 2. Verify agent ID is lowercase and matches exactly:
    ```bash
-   cat .tinyclaw/settings.json | jq '.agents'
+   cat .tinysdlc/settings.json | jq '.agents'
    ```
 
 3. Check settings file is valid JSON:
    ```bash
-   cat .tinyclaw/settings.json | jq
+   cat .tinysdlc/settings.json | jq
    ```
 
 ### Wrong agent responding
@@ -189,7 +189,7 @@ If messages go to the wrong agent:
 
 3. **Check logs:**
    ```bash
-   tail -f .tinyclaw/logs/queue.log | grep "Routing"
+   tail -f .tinysdlc/logs/queue.log | grep "Routing"
    ```
 
 ### Conversation not resetting
@@ -198,7 +198,7 @@ If `@agent /reset` doesn't work:
 
 1. Check reset flag exists:
    ```bash
-   ls ~/tinyclaw-workspace/{agent_id}/reset_flag
+   ls ~/tinysdlc-workspace/{agent_id}/reset_flag
    ```
 
 2. Send a new message to trigger reset (flag is checked before each message)
@@ -235,22 +235,22 @@ If agents aren't being created:
 
 1. Check workspace path:
    ```bash
-   cat .tinyclaw/settings.json | jq '.workspace.path'
+   cat .tinysdlc/settings.json | jq '.workspace.path'
    ```
 
 2. Verify workspace exists:
    ```bash
-   ls ~/tinyclaw-workspace/
+   ls ~/tinysdlc-workspace/
    ```
 
 3. Check permissions:
    ```bash
-   ls -la ~/tinyclaw-workspace/
+   ls -la ~/tinysdlc-workspace/
    ```
 
 4. Manually create if needed:
    ```bash
-   mkdir -p ~/tinyclaw-workspace
+   mkdir -p ~/tinysdlc-workspace
    ```
 
 ### Templates not copying
@@ -259,7 +259,7 @@ If new agents don't have `.claude/`, `heartbeat.md`, or `AGENTS.md`:
 
 1. Check templates exist:
    ```bash
-   ls -la ~/.tinyclaw/{.claude,heartbeat.md,AGENTS.md}
+   ls -la ~/.tinysdlc/{.claude,heartbeat.md,AGENTS.md}
    ```
 
 2. Run setup to create templates:
@@ -269,9 +269,9 @@ If new agents don't have `.claude/`, `heartbeat.md`, or `AGENTS.md`:
 
 3. Manually copy if needed:
    ```bash
-   cp -r .claude ~/.tinyclaw/
-   cp heartbeat.md ~/.tinyclaw/
-   cp AGENTS.md ~/.tinyclaw/
+   cp -r .claude ~/.tinysdlc/
+   cp heartbeat.md ~/.tinysdlc/
+   cp AGENTS.md ~/.tinysdlc/
    ```
 
 ## Update Issues
@@ -301,23 +301,23 @@ If you see "Could not fetch latest version":
 If bundle download fails during update:
 
 1. **Check release exists:**
-   - Visit: https://github.com/jlia0/tinyclaw/releases
+   - Visit: https://github.com/Minh-Tam-Solution/tinysdlc/releases
    - Verify bundle file is attached
 
 2. **Manual update:**
    ```bash
    # Download bundle manually
-   wget https://github.com/jlia0/tinyclaw/releases/latest/download/tinyclaw-bundle.tar.gz
+   wget https://github.com/Minh-Tam-Solution/tinysdlc/releases/latest/download/tinysdlc-bundle.tar.gz
 
    # Extract to temp directory
    mkdir temp-update
-   tar -xzf tinyclaw-bundle.tar.gz -C temp-update
+   tar -xzf tinysdlc-bundle.tar.gz -C temp-update
 
    # Backup current installation
-   cp -r ~/tinyclaw ~/.tinyclaw/backups/manual-backup-$(date +%Y%m%d)
+   cp -r ~/tinysdlc ~/.tinysdlc/backups/manual-backup-$(date +%Y%m%d)
 
    # Replace files
-   cp -r temp-update/tinyclaw/* ~/tinyclaw/
+   cp -r temp-update/tinysdlc/* ~/tinysdlc/
    ```
 
 ### Rollback after failed update
@@ -326,14 +326,14 @@ If update breaks TinySDLC:
 
 ```bash
 # Find your backup
-ls ~/.tinyclaw/backups/
+ls ~/.tinysdlc/backups/
 
 # Restore from backup
-BACKUP_DIR=$(ls -t ~/.tinyclaw/backups/ | head -1)
-cp -r ~/.tinyclaw/backups/$BACKUP_DIR/* $HOME/tinyclaw/
+BACKUP_DIR=$(ls -t ~/.tinysdlc/backups/ | head -1)
+cp -r ~/.tinysdlc/backups/$BACKUP_DIR/* $HOME/tinysdlc/
 
 # Restart
-tinyclaw restart
+tinysdlc restart
 ```
 
 ## Performance Issues
@@ -352,7 +352,7 @@ top -o cpu | grep -E 'claude|codex|node'
 
 **Solutions:**
 - Wait for current task to complete
-- Restart: `tinyclaw restart`
+- Restart: `tinysdlc restart`
 - Reduce heartbeat frequency in settings
 
 ### High memory usage
@@ -363,25 +363,25 @@ ps aux | grep -E 'claude|codex|node' | awk '{print $4, $11}'
 ```
 
 **Solutions:**
-- Restart TinySDLC: `tinyclaw restart`
-- Reset conversations: `tinyclaw reset`
-- Clear old sessions: `rm -rf .tinyclaw/whatsapp-session/.wwebjs_*`
+- Restart TinySDLC: `tinysdlc restart`
+- Reset conversations: `tinysdlc reset`
+- Clear old sessions: `rm -rf .tinysdlc/whatsapp-session/.wwebjs_*`
 
 ### Slow message responses
 
 1. **Check queue depth:**
    ```bash
-   ls .tinyclaw/queue/incoming/ | wc -l
+   ls .tinysdlc/queue/incoming/ | wc -l
    ```
 
 2. **Check processing queue:**
    ```bash
-   ls .tinyclaw/queue/processing/
+   ls .tinysdlc/queue/processing/
    ```
 
 3. **Monitor AI response time:**
    ```bash
-   tail -f .tinyclaw/logs/queue.log | grep "Processing completed"
+   tail -f .tinysdlc/logs/queue.log | grep "Processing completed"
    ```
 
 ## Log Analysis
@@ -390,55 +390,55 @@ ps aux | grep -E 'claude|codex|node' | awk '{print $4, $11}'
 
 ```bash
 # Set log level (in queue-processor.ts or channel clients)
-export DEBUG=tinyclaw:*
+export DEBUG=tinysdlc:*
 
 # Restart with debug logs
-tinyclaw restart
+tinysdlc restart
 ```
 
 ### Useful log patterns
 
 **Find errors:**
 ```bash
-grep -i error .tinyclaw/logs/*.log
+grep -i error .tinysdlc/logs/*.log
 ```
 
 **Track message routing:**
 ```bash
-grep "Routing" .tinyclaw/logs/queue.log
+grep "Routing" .tinysdlc/logs/queue.log
 ```
 
 **Monitor agent activity:**
 ```bash
-tail -f .tinyclaw/logs/queue.log | grep "agent:"
+tail -f .tinysdlc/logs/queue.log | grep "agent:"
 ```
 
 **Check heartbeat timing:**
 ```bash
-grep "Heartbeat" .tinyclaw/logs/heartbeat.log
+grep "Heartbeat" .tinysdlc/logs/heartbeat.log
 ```
 
 ## Still Having Issues?
 
 1. **Check status:**
    ```bash
-   tinyclaw status
+   tinysdlc status
    ```
 
 2. **View all logs:**
    ```bash
-   tinyclaw logs all
+   tinysdlc logs all
    ```
 
 3. **Restart from scratch:**
    ```bash
-   tinyclaw stop
-   rm -rf .tinyclaw/queue/*
+   tinysdlc stop
+   rm -rf .tinysdlc/queue/*
    tinysdlc start
    ```
 
 4. **Report issue:**
-   - GitHub Issues: https://github.com/jlia0/tinyclaw/issues
+   - GitHub Issues: https://github.com/Minh-Tam-Solution/tinysdlc/issues
    - Include logs and error messages
    - Describe steps to reproduce
 
@@ -448,20 +448,20 @@ Quick reference for common recovery scenarios:
 
 ```bash
 # Full reset (preserves settings)
-tinyclaw stop
-rm -rf .tinyclaw/queue/*
-rm -rf .tinyclaw/channels/*
-rm -rf .tinyclaw/whatsapp-session/*
+tinysdlc stop
+rm -rf .tinysdlc/queue/*
+rm -rf .tinysdlc/channels/*
+rm -rf .tinysdlc/whatsapp-session/*
 tinysdlc start
 
 # Complete reinstall
-cd ~/tinyclaw
+cd ~/tinysdlc
 ./scripts/uninstall.sh
 cd ..
-rm -rf tinyclaw
-curl -fsSL https://raw.githubusercontent.com/jlia0/tinyclaw/main/scripts/remote-install.sh | bash
+rm -rf tinysdlc
+curl -fsSL https://raw.githubusercontent.com/Minh-Tam-Solution/tinysdlc/main/scripts/remote-install.sh | bash
 
 # Reset single agent
 tinysdlc agent reset coder
-tinyclaw restart
+tinysdlc restart
 ```

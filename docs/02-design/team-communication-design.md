@@ -1,4 +1,4 @@
-# Team Communication Design
+# TinySDLC - Team Communication Design
 
 **SDLC Version**: 6.0.6
 **Stage**: 02 - DESIGN
@@ -54,7 +54,7 @@ Even when messaging an agent directly (e.g., `@coder fix this`), team context is
 
 ## Configuration
 
-Teams are stored in `~/.tinyclaw/settings.json`:
+Teams are stored in `~/.tinysdlc/settings.json`:
 
 ```json
 {
@@ -110,14 +110,14 @@ See [Message Pattern Architecture](message-pattern-architecture.md) for detailed
 
 ## Chat History
 
-Team conversations are saved to `~/.tinyclaw/chats/{team_id}/` as timestamped Markdown files.
+Team conversations are saved to `~/.tinysdlc/chats/{team_id}/` as timestamped Markdown files.
 
 Each file contains:
 - Team name and metadata (date, channel, sender, message count)
 - The original user message
 - Each agent's response with agent name
 
-Example file (`~/.tinyclaw/chats/dev/2026-02-13_14-30-00.md`):
+Example file (`~/.tinysdlc/chats/dev/2026-02-13_14-30-00.md`):
 
 ```markdown
 # Team Conversation: Development Team (@dev)
@@ -182,7 +182,7 @@ tinysdlc team visualize [id]    # Live TUI dashboard
 
 ## Events
 
-Team conversations emit events to `~/.tinyclaw/events/` for the visualizer and external tooling:
+Team conversations emit events to `~/.tinysdlc/events/` for the visualizer and external tooling:
 
 | Event | Description |
 |-------|-------------|
@@ -202,7 +202,7 @@ tinysdlc agent add    # Create "reviewer" agent
 tinysdlc team add     # Interactive: name "dev", agents [coder, reviewer], leader: coder
 
 # 3. Send a message
-tinyclaw send "@dev fix the auth bug"
+tinysdlc send "@dev fix the auth bug"
 
 # 4. Watch it work
 tinysdlc team visualize dev

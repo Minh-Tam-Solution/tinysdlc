@@ -1,4 +1,4 @@
-# Message Pattern Architecture
+# TinySDLC - Message Pattern Architecture
 
 **SDLC Version**: 6.0.6
 **Stage**: 02 - DESIGN
@@ -164,7 +164,7 @@ A conversation completes when `pending === 0` — all branches have resolved and
 
 On completion:
 1. All responses are aggregated (single response: as-is, multiple: joined with `@agent: response` format)
-2. Chat history is saved to `~/.tinyclaw/chats/{team_id}/{timestamp}.md`
+2. Chat history is saved to `~/.tinysdlc/chats/{team_id}/{timestamp}.md`
 3. The aggregated response is written to `QUEUE_OUTGOING` for the user's channel
 4. The conversation is cleaned up from memory
 

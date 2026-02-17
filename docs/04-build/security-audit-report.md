@@ -1,14 +1,9 @@
-# Security Audit Report — TinySDLC
+# TinySDLC - Security Audit Report
 
-<!-- SDLC Header -->
-| Field | Value |
-|-------|-------|
-| SDLC Version | 6.0.6 |
-| Stage | 04-Build |
-| Status | REVIEWED — fixes applied |
-| Authority | SE4H approval required before production deploy |
-| Date | 2026-02-16 |
-| Auditor | Security Review (Claude Code) |
+**SDLC Version**: 6.0.6
+**Stage**: 04 - BUILD
+**Status**: Active
+**Authority**: CTO Approved
 
 ---
 
@@ -99,11 +94,11 @@ validation, the system would read and forward any readable file to the user.
 
 **Status: FIXED**
 `collectFiles()` now resolves paths with `path.resolve()` and checks that the result starts
-with `FILES_DIR` (`~/.tinyclaw/files/`). Any path outside this boundary is rejected:
+with `FILES_DIR` (`~/.tinysdlc/files/`). Any path outside this boundary is rejected:
 ```
 [WARN] [SEC] send_file blocked — path outside FILES_DIR: /etc/passwd
 ```
-Agents must place files in `~/.tinyclaw/files/` to send them — consistent with the
+Agents must place files in `~/.tinysdlc/files/` to send them — consistent with the
 documented API in AGENTS.md.
 
 ---
@@ -121,7 +116,7 @@ to an internal network service.
 to external users. Exploitable only by a compromised local account.
 
 **Mitigation (accepted):** URL is admin-configured, not user-controlled. Document in
-operational runbook: do not expose `~/.tinyclaw/` to untrusted users or processes.
+operational runbook: do not expose `~/.tinysdlc/` to untrusted users or processes.
 
 **Recommended future hardening:** Add URL allowlist validation rejecting RFC-1918 ranges
 (192.168.x.x, 10.x.x.x, 172.16-31.x.x, 169.254.x.x) unless explicitly enabled.
@@ -150,7 +145,7 @@ The 50-message `maxMessages` limit prevents loop amplification.
 **Description:** Queue files are stat'd then renamed. A concurrent attacker or process could
 swap/delete a file between these operations.
 
-**Risk assessment:** The queue directory (`~/.tinyclaw/queue/`) is accessible only to the
+**Risk assessment:** The queue directory (`~/.tinysdlc/queue/`) is accessible only to the
 local user. External attackers cannot reach the queue directly. The risk applies only to
 local multi-process scenarios (running multiple TinySDLC instances).
 
@@ -281,13 +276,13 @@ provide a practical ceiling.
 
 Before go-live, the operator (SE4H) must verify:
 
-- [ ] `~/.tinyclaw/` directory has permissions `700` (owner-only)
+- [ ] `~/.tinysdlc/` directory has permissions `700` (owner-only)
 - [ ] `.env` file has permissions `600` (auto-set by daemon.sh after this fix)
 - [ ] `settings.json` does not contain any path with `..` segments
 - [ ] Only trusted users are in the approved pairing list
 - [ ] Telegram bot has been configured to receive messages only from allowed users (BotFather > allow group? = NO)
 - [ ] Ollama URL (if set) points to a trusted internal endpoint only
-- [ ] Log directory (`~/.tinyclaw/logs/`) has permissions `700`
+- [ ] Log directory (`~/.tinysdlc/logs/`) has permissions `700`
 - [ ] If running on a shared system: set `umask 077` before starting TinySDLC
 
 ---

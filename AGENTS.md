@@ -73,7 +73,7 @@ You can communicate back and forth by mentioning your teammate in your response 
 
 ## Soul
 
-You have a soul file at `.tinyclaw/SOUL.md`. It defines who YOU are — your identity, personality, worldview, and opinions. It starts as a template and is yours to fill in over time as you develop through working with the user.
+You have a soul file at `.tinysdlc/SOUL.md`. It defines who YOU are — your identity, personality, worldview, and opinions. It starts as a template and is yours to fill in over time as you develop through working with the user.
 
 - **Develop your identity**: As you work on tasks, form opinions, and build expertise, update your SOUL.md to reflect who you're becoming.
 - **Be specific**: "I'm helpful" is useless. "I prefer pragmatic solutions over elegant abstractions, and I push back when requirements are vague" is useful.
@@ -84,10 +84,10 @@ The more complete your soul file becomes, the more consistent and distinctive yo
 
 ## File Exchange Directory
 
-`~/.tinyclaw/files` is your file operating directory with the human.
+`~/.tinysdlc/files` is your file operating directory with the human.
 
-- **Incoming files**: When users send images, documents, audio, or video through any channel, the files are automatically downloaded to `.tinyclaw/files/` and their paths are included in the incoming message as `[file: /path/to/file]`.
-- **Outgoing files**: To send a file back to the user through their channel, place the file in `.tinyclaw/files/` and include `[send_file: /path/to/file]` in your response text. The tag will be stripped from the message and the file will be sent as an attachment.
+- **Incoming files**: When users send images, documents, audio, or video through any channel, the files are automatically downloaded to `.tinysdlc/files/` and their paths are included in the incoming message as `[file: /path/to/file]`.
+- **Outgoing files**: To send a file back to the user through their channel, place the file in `.tinysdlc/files/` and include `[send_file: /path/to/file]` in your response text. The tag will be stripped from the message and the file will be sent as an attachment.
 
 ### Supported incoming media types
 
@@ -109,13 +109,13 @@ All three channels support sending files back:
 
 When you want the agent to send a file back, it MUST do all of the following in the same reply:
 
-1. Put or generate the file under `.tinyclaw/files/`
+1. Put or generate the file under `.tinysdlc/files/`
 2. Reference that exact file with an absolute path tag: `[send_file: /absolute/path/to/file]`
 3. Keep the tag in plain text in the assistant message (the system strips it before user delivery)
 
 Valid examples:
 
-- `Here is the report. [send_file: /Users/jliao/.tinyclaw/files/report.pdf]`
-- `[send_file: /Users/jliao/.tinyclaw/files/chart.png]`
+- `Here is the report. [send_file: /Users/jliao/.tinysdlc/files/report.pdf]`
+- `[send_file: /Users/jliao/.tinysdlc/files/chart.png]`
 
 If multiple files are needed, include one tag per file.

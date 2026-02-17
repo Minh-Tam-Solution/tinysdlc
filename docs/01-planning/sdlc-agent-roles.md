@@ -1,4 +1,4 @@
-# SDLC Agent Roles Reference
+# TinySDLC - SDLC Agent Roles Reference
 
 **SDLC Version**: 6.0.6
 **Stage**: 01 - PLANNING
@@ -221,7 +221,7 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
       "provider": "anthropic",
       "model": "sonnet",
       "sdlc_role": "pm",
-      "working_directory": "~/tinyclaw-workspace/pm"
+      "working_directory": "~/tinysdlc-workspace/pm"
     }
   }
 }

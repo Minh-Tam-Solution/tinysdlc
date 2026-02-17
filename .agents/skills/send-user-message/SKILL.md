@@ -45,7 +45,7 @@ With file attachments:
   --sender-id 123456 \
   --sender "Alice" \
   --message "Here's the report you requested." \
-  --files "/Users/you/.tinyclaw/files/report.pdf,/Users/you/.tinyclaw/files/chart.png"
+  --files "/Users/you/.tinysdlc/files/report.pdf,/Users/you/.tinysdlc/files/chart.png"
 ```
 
 Parameters:
@@ -68,6 +68,6 @@ When there are multiple approved pairings and you need to decide who to message:
 
 ## Notes
 
-- The outgoing queue path is resolved automatically (checks local `.tinyclaw/` first, then `~/.tinyclaw/`)
+- The outgoing queue path is resolved automatically (checks local `.tinysdlc/` first, then `~/.tinysdlc/`)
 - Messages include a `senderId` field so channel clients can route agent-initiated messages to the correct user
 - For heartbeat-context messages, set `--agent` to identify which agent is sending

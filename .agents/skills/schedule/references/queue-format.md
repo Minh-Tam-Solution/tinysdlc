@@ -1,6 +1,6 @@
-# Tinyclaw Queue Message Format
+# TinySDLC Queue Message Format
 
-Scheduled tasks deliver messages by writing JSON files to the incoming queue directory (`~/.tinyclaw/queue/incoming/` or `<project>/.tinyclaw/queue/incoming/`).
+Scheduled tasks deliver messages by writing JSON files to the incoming queue directory (`~/.tinysdlc/queue/incoming/` or `<project>/.tinysdlc/queue/incoming/`).
 
 ## Message JSON schema
 
@@ -8,7 +8,7 @@ Scheduled tasks deliver messages by writing JSON files to the incoming queue dir
 {
   "channel": "schedule",
   "sender": "Scheduler",
-  "senderId": "tinyclaw-schedule:<label>",
+  "senderId": "tinysdlc-schedule:<label>",
   "message": "@<agent_id> <task context>",
   "timestamp": 1707739200000,
   "messageId": "<label>_<unix_ts>_<pid>"
@@ -21,7 +21,7 @@ Scheduled tasks deliver messages by writing JSON files to the incoming queue dir
 |-------------|--------|-------------|
 | `channel`   | string | Origin channel. Scheduled tasks use `"schedule"` by default. |
 | `sender`    | string | Display name. Default `"Scheduler"`. |
-| `senderId`  | string | Unique sender ID. Format: `tinyclaw-schedule:<label>`. |
+| `senderId`  | string | Unique sender ID. Format: `tinysdlc-schedule:<label>`. |
 | `message`   | string | Must start with `@agent_id` for routing, followed by the task context. |
 | `timestamp` | number | Unix epoch in milliseconds. |
 | `messageId` | string | Unique message ID for deduplication and response matching. |

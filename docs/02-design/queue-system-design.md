@@ -1,4 +1,4 @@
-# Queue System Design
+# TinySDLC - Queue System Design
 
 **SDLC Version**: 6.0.6
 **Stage**: 02 - DESIGN
@@ -27,7 +27,7 @@ The queue system acts as a central coordinator between:
                      │ Write message.json
                      ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                   ~/.tinyclaw/queue/                         │
+│                   ~/.tinysdlc/queue/                         │
 │                                                              │
 │  incoming/          processing/         outgoing/           │
 │  ├─ msg1.json  →   ├─ msg1.json   →   ├─ msg1.json        │
@@ -56,7 +56,7 @@ The queue system acts as a central coordinator between:
 ## Directory Structure
 
 ```
-~/.tinyclaw/
+~/.tinysdlc/
 ├── queue/
 │   ├── incoming/          # New messages from channels
 │   │   ├── msg_123456.json
@@ -308,8 +308,8 @@ This prevents confusion and teases the upcoming feature!
 Creates `<workspace>/<agent_id>/reset_flag`:
 
 ```bash
-tinyclaw reset coder
-tinyclaw reset coder researcher    # reset multiple agents
+tinysdlc reset coder
+tinysdlc reset coder researcher    # reset multiple agents
 tinysdlc agent reset coder
 # Or in chat:
 /reset @coder
@@ -335,11 +335,11 @@ if (agentReset) {
 
 ### Uploading Files
 
-Channels download files to `~/.tinyclaw/files/`:
+Channels download files to `~/.tinysdlc/files/`:
 
 ```
 User uploads: image.png
-→ Saved as: ~/.tinyclaw/files/telegram_123_image.png
+→ Saved as: ~/.tinysdlc/files/telegram_123_image.png
 → Message includes: [file: /absolute/path/to/image.png]
 ```
 
@@ -420,33 +420,33 @@ Orphaned files in `processing/` (from crash mid-process):
 
 ```bash
 # See pending messages
-ls ~/.tinyclaw/queue/incoming/
+ls ~/.tinysdlc/queue/incoming/
 
 # See processing
-ls ~/.tinyclaw/queue/processing/
+ls ~/.tinysdlc/queue/processing/
 
 # See responses waiting
-ls ~/.tinyclaw/queue/outgoing/
+ls ~/.tinysdlc/queue/outgoing/
 
 # Watch queue logs
-tail -f ~/.tinyclaw/logs/queue.log
+tail -f ~/.tinysdlc/logs/queue.log
 ```
 
 ### Common Issues
 
 **Messages stuck in incoming:**
 - Queue processor not running
-- Check: `tinyclaw status`
+- Check: `tinysdlc status`
 
 **Messages stuck in processing:**
 - AI CLI crashed or hung
-- Manual cleanup: `rm ~/.tinyclaw/queue/processing/*`
-- Restart: `tinyclaw restart`
+- Manual cleanup: `rm ~/.tinysdlc/queue/processing/*`
+- Restart: `tinysdlc restart`
 
 **No responses generated:**
 - Check agent routing (wrong @agent_id?)
 - Check AI CLI is installed (claude/codex)
-- Check logs: `tail -f ~/.tinyclaw/logs/queue.log`
+- Check logs: `tail -f ~/.tinysdlc/logs/queue.log`
 
 **Agents not processing in parallel:**
 - Check TypeScript build: `npm run build`

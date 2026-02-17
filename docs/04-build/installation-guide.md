@@ -1,4 +1,4 @@
-# Installation Guide
+# TinySDLC - Installation Guide
 
 **SDLC Version**: 6.0.6
 **Stage**: 04 - BUILD
@@ -14,14 +14,14 @@
 The fastest way to install TinySDLC:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jlia0/tinyclaw/main/scripts/remote-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Minh-Tam-Solution/tinysdlc/main/scripts/remote-install.sh | bash
 ```
 
 This one-line command:
 - ✅ Checks all dependencies (node, npm, tmux, claude)
 - ✅ Downloads pre-built bundle (no npm install needed!)
-- ✅ Installs to `~/.tinyclaw`
-- ✅ Creates global `tinyclaw` command
+- ✅ Installs to `~/.tinysdlc`
+- ✅ Creates global `tinysdlc` command
 - ✅ Falls back to source install if no bundle available
 
 **After installation:**
@@ -48,18 +48,18 @@ Before installing, ensure you have:
 Best for most users. Downloads and installs everything automatically:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jlia0/tinyclaw/main/scripts/remote-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Minh-Tam-Solution/tinysdlc/main/scripts/remote-install.sh | bash
 ```
 
 **What it does:**
 1. Checks dependencies
 2. Downloads latest bundle from GitHub Releases
 3. Extracts to install directory
-4. Creates `tinyclaw` command in PATH
+4. Creates `tinysdlc` command in PATH
 5. Ready to use!
 
 **Install location:**
-- `~/.tinyclaw` (user directory)
+- `~/.tinysdlc` (user directory)
 
 ### Option 2: Manual Bundle Install
 
@@ -67,11 +67,11 @@ Download the pre-built bundle manually:
 
 ```bash
 # Download latest release
-wget https://github.com/jlia0/tinyclaw/releases/latest/download/tinyclaw-bundle.tar.gz
+wget https://github.com/Minh-Tam-Solution/tinysdlc/releases/latest/download/tinysdlc-bundle.tar.gz
 
 # Extract
-tar -xzf tinyclaw-bundle.tar.gz
-cd tinyclaw
+tar -xzf tinysdlc-bundle.tar.gz
+cd tinysdlc
 
 # Install CLI
 ./scripts/install.sh
@@ -86,8 +86,8 @@ Clone the repository and build locally:
 
 ```bash
 # Clone
-git clone https://github.com/jlia0/tinyclaw.git
-cd tinyclaw
+git clone https://github.com/Minh-Tam-Solution/tinysdlc.git
+cd tinysdlc
 
 # Install dependencies (may take a few minutes)
 npm install
@@ -104,8 +104,8 @@ tinysdlc start
 Run without installing the global command:
 
 ```bash
-git clone https://github.com/jlia0/tinyclaw.git
-cd tinyclaw
+git clone https://github.com/Minh-Tam-Solution/tinysdlc.git
+cd tinysdlc
 
 npm install
 
@@ -119,13 +119,13 @@ Check if TinySDLC is installed correctly:
 
 ```bash
 # Check command availability
-which tinyclaw
+which tinysdlc
 
 # Check version
-tinyclaw status
+tinysdlc status
 
 # View help
-tinyclaw
+tinysdlc
 ```
 
 ## First Run
@@ -150,12 +150,12 @@ To remove TinySDLC:
 
 ```bash
 # Remove CLI command only
-cd /path/to/tinyclaw
+cd /path/to/tinysdlc
 ./scripts/uninstall.sh
 
 # Or remove everything (CLI + installation)
-rm -rf ~/.tinyclaw
-sudo rm /usr/local/bin/tinyclaw  # or ~/.local/bin/tinyclaw
+rm -rf ~/.tinysdlc
+sudo rm /usr/local/bin/tinysdlc  # or ~/.local/bin/tinysdlc
 ```
 
 ## Troubleshooting
@@ -166,8 +166,8 @@ The CLI symlink was created but not in your PATH:
 
 ```bash
 # Check where it was installed
-ls -la /usr/local/bin/tinyclaw  # system-wide
-ls -la ~/.local/bin/tinyclaw     # user
+ls -la /usr/local/bin/tinysdlc  # system-wide
+ls -la ~/.local/bin/tinysdlc     # user
 
 # Add to PATH (if using ~/.local/bin)
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
@@ -180,7 +180,7 @@ If `/usr/local/bin` is not writable:
 
 ```bash
 # Option 1: Use sudo for system install
-curl -fsSL https://raw.githubusercontent.com/jlia0/tinyclaw/main/scripts/remote-install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Minh-Tam-Solution/tinysdlc/main/scripts/remote-install.sh | sudo bash
 
 # Option 2: Let it install to ~/.local/bin instead
 # (installer will do this automatically)
@@ -218,13 +218,13 @@ After installation:
 tinysdlc start
 
 # Check status
-tinyclaw status
+tinysdlc status
 
 # View logs
-tinyclaw logs
+tinysdlc logs
 
 # Get help
-tinyclaw
+tinysdlc
 ```
 
 For more information, see the [main README](README.md).

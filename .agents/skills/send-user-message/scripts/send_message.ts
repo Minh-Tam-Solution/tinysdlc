@@ -16,9 +16,9 @@ import crypto from 'crypto';
 // Resolve TINYSDLC_HOME (same logic as src/lib/config.ts)
 // ---------------------------------------------------------------------------
 const SCRIPT_DIR = path.resolve(__dirname, '../../../..');
-const localTinyclaw = path.join(SCRIPT_DIR, '.tinysdlc');
-const TINYSDLC_HOME = fs.existsSync(path.join(localTinyclaw, 'settings.json'))
-    ? localTinyclaw
+const localTinysdlc = path.join(SCRIPT_DIR, '.tinysdlc');
+const TINYSDLC_HOME = fs.existsSync(path.join(localTinysdlc, 'settings.json'))
+    ? localTinysdlc
     : path.join(require('os').homedir(), '.tinysdlc');
 
 const QUEUE_OUTGOING = path.join(TINYSDLC_HOME, 'queue/outgoing');

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # schedule.sh — Create, list, and delete scheduled cron jobs that send messages
-#               to the tinyclaw incoming queue with task context and target agent.
+#               to the tinysdlc incoming queue with task context and target agent.
 #
 # Usage:
 #   schedule.sh create  --cron "EXPR" --agent AGENT_ID --message "MSG" [--channel CH] [--sender S] [--label LABEL]
@@ -8,7 +8,7 @@
 #   schedule.sh delete  --label LABEL
 #   schedule.sh delete  --all
 #
-# Each cron entry is tagged with a comment: # tinyclaw-schedule:<label>
+# Each cron entry is tagged with a comment: # tinysdlc-schedule:<label>
 # so we can list/delete them reliably.
 
 set -euo pipefail
@@ -23,7 +23,7 @@ case "$(uname -s)" in
 esac
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="${TINYCLAW_PROJECT_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
+PROJECT_ROOT="${TINYSDLC_PROJECT_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
 
 # Resolve TINYSDLC_HOME (same logic as the TypeScript config)
 if [ -z "$TINYSDLC_HOME" ]; then
@@ -37,7 +37,7 @@ fi
 QUEUE_INCOMING="$TINYSDLC_HOME/queue/incoming"
 mkdir -p "$QUEUE_INCOMING"
 
-TAG_PREFIX="tinyclaw-schedule"
+TAG_PREFIX="tinysdlc-schedule"
 
 # ────────────────────────────────────────────
 # Helpers
@@ -45,7 +45,7 @@ TAG_PREFIX="tinyclaw-schedule"
 
 usage() {
     cat <<'USAGE'
-schedule.sh — manage tinyclaw scheduled tasks (cron jobs)
+schedule.sh — manage tinysdlc scheduled tasks (cron jobs)
 
 Commands:
   create   Create a new schedule
@@ -65,7 +65,7 @@ List flags:
 
 Delete flags:
   --label LABEL       Delete the schedule with this label
-  --all               Delete ALL tinyclaw schedules
+  --all               Delete ALL tinysdlc schedules
 
 Examples:
   schedule.sh create --cron "0 9 * * *" --agent coder --message "Run daily tests"
@@ -163,7 +163,7 @@ cmd_list() {
     entries=$(crontab -l 2>/dev/null | grep "# ${TAG_PREFIX}:" || true)
 
     if [[ -z "$entries" ]]; then
-        echo "No tinyclaw schedules found."
+        echo "No tinysdlc schedules found."
         return
     fi
 
@@ -176,7 +176,7 @@ cmd_list() {
         fi
     fi
 
-    echo "Tinyclaw schedules:"
+    echo "TinySDLC schedules:"
     echo "---"
 
     echo "$entries" | while IFS= read -r line; do
@@ -215,12 +215,12 @@ cmd_delete() {
         count=$(crontab -l 2>/dev/null | grep -c "# ${TAG_PREFIX}:" || echo "0")
 
         if [[ "$count" -eq 0 ]]; then
-            echo "No tinyclaw schedules to delete."
+            echo "No tinysdlc schedules to delete."
             return
         fi
 
         (crontab -l 2>/dev/null | grep -v "# ${TAG_PREFIX}:" || true) | crontab -
-        echo "Deleted $count tinyclaw schedule(s)."
+        echo "Deleted $count tinysdlc schedule(s)."
         return
     fi
 

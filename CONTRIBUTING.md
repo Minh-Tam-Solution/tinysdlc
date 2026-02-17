@@ -5,8 +5,8 @@ Thanks for your interest in contributing!
 ## Getting Started
 
 ```bash
-git clone https://github.com/jlia0/tinyclaw.git
-cd tinyclaw
+git clone https://github.com/Minh-Tam-Solution/tinysdlc.git
+cd tinysdlc
 npm install
 npm run build
 ```
@@ -18,10 +18,10 @@ npm run build
 npm run build
 
 # Run locally
-./tinyclaw.sh start
+./tinysdlc.sh start
 
 # View logs
-./tinyclaw.sh logs all
+./tinysdlc.sh logs all
 ```
 
 ### Project Structure
@@ -55,11 +55,11 @@ This project follows SDLC Enterprise Framework v6.0.6 (LITE tier). When adding d
 
 ## Reporting Issues
 
-Open an issue at [github.com/jlia0/tinyclaw/issues](https://github.com/jlia0/tinyclaw/issues) with:
+Open an issue at [github.com/Minh-Tam-Solution/tinysdlc/issues](https://github.com/Minh-Tam-Solution/tinysdlc/issues) with:
 
 - What you expected vs what happened
 - Steps to reproduce
-- Relevant logs (`tinyclaw logs all`)
+- Relevant logs (`tinysdlc logs all`)
 
 ## License
 

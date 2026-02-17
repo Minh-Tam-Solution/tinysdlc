@@ -1,4 +1,4 @@
-# SDLC Agent Setup Guide
+# TinySDLC - SDLC Agent Setup Guide
 
 **SDLC Version**: 6.0.6
 **Stage**: 04 - BUILD
@@ -37,7 +37,7 @@ tinysdlc sdlc status
 tinysdlc sdlc roles
 
 # Restart to apply changes
-./tinyclaw.sh restart
+./tinysdlc.sh restart
 ```
 
 This creates:
@@ -51,7 +51,7 @@ This creates:
 
 ### Step 1: Add SDLC Agents
 
-Edit `~/.tinyclaw/settings.json` and add to the `agents` section:
+Edit `~/.tinysdlc/settings.json` and add to the `agents` section:
 
 ```json
 "pm": {
@@ -59,42 +59,42 @@ Edit `~/.tinyclaw/settings.json` and add to the `agents` section:
   "provider": "anthropic",
   "model": "sonnet",
   "sdlc_role": "pm",
-  "working_directory": "~/tinyclaw-workspace/pm"
+  "working_directory": "~/tinysdlc-workspace/pm"
 },
 "architect": {
   "name": "Solution Architect",
   "provider": "anthropic",
   "model": "opus",
   "sdlc_role": "architect",
-  "working_directory": "~/tinyclaw-workspace/architect"
+  "working_directory": "~/tinysdlc-workspace/architect"
 },
 "coder": {
   "name": "Developer",
   "provider": "anthropic",
   "model": "sonnet",
   "sdlc_role": "coder",
-  "working_directory": "~/tinyclaw-workspace/coder"
+  "working_directory": "~/tinysdlc-workspace/coder"
 },
 "reviewer": {
   "name": "Code Reviewer",
   "provider": "anthropic",
   "model": "opus",
   "sdlc_role": "reviewer",
-  "working_directory": "~/tinyclaw-workspace/reviewer"
+  "working_directory": "~/tinysdlc-workspace/reviewer"
 },
 "tester": {
   "name": "QA Tester",
   "provider": "anthropic",
   "model": "sonnet",
   "sdlc_role": "tester",
-  "working_directory": "~/tinyclaw-workspace/tester"
+  "working_directory": "~/tinysdlc-workspace/tester"
 },
 "devops": {
   "name": "DevOps Engineer",
   "provider": "anthropic",
   "model": "sonnet",
   "sdlc_role": "devops",
-  "working_directory": "~/tinyclaw-workspace/devops"
+  "working_directory": "~/tinysdlc-workspace/devops"
 }
 ```
 
@@ -132,7 +132,7 @@ Add to the `teams` section:
 ### Step 3: Restart
 
 ```bash
-./tinyclaw.sh restart
+./tinysdlc.sh restart
 ```
 
 ---
@@ -158,7 +158,7 @@ To use company Ollama infrastructure at `https://api.nhatquangholding.com`:
   "name": "Local Assistant",
   "provider": "ollama",
   "model": "qwen3",
-  "working_directory": "~/tinyclaw-workspace/assistant"
+  "working_directory": "~/tinysdlc-workspace/assistant"
 }
 ```
 
@@ -227,7 +227,7 @@ You can add a custom system prompt to any agent:
   "model": "sonnet",
   "sdlc_role": "pm",
   "system_prompt": "You are the PM for a fintech startup. Always consider regulatory compliance in your requirements.",
-  "working_directory": "~/tinyclaw-workspace/pm"
+  "working_directory": "~/tinysdlc-workspace/pm"
 }
 ```
 
@@ -235,7 +235,7 @@ You can add a custom system prompt to any agent:
 
 ```json
 "pm": {
-  "prompt_file": "~/tinyclaw-workspace/pm-context.md",
+  "prompt_file": "~/tinysdlc-workspace/pm-context.md",
   ...
 }
 ```
@@ -270,8 +270,8 @@ The project directory path is prepended to each message so the agent knows where
 The role template is applied only when the agent directory is created for the first time. If the agent already has a workspace directory, delete it and let TinySDLC recreate it:
 
 ```bash
-rm -rf ~/tinyclaw-workspace/<agent_id>
-./tinyclaw.sh restart
+rm -rf ~/tinysdlc-workspace/<agent_id>
+./tinysdlc.sh restart
 # Send a message to the agent to trigger workspace creation
 ```
 

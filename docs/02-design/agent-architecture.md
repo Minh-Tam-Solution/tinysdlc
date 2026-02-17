@@ -1,4 +1,4 @@
-# Agent Architecture
+# TinySDLC - Agent Architecture
 
 **SDLC Version**: 6.0.6
 **Stage**: 02 - DESIGN
@@ -61,7 +61,7 @@ The agent management feature enables you to:
 │  │ AGENTS.md    │  │ AGENTS.md    │  │ AGENTS.md    │     │
 │  └──────────────┘  └──────────────┘  └──────────────┘     │
 │                                                              │
-│  Shared: ~/.tinyclaw/ (channels, files, logs, queue)       │
+│  Shared: ~/.tinysdlc/ (channels, files, logs, queue)       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -85,34 +85,34 @@ const routing = parseAgentRouting(rawMessage, agents, teams);
 
 ### 2. Agent Configuration
 
-Each agent has its own configuration in `.tinyclaw/settings.json`:
+Each agent has its own configuration in `.tinysdlc/settings.json`:
 
 ```json
 {
   "workspace": {
-    "path": "/Users/me/tinyclaw-workspace",
-    "name": "tinyclaw-workspace"
+    "path": "/Users/me/tinysdlc-workspace",
+    "name": "tinysdlc-workspace"
   },
   "agents": {
     "coder": {
       "name": "Code Assistant",
       "provider": "anthropic",
       "model": "sonnet",
-      "working_directory": "/Users/me/tinyclaw-workspace/coder",
+      "working_directory": "/Users/me/tinysdlc-workspace/coder",
       "system_prompt": "You are a senior software engineer..."
     },
     "writer": {
       "name": "Technical Writer",
       "provider": "openai",
       "model": "gpt-5.3-codex",
-      "working_directory": "/Users/me/tinyclaw-workspace/writer",
+      "working_directory": "/Users/me/tinysdlc-workspace/writer",
       "prompt_file": "/path/to/writer-prompt.md"
     },
     "assistant": {
       "name": "Assistant",
       "provider": "anthropic",
       "model": "opus",
-      "working_directory": "/Users/me/tinyclaw-workspace/assistant"
+      "working_directory": "/Users/me/tinysdlc-workspace/assistant"
     }
   }
 }
@@ -126,7 +126,7 @@ Each agent has its own isolated workspace directory with complete copies of conf
 
 **Agent Workspaces:**
 ```
-~/tinyclaw-workspace/          # Or custom workspace name
+~/tinysdlc-workspace/          # Or custom workspace name
 ├── coder/
 │   ├── .claude/               # Agent's own Claude config
 │   │   ├── settings.json
@@ -151,10 +151,10 @@ Each agent has its own isolated workspace directory with complete copies of conf
 
 **Templates & Shared Resources:**
 
-Templates and shared resources are stored in `~/.tinyclaw/`:
+Templates and shared resources are stored in `~/.tinysdlc/`:
 
 ```
-~/.tinyclaw/
+~/.tinysdlc/
 ├── .claude/           # Template: Copied to each new agent
 ├── heartbeat.md       # Template: Copied to each new agent
 ├── AGENTS.md          # Template: Copied to each new agent
@@ -171,7 +171,7 @@ Templates and shared resources are stored in `~/.tinyclaw/`:
 - Conversation history is isolated per agent (managed by Claude/Codex CLI)
 - Reset flags allow resetting individual agent conversations
 - File operations happen in the agent's directory
-- Templates stored in `~/.tinyclaw/` are copied when creating new agents
+- Templates stored in `~/.tinysdlc/` are copied when creating new agents
 - Uploaded files, message queues, and logs are shared (common dependencies)
 
 ### 4. Provider Execution
@@ -180,7 +180,7 @@ The queue processor calls the appropriate CLI based on provider:
 
 **Anthropic (Claude):**
 ```bash
-cd "$agent_working_directory"  # e.g., ~/tinyclaw-workspace/coder/
+cd "$agent_working_directory"  # e.g., ~/tinysdlc-workspace/coder/
 claude --dangerously-skip-permissions \
   --model claude-sonnet-4-5 \
   --system-prompt "Your custom prompt..." \
@@ -190,7 +190,7 @@ claude --dangerously-skip-permissions \
 
 **OpenAI (Codex):**
 ```bash
-cd "$agent_working_directory"  # e.g., ~/tinyclaw-workspace/coder/
+cd "$agent_working_directory"  # e.g., ~/tinysdlc-workspace/coder/
 codex exec resume --last \
   --model gpt-5.3-codex \
   --skip-git-repo-check \
@@ -206,8 +206,8 @@ codex exec resume --last \
 During first-time setup (`tinysdlc setup`), you'll be prompted for:
 
 1. **Workspace name** - Where to store agent directories
-   - Default: `tinyclaw-workspace`
-   - Creates: `~/tinyclaw-workspace/`
+   - Default: `tinysdlc-workspace`
+   - Creates: `~/tinysdlc-workspace/`
 
 2. **Default agent name** - Name for your main assistant
    - Default: `assistant`
@@ -231,20 +231,20 @@ This walks you through:
 
 **Manual Configuration:**
 
-Edit `.tinyclaw/settings.json`:
+Edit `.tinysdlc/settings.json`:
 
 ```json
 {
   "workspace": {
-    "path": "/Users/me/tinyclaw-workspace",
-    "name": "tinyclaw-workspace"
+    "path": "/Users/me/tinysdlc-workspace",
+    "name": "tinysdlc-workspace"
   },
   "agents": {
     "researcher": {
       "name": "Research Assistant",
       "provider": "anthropic",
       "model": "opus",
-      "working_directory": "/Users/me/tinyclaw-workspace/researcher",
+      "working_directory": "/Users/me/tinysdlc-workspace/researcher",
       "system_prompt": "You are a research assistant specialized in academic literature review and data analysis."
     }
   }
@@ -265,7 +265,7 @@ Edit `.tinyclaw/settings.json`:
 **Note:**
 - If both `prompt_file` and `system_prompt` are provided, `prompt_file` takes precedence
 - The `working_directory` is automatically set to `<workspace>/<agent_id>/` when creating agents
-- Each agent gets its own isolated directory with copies of templates from `~/.tinyclaw/`
+- Each agent gets its own isolated directory with copies of templates from `~/.tinysdlc/`
 
 ## Usage
 
@@ -302,16 +302,16 @@ Configured Agents
 
   @coder - Code Assistant
     Provider:  anthropic/sonnet
-    Directory: /Users/me/tinyclaw-workspace/coder
+    Directory: /Users/me/tinysdlc-workspace/coder
 
   @writer - Technical Writer
     Provider:  openai/gpt-5.3-codex
-    Directory: /Users/me/tinyclaw-workspace/writer
+    Directory: /Users/me/tinysdlc-workspace/writer
     Prompt:    /path/to/writer-prompt.md
 
   @assistant - Assistant
     Provider:  anthropic/opus
-    Directory: /Users/me/tinyclaw-workspace/assistant
+    Directory: /Users/me/tinysdlc-workspace/assistant
 ```
 
 ### Managing Agents
@@ -455,8 +455,8 @@ Reset flags are automatically cleaned up after use.
 
 Reset one or more agents:
 ```bash
-tinyclaw reset coder
-tinyclaw reset coder researcher
+tinysdlc reset coder
+tinysdlc reset coder researcher
 ```
 
 ### Custom Workspaces
@@ -476,8 +476,8 @@ Or even use cloud-synced directories:
 ```json
 {
   "workspace": {
-    "path": "/Users/me/Dropbox/tinyclaw-workspace",
-    "name": "tinyclaw-workspace"
+    "path": "/Users/me/Dropbox/tinysdlc-workspace",
+    "name": "tinysdlc-workspace"
   }
 }
 ```
@@ -488,7 +488,7 @@ Files uploaded through messaging channels are automatically available to all age
 
 ```
 User uploads image.png via Telegram
-→ Saved to ~/.tinyclaw/files/telegram_123456_image.png
+→ Saved to ~/.tinysdlc/files/telegram_123456_image.png
 → Message includes: [file: /path/to/image.png]
 → Routed to agent
 → Agent can read/process the file
@@ -512,7 +512,7 @@ For detailed troubleshooting of agent-related issues, see [Troubleshooting Guide
 - **Wrong agent responding** → Verify routing: `@agent_id message` (with space)
 - **Conversation not resetting** → Send message after: `tinysdlc agent reset <id>`
 - **CLI not found** → Install Claude Code or Codex CLI
-- **Workspace issues** → Check: `cat .tinyclaw/settings.json | jq '.workspace'`
+- **Workspace issues** → Check: `cat .tinysdlc/settings.json | jq '.workspace'`
 - **Templates not copying** → Run: `tinysdlc setup`
 
 ## Implementation Details
@@ -544,7 +544,7 @@ interface ResponseData {
 
 **Templates:**
 ```
-~/.tinyclaw/
+~/.tinysdlc/
 ├── .claude/           # Copied to new agents
 ├── heartbeat.md       # Copied to new agents
 └── AGENTS.md          # Copied to new agents
@@ -580,7 +580,7 @@ The chain ends naturally when an agent responds without mentioning a teammate.
 
 ### Team Configuration
 
-Teams are stored in `~/.tinyclaw/settings.json`:
+Teams are stored in `~/.tinysdlc/settings.json`:
 
 ```json
 {

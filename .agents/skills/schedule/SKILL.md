@@ -1,11 +1,11 @@
 ---
 name: schedule
-description: "Create, list, and delete scheduled (cron) tasks that send messages to the tinyclaw incoming queue at specified intervals. Use when the user wants to: schedule a recurring task for an agent, set up a cron job that triggers an agent, list existing scheduled tasks, delete or remove a scheduled task, or automate periodic agent work (reports, checks, reminders, syncs)."
+description: "Create, list, and delete scheduled (cron) tasks that send messages to the tinysdlc incoming queue at specified intervals. Use when the user wants to: schedule a recurring task for an agent, set up a cron job that triggers an agent, list existing scheduled tasks, delete or remove a scheduled task, or automate periodic agent work (reports, checks, reminders, syncs)."
 ---
 
 # Schedule Skill
 
-Manage cron-based scheduled tasks that deliver messages to the tinyclaw incoming queue. Each schedule fires at a cron interval and writes a routed message (`@agent_id <task>`) to `queue/incoming/`, where the queue processor picks it up and invokes the target agent.
+Manage cron-based scheduled tasks that deliver messages to the tinysdlc incoming queue. Each schedule fires at a cron interval and writes a routed message (`@agent_id <task>`) to `queue/incoming/`, where the queue processor picks it up and invokes the target agent.
 
 ## Commands
 
@@ -36,7 +36,7 @@ scripts/schedule.sh create \
 scripts/schedule.sh list [--agent AGENT_ID]
 ```
 
-Lists all tinyclaw schedules. Optionally filter by `--agent` to show only schedules targeting a specific agent.
+Lists all tinysdlc schedules. Optionally filter by `--agent` to show only schedules targeting a specific agent.
 
 ### Delete a schedule
 
@@ -45,7 +45,7 @@ scripts/schedule.sh delete --label LABEL
 scripts/schedule.sh delete --all
 ```
 
-Delete a specific schedule by label, or delete all tinyclaw schedules.
+Delete a specific schedule by label, or delete all tinysdlc schedules.
 
 ## Workflow
 
@@ -127,7 +127,7 @@ scripts/schedule.sh delete --all
 
 ## How it works
 
-- Schedules are stored as system cron entries tagged with `# tinyclaw-schedule:<label>`.
+- Schedules are stored as system cron entries tagged with `# tinysdlc-schedule:<label>`.
 - When a cron job fires, it writes a JSON message to `queue/incoming/` with the `@agent_id` routing prefix.
 - The queue processor picks up the message and invokes the target agent, exactly like a message from any channel.
 - Responses appear in `queue/outgoing/` and can be consumed by channel clients.

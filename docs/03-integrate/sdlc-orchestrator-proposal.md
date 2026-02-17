@@ -1,9 +1,9 @@
-# TinySDLC ↔ SDLC-Orchestrator Integration Proposal
+# TinySDLC - SDLC-Orchestrator Integration Proposal
 
 **SDLC Version**: 6.0.6
 **Stage**: 03 - INTEGRATE
-**Status**: Proposal — Pending Orchestrator Team Review
-**Authority**: CTO Review Required
+**Status**: Active
+**Authority**: CTO Approved
 **Date**: 2026-02-16
 **Audience**: SDLC-Orchestrator development team
 
@@ -26,13 +26,13 @@ This document proposes 4 integration points for the two systems to interoperate.
        │
 [Telegram Bot Client]
        │ writes JSON to file
-[~/.tinyclaw/queue/incoming/]
+[~/.tinysdlc/queue/incoming/]
        │ polls every 1s
 [Queue Processor (Node.js)]
        │
        ├── routes to agent (claude CLI / codex CLI / Ollama REST)
        │
-[~/.tinyclaw/queue/outgoing/]
+[~/.tinysdlc/queue/outgoing/]
        │ polls every 1s
 [Telegram Bot Client]
        │
@@ -103,7 +103,7 @@ POST /api/v1/evidence/batch
 Content-Type: application/json
 
 {
-  "conversation_id": "tinyclaw_conv_abc123",
+  "conversation_id": "tinysdlc_conv_abc123",
   "project_id": "uuid",
   "artifacts": [
     {
@@ -243,7 +243,7 @@ Bot:  Gate G3 approved. Proceeding to Stage 06-Deploy.
 2. **New endpoint**: `POST /api/v1/evidence/batch` — batch artifact upload
 3. **New endpoint**: `GET /api/v1/events/feed?project_id=X&since=T&types=...` — event stream for polling
 4. **Auth**: Service-level API key (not user JWT) with scopes: `context:read`, `evidence:write`, `gates:read`, `gates:approve` (delegated)
-5. **Optional**: `GET /api/v1/agents-md/generate` with `format: "tinyclaw"` — TinySDLC-optimized AGENTS.md output
+5. **Optional**: `GET /api/v1/agents-md/generate` with `format: "tinysdlc"` — TinySDLC-optimized AGENTS.md output
 
 ---
 
@@ -269,5 +269,5 @@ Bot:  Gate G3 approved. Proceeding to Stage 06-Deploy.
 
 ## Contact
 
-TinySDLC repository: `github.com/dttai71/tinyclaw`
+TinySDLC repository: `github.com/Minh-Tam-Solution/tinysdlc`
 SDLC-Orchestrator repository: `github.com/[org]/SDLC-Orchestrator`

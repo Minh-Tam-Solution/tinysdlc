@@ -1,8 +1,8 @@
-# ADR: SDLC Framework v6.0.6 Support in TinySDLC
+# TinySDLC - ADR: SDLC Framework v6.0.6 Support
 
 **SDLC Version**: 6.0.6
 **Stage**: 02 - DESIGN
-**Status**: Accepted
+**Status**: Active
 **Authority**: CTO Approved
 **Date**: 2026-02-16
 

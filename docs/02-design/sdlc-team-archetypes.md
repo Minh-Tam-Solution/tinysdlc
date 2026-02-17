@@ -1,4 +1,4 @@
-# SDLC Team Archetypes
+# TinySDLC - SDLC Team Archetypes
 
 **SDLC Version**: 6.0.6
 **Stage**: 02 - DESIGN
