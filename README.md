@@ -1,432 +1,201 @@
-<div align="center">
-  <img src="./docs/images/tinyclaw.png" alt="TinySDLC" width="600" />
-  <h1>TinySDLC 🦞</h1>
-  <p><strong>Multi-agent, Multi-team, Multi-channel, 24/7 AI assistant</strong></p>
-  <p>Run multiple teams of AI agents that collaborate with each other simultaneously with isolated workspaces.</p>
-  <p>
-    <img src="https://img.shields.io/badge/stability-experimental-orange.svg" alt="Experimental" />
-    <a href="https://opensource.org/licenses/MIT">
-      <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" />
-    </a>
-    <a href="https://discord.gg/jH6AcEChuD">
-      <img src="https://img.shields.io/discord/1353722981163208785?logo=discord&logoColor=white&label=Discord&color=7289DA" alt="Discord" />
-    </a>
-    <a href="https://github.com/jlia0/tinyclaw/releases/latest">
-      <img src="https://img.shields.io/github/v/release/jlia0/tinyclaw?label=Latest&color=green" alt="Latest Release" />
-    </a>
-  </p>
-</div>
+# TinySDLC
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/c5ef5d3c-d9cf-4a00-b619-c31e4380df2e" width="600" controls></video>
-</div>
+Multi-agent AI Orchestrator with SDLC Governance.
+Run teams of AI agents across Discord, WhatsApp, and Telegram — governed by SDLC Framework v6.0.6 roles and quality gates.
 
-## ✨ Features
+---
 
-- ✅ **Multi-agent** - Run multiple isolated AI agents with specialized roles
-- ✅ **Multi-team collaboration** - Agents hand off work to teammates via chain execution and fan-out
-- ✅ **Multi-channel** - Discord, WhatsApp, and Telegram
-- ✅ **Team Observation** - You can observe agent teams conversations via `tinysdlc team visualize`
-- ✅ **Multiple AI providers** - Anthropic Claude and OpenAI Codex using existing subscriptions without breaking ToS
-- ✅ **Parallel processing** - Agents process messages concurrently
-- ✅ **Live TUI dashboard** - Real-time team visualizer for monitoring agent chains
-- ✅ **Persistent sessions** - Conversation context maintained across restarts
-- ✅ **File-based queue** - No race conditions, reliable message handling
-- ✅ **24/7 operation** - Runs in tmux for always-on availability
+## Overview
 
-## 🚀 Quick Start
+TinySDLC connects messaging channels to AI agents through a file-based message queue. Agents are organized into teams with SDLC roles — PM, Architect, Coder, Reviewer, Tester, DevOps — and collaborate via chain execution and parallel fan-out.
+
+Three AI providers are supported: Anthropic Claude, OpenAI Codex, and Ollama (local models). Each agent operates in an isolated workspace with its own conversation history, role-specific instructions, and configuration.
+
+---
+
+## Install
 
 ### Prerequisites
 
 - macOS or Linux
-- Node.js v14+
-- tmux
-- Bash 4.0+ (macOS: `brew install bash`)
-- [Claude Code CLI](https://claude.com/claude-code) (for Anthropic provider)
-- [Codex CLI](https://docs.openai.com/codex) (for OpenAI provider)
+- Node.js 14+, tmux, Bash 4.0+ (macOS: `brew install bash`)
+- [Claude Code CLI](https://claude.com/claude-code) or [Codex CLI](https://docs.openai.com/codex)
 
-### Installation
-
-**Option 1: One-line Install (Recommended)**
+### One-line Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jlia0/tinyclaw/main/scripts/remote-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Minh-Tam-Solution/tinysdlc/main/scripts/remote-install.sh | bash
 ```
 
-**Option 2: From Release**
+### From Source
 
 ```bash
-wget https://github.com/jlia0/tinyclaw/releases/latest/download/tinyclaw-bundle.tar.gz
-tar -xzf tinyclaw-bundle.tar.gz
-cd tinyclaw && ./scripts/install.sh
-```
-
-**Option 3: From Source**
-
-```bash
-git clone https://github.com/jlia0/tinyclaw.git
-cd tinyclaw && npm install && ./scripts/install.sh
+git clone https://github.com/Minh-Tam-Solution/tinysdlc.git
+cd tinysdlc
+npm install && npm run build
+./scripts/install.sh
 ```
 
 ### First Run
 
 ```bash
-tinysdlc start  # Runs interactive setup wizard
+tinysdlc start
 ```
 
-The setup wizard will guide you through:
-
-1. **Channel selection** - Choose Discord, WhatsApp, and/or Telegram
-2. **Bot tokens** - Enter tokens for enabled channels
-3. **Workspace setup** - Name your workspace directory
-4. **Default agent** - Configure your main AI assistant
-5. **AI provider** - Select Anthropic (Claude) or OpenAI
-6. **Model selection** - Choose model (e.g., Sonnet, Opus, GPT-5.3)
-7. **Heartbeat interval** - Set proactive check-in frequency
-
-<details>
-<summary><b>📱 Channel Setup Guides</b></summary>
-
-### Discord Setup
-
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create application → Bot section → Create bot
-3. Copy bot token
-4. Enable "Message Content Intent"
-5. Invite bot using OAuth2 URL Generator
-
-### Telegram Setup
-
-1. Open Telegram → Search `@BotFather`
-2. Send `/newbot` → Follow prompts
-3. Copy bot token
-4. Start chat with your bot
-
-### WhatsApp Setup
-
-After starting TinySDLC, scan the QR code:
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-     WhatsApp QR Code
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[QR CODE HERE]
-
-📱 Settings → Linked Devices → Link a Device
-```
-
-</details>
-
-## 📋 Commands
-
-Commands work with `tinyclaw` (if CLI installed) or `./tinyclaw.sh` (direct script).
-
-### Core Commands
-
-| Command       | Description                                               | Example               |
-| ------------- | --------------------------------------------------------- | --------------------- |
-| `start`       | Start TinySDLC daemon                                     | `tinysdlc start`      |
-| `stop`        | Stop all processes                                        | `tinyclaw stop`       |
-| `restart`     | Restart TinySDLC                                          | `tinyclaw restart`    |
-| `status`      | Show current status and activity                          | `tinyclaw status`     |
-| `setup`       | Run setup wizard (reconfigure)                            | `tinysdlc setup`      |
-| `logs [type]` | View logs (discord/telegram/whatsapp/queue/heartbeat/all) | `tinyclaw logs queue` |
-| `attach`      | Attach to tmux session                                    | `tinyclaw attach`     |
-
-### Agent Commands
-
-| Command                              | Description                      | Example                                          |
-| ------------------------------------ | -------------------------------- | ------------------------------------------------ |
-| `agent list`                         | List all configured agents       | `tinysdlc agent list`                            |
-| `agent add`                          | Add new agent (interactive)      | `tinysdlc agent add`                             |
-| `agent show <id>`                    | Show agent configuration         | `tinysdlc agent show coder`                      |
-| `agent remove <id>`                  | Remove an agent                  | `tinysdlc agent remove coder`                    |
-| `agent reset <id>`                   | Reset agent conversation         | `tinysdlc agent reset coder`                     |
-| `agent provider <id> [provider]`     | Show or set agent's AI provider  | `tinysdlc agent provider coder anthropic`        |
-| `agent provider <id> <p> --model <m>`| Set agent's provider and model   | `tinysdlc agent provider coder openai --model gpt-5.3-codex` |
-
-### Team Commands
-
-| Command               | Description                        | Example                       |
-| --------------------- | ---------------------------------- | ----------------------------- |
-| `team list`           | List all configured teams          | `tinysdlc team list`          |
-| `team add`            | Add new team (interactive)         | `tinysdlc team add`           |
-| `team show <id>`      | Show team configuration            | `tinysdlc team show dev`      |
-| `team remove <id>`    | Remove a team                      | `tinysdlc team remove dev`    |
-| `team visualize [id]` | Live TUI dashboard for team chains | `tinysdlc team visualize dev` |
-
-### Configuration Commands
-
-| Command                           | Description                  | Example                                          |
-| --------------------------------- | ---------------------------- | ------------------------------------------------ |
-| `provider [name]`                 | Show or switch AI provider   | `tinyclaw provider anthropic`                    |
-| `provider <name> --model <model>` | Switch provider and model    | `tinyclaw provider openai --model gpt-5.3-codex` |
-| `model [name]`                    | Show or switch AI model      | `tinyclaw model opus`                            |
-| `reset`                           | Reset all conversations      | `tinyclaw reset`                                 |
-| `channels reset <channel>`        | Reset channel authentication | `tinyclaw channels reset whatsapp`               |
-
-### Pairing Commands
-
-Use sender pairing to control who can message your agents.
-
-| Command                                | Description                                        | Example                                    |
-| -------------------------------------- | -------------------------------------------------- | ------------------------------------------ |
-| `pairing pending`                      | Show pending sender approvals (with pairing codes) | `tinyclaw pairing pending`                 |
-| `pairing approved`                     | Show approved senders                              | `tinyclaw pairing approved`                |
-| `pairing list`                         | Show both pending and approved senders             | `tinyclaw pairing list`                    |
-| `pairing approve <code>`               | Move a sender from pending to approved by code     | `tinyclaw pairing approve ABCD1234`        |
-| `pairing unpair <channel> <sender_id>` | Remove an approved sender from the allowlist       | `tinyclaw pairing unpair telegram 1234567` |
-
-Pairing behavior:
-
-- First message from unknown sender: TinySDLC generates a code and sends approval instructions.
-- Additional messages while still pending: TinySDLC blocks silently (no repeated pairing message).
-- After approval: messages from that sender are processed normally.
-
-### Update Commands
-
-| Command  | Description                       | Example           |
-| -------- | --------------------------------- | ----------------- |
-| `update` | Update TinySDLC to latest version | `tinyclaw update` |
-
-> **Note:** If you are on v0.0.1 or v0.0.2, the update script was broken. Please re-install instead:
->
-> ```bash
-> curl -fsSL https://raw.githubusercontent.com/jlia0/tinyclaw/main/scripts/remote-install.sh | bash
-> ```
->
-> Your settings and user data will be preserved.
-
-<details>
-<summary><b>Update Details</b></summary>
-
-**Auto-detection:** TinySDLC checks for updates on startup (once per hour).
-
-**Manual update:**
+The setup wizard configures channels, AI provider, workspace, and default agent. After setup, optionally apply the full SDLC team:
 
 ```bash
-tinyclaw update
+tinysdlc sdlc init    # Creates 6 agents + 4 teams with SDLC roles
 ```
 
-This will:
+---
 
-1. Check for latest release
-2. Show changelog URL
-3. Download bundle
-4. Create backup of current installation
-5. Install new version
+## How It Works
 
-**Disable update checks:**
-
-```bash
-export TINYSDLC_SKIP_UPDATE_CHECK=1
+```text
+ Discord ─┐
+Telegram ─┤  JSON msg     ┌──────────────────────────────────┐
+WhatsApp ─┤ ────────────→  │  ~/.tinysdlc/queue/              │
+Heartbeat ┘                │  incoming/ → processing/ → outgoing/
+                           └──────────┬───────────────────────┘
+                                      │ Queue Processor (1s poll)
+                           ┌──────────┴───────────────────────┐
+                           │  Parallel dispatch per agent      │
+                           │                                   │
+                           │  @coder ──→ claude CLI            │
+                           │  @reviewer → claude CLI           │
+                           │  @pm ─────→ codex CLI             │
+                           └──────────┬───────────────────────┘
+                                      │ response JSON
+ Discord ─┐                           │
+Telegram ─┤  poll outgoing/ ←─────────┘
+WhatsApp ─┘
 ```
 
-</details>
+Channel receives DM → pairing check → JSON to `incoming/` → atomic rename to `processing/` → route to target agent → spawn CLI in agent workspace → response to `outgoing/` → channel delivers.
 
-### Messaging Commands
+Team collaboration: agent responses containing `[@teammate: message]` tags trigger internal queue entries with a 50-message loop guard.
 
-| Command          | Description                 | Example                          |
-| ---------------- | --------------------------- | -------------------------------- |
-| `send <message>` | Send message to AI manually | `tinyclaw send "Hello!"`         |
-| `send <message>` | Route to specific agent     | `tinyclaw send "@coder fix bug"` |
+---
 
-### In-Chat Commands
+## Commands
 
-These commands work in Discord, Telegram, and WhatsApp:
+### Daemon
 
-| Command             | Description                          | Example                 |
-| ------------------- | ------------------------------------ | ----------------------- |
-| `@agent_id message` | Route message to specific agent      | `@coder fix the bug`    |
-| `@team_id message`  | Route message to team leader         | `@dev fix the auth bug` |
-| `/agent`            | List all available agents            | `/agent`                |
-| `/team`             | List all available teams             | `/team`                 |
-| `@agent_id /reset`  | Reset specific agent conversation    | `@coder /reset`         |
-| `/reset`            | Reset conversation (WhatsApp/global) | `/reset` or `!reset`    |
-| `message`           | Send to default agent (no prefix)    | `help me with this`     |
+| Command | Description |
+| ------- | ----------- |
+| `tinysdlc start` | Build and launch tmux session |
+| `tinysdlc stop` | Stop all processes |
+| `tinysdlc restart` | Restart (safe from inside tmux) |
+| `tinysdlc status` | Show running processes and activity |
+| `tinysdlc setup` | Re-run setup wizard |
+| `tinysdlc logs <type>` | Tail logs: `discord`, `telegram`, `whatsapp`, `queue`, `heartbeat`, `all` |
 
-**Note:** The `@agent_id` routing prefix requires a space after it (e.g., `@coder fix` not `@coderfix`).
+### Agents
 
-**Access control note:** before routing, channel clients apply sender pairing allowlist checks.
+| Command | Description |
+| ------- | ----------- |
+| `tinysdlc agent list` | List agents with provider, model, role |
+| `tinysdlc agent add` | Add agent interactively |
+| `tinysdlc agent show <id>` | Show agent config |
+| `tinysdlc agent remove <id>` | Remove agent |
+| `tinysdlc agent reset <id>` | Reset conversation history |
+| `tinysdlc agent provider <id> <provider> --model <m>` | Set provider and model |
 
-## 🤖 Using Agents
+### Teams
 
-### Routing Messages
+| Command | Description |
+| ------- | ----------- |
+| `tinysdlc team list` | List teams |
+| `tinysdlc team add` | Add team interactively |
+| `tinysdlc team show <id>` | Show team config |
+| `tinysdlc team remove <id>` | Remove team |
+| `tinysdlc team visualize [id]` | Live TUI dashboard (React/Ink) |
 
-Use `@agent_id` prefix to route messages to specific agents (see [In-Chat Commands](#in-chat-commands) table above):
+### SDLC
 
-```
-@coder fix the authentication bug
-@writer document the API endpoints
-@researcher find papers on transformers
-help me with this  ← goes to default agent (no prefix needed)
-```
+| Command | Description |
+| ------- | ----------- |
+| `tinysdlc sdlc status` | Agents with SDLC roles and teams |
+| `tinysdlc sdlc roles` | Reference table of all 6 roles |
+| `tinysdlc sdlc init` | Apply defaults: 6 agents + 4 teams |
+| `tinysdlc sdlc reinit [agent]` | Re-apply role templates |
 
-### Agent Configuration
+### Other
 
-Agents are configured in `.tinyclaw/settings.json`:
+| Command | Description |
+| ------- | ----------- |
+| `tinysdlc provider [name]` | Show or switch AI provider |
+| `tinysdlc model [name]` | Show or switch model |
+| `tinysdlc pairing list` | Show pending/approved senders |
+| `tinysdlc pairing approve <code>` | Approve sender by pairing code |
+| `tinysdlc channels reset <ch>` | Reset channel auth (e.g. WhatsApp QR) |
+| `tinysdlc send "<message>"` | Send message to agent via CLI |
+| `tinysdlc update` | Update to latest release |
+
+### In-Chat Syntax
+
+| Syntax | Description |
+| ------ | ----------- |
+| `@agent_id message` | Route to agent: `@coder fix the bug` |
+| `@team_id message` | Route to team leader: `@dev fix auth` |
+| `message` | No prefix sends to default agent |
+| `/agent` | List agents |
+| `/team` | List teams |
+| `@agent_id /reset` | Reset agent conversation |
+
+---
+
+## SDLC Roles and Teams
+
+### 6 Roles
+
+| Role | Stages | Gate | Constraint |
+| ---- | ------ | ---- | ---------- |
+| `pm` | 00-01 Foundation/Plan | G0.1, G1 | No self-approve requirements |
+| `architect` | 02-03 Design/Integrate | G2 | No tech decisions without ADR |
+| `coder` | 04 Build | Sprint Gate | No merge without reviewer |
+| `reviewer` | 04-05 Build/Verify | G3 | Never approve own code |
+| `tester` | 05 Verify | G3 co-owner | No skip coverage thresholds |
+| `devops` | 06-07 Deploy/Operate | G4 | No deploy without G3 |
+
+### 4 Team Archetypes
+
+| Team | Agents | Purpose |
+| ---- | ------ | ------- |
+| `planning` | pm, architect | Requirements to design |
+| `dev` | coder, reviewer | Build to review |
+| `qa` | tester, reviewer | Verify to approve |
+| `fullstack` | all 6 roles | Full pipeline |
+
+---
+
+## Configuration
+
+Settings live at `~/.tinysdlc/settings.json` (hot-reloaded, auto-repaired if corrupted):
 
 ```json
 {
   "workspace": {
-    "path": "/Users/me/tinyclaw-workspace",
-    "name": "tinyclaw-workspace"
+    "path": "~/tinysdlc-workspace"
+  },
+  "channels": {
+    "enabled": ["discord", "telegram"],
+    "discord": { "bot_token": "..." },
+    "telegram": { "bot_token": "..." }
   },
   "agents": {
     "coder": {
-      "name": "Code Assistant",
+      "name": "Developer",
       "provider": "anthropic",
       "model": "sonnet",
-      "working_directory": "/Users/me/tinyclaw-workspace/coder"
-    },
-    "writer": {
-      "name": "Technical Writer",
-      "provider": "openai",
-      "model": "gpt-5.3-codex",
-      "working_directory": "/Users/me/tinyclaw-workspace/writer"
-    }
-  }
-}
-```
-
-Each agent operates in isolation:
-
-- **Separate workspace directory** - `~/tinyclaw-workspace/{agent_id}/`
-- **Own conversation history** - Maintained by CLI
-- **Custom configuration** - `.claude/`, `heartbeat.md` (root), `AGENTS.md`
-- **Independent resets** - Reset individual agent conversations
-
-<details>
-<summary><b>📖 Learn more about agents</b></summary>
-
-See [Agent Architecture](docs/02-design/agent-architecture.md) for:
-
-- Architecture details
-- Agent configuration
-- Use cases and examples
-- Advanced features
-- Troubleshooting
-
-</details>
-
-## 📐 Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Message Channels                         │
-│         (Discord, Telegram, WhatsApp, Heartbeat)            │
-└────────────────────┬────────────────────────────────────────┘
-                     │ Write message.json
-                     ↓
-┌─────────────────────────────────────────────────────────────┐
-│                   ~/.tinyclaw/queue/                         │
-│                                                              │
-│  incoming/          processing/         outgoing/           │
-│  ├─ msg1.json  →   ├─ msg1.json   →   ├─ msg1.json        │
-│  ├─ msg2.json       └─ msg2.json       └─ msg2.json        │
-│  └─ msg3.json                                                │
-│                                                              │
-└────────────────────┬────────────────────────────────────────┘
-                     │ Queue Processor
-                     ↓
-┌─────────────────────────────────────────────────────────────┐
-│              Parallel Processing by Agent                    │
-│                                                              │
-│  Agent: coder        Agent: writer       Agent: assistant   │
-│  ┌──────────┐       ┌──────────┐        ┌──────────┐       │
-│  │ Message 1│       │ Message 1│        │ Message 1│       │
-│  │ Message 2│ ...   │ Message 2│  ...   │ Message 2│ ...   │
-│  │ Message 3│       │          │        │          │       │
-│  └────┬─────┘       └────┬─────┘        └────┬─────┘       │
-│       │                  │                     │            │
-└───────┼──────────────────┼─────────────────────┼────────────┘
-        ↓                  ↓                     ↓
-   claude CLI         claude CLI             claude CLI
-  (workspace/coder)  (workspace/writer)  (workspace/assistant)
-```
-
-**Key features:**
-
-- **File-based queue** - Atomic operations, no race conditions
-- **Parallel agents** - Different agents process messages concurrently
-- **Sequential per agent** - Preserves conversation order within each agent
-- **Isolated workspaces** - Each agent has its own directory and context
-
-<details>
-<summary><b>📖 Learn more about the queue system</b></summary>
-
-See [Queue System Design](docs/02-design/queue-system-design.md) for:
-
-- Detailed message flow
-- Parallel processing explanation
-- Performance characteristics
-- Debugging tips
-
-</details>
-
-## 📁 Directory Structure
-
-```
-tinyclaw/
-├── .tinyclaw/            # TinySDLC data
-│   ├── settings.json     # Configuration
-│   ├── queue/            # Message queue
-│   │   ├── incoming/
-│   │   ├── processing/
-│   │   └── outgoing/
-│   ├── logs/             # All logs
-│   ├── channels/         # Channel state
-│   ├── files/            # Uploaded files
-│   ├── pairing.json      # Sender allowlist state (pending + approved)
-│   ├── chats/            # Team chain chat history
-│   │   └── {team_id}/    # Per-team chat logs
-│   ├── events/           # Real-time event files
-│   ├── .claude/          # Template for agents
-│   ├── heartbeat.md      # Template for agents
-│   └── AGENTS.md         # Template for agents
-├── ~/tinyclaw-workspace/ # Agent workspaces
-│   ├── coder/
-│   │   ├── .claude/
-│   │   ├── heartbeat.md
-│   │   └── AGENTS.md
-│   ├── writer/
-│   └── assistant/
-├── src/                  # TypeScript sources
-├── dist/                 # Compiled output
-├── lib/                  # Runtime scripts
-├── scripts/              # Installation scripts
-└── tinyclaw.sh           # Main script
-```
-
-## ⚙️ Configuration
-
-### Settings File
-
-Located at `.tinyclaw/settings.json`:
-
-```json
-{
-  "channels": {
-    "enabled": ["discord", "telegram", "whatsapp"],
-    "discord": { "bot_token": "..." },
-    "telegram": { "bot_token": "..." },
-    "whatsapp": {}
-  },
-  "workspace": {
-    "path": "/Users/me/tinyclaw-workspace",
-    "name": "tinyclaw-workspace"
-  },
-  "agents": {
-    "assistant": {
-      "name": "Assistant",
-      "provider": "anthropic",
-      "model": "sonnet",
-      "working_directory": "/Users/me/tinyclaw-workspace/assistant"
+      "sdlc_role": "coder",
+      "working_directory": "~/tinysdlc-workspace/coder"
     }
   },
   "teams": {
     "dev": {
-      "name": "Development Team",
+      "name": "Development",
       "agents": ["coder", "reviewer"],
       "leader_agent": "coder"
     }
@@ -437,119 +206,129 @@ Located at `.tinyclaw/settings.json`:
 }
 ```
 
-### Heartbeat Configuration
+Each agent workspace at `~/tinysdlc-workspace/{agent_id}/` contains:
 
-Edit agent-specific heartbeat prompts:
+- `.claude/` — Claude Code config
+- `AGENTS.md` — Role-specific instructions (from `templates/agents/{role}/`)
+- `.tinysdlc/SOUL.md` — Agent identity
+- `heartbeat.md` — Proactive check-in prompt
 
-```bash
-# Edit heartbeat for specific agent
-nano ~/tinyclaw-workspace/coder/heartbeat.md
-```
+### Environment Variables
 
-Default heartbeat prompt:
-
-```markdown
-Check for:
-
-1. Pending tasks
-2. Errors
-3. Unread messages
-
-Take action if needed.
-```
-
-## 🎯 Use Cases
-
-### Personal AI Assistant
-
-```
-You: "Remind me to call mom"
-Claude: "I'll remind you!"
-[1 hour later via heartbeat]
-Claude: "Don't forget to call mom!"
-```
-
-### Multi-Agent Workflow
-
-```
-@coder Review and fix bugs in auth.ts
-@writer Document the changes
-@reviewer Check the documentation quality
-```
-
-### Team Collaboration
-
-```
-@dev fix the auth bug
-# → Routes to team leader (@coder)
-# → Coder fixes bug, mentions @reviewer in response
-# → Reviewer automatically invoked, reviews changes
-# → Combined response sent back to user
-```
-
-Teams support sequential chains (single handoff) and parallel fan-out (multiple teammate mentions). See [Team Communication Design](docs/02-design/team-communication-design.md) for details.
-
-### Cross-Device Access
-
-- WhatsApp on phone
-- Discord on desktop
-- Telegram anywhere
-- CLI for automation
-
-All channels share agent conversations!
-
-## 📚 Documentation
-
-- [Agent Architecture](docs/02-design/agent-architecture.md) - Agent management and routing
-- [Team Communication Design](docs/02-design/team-communication-design.md) - Team collaboration, chain execution, and visualizer
-- [Queue System Design](docs/02-design/queue-system-design.md) - Queue system and message flow
-- [Troubleshooting Guide](docs/04-build/troubleshooting-guide.md) - Common issues and solutions
-
-## 🐛 Troubleshooting
-
-See [Troubleshooting Guide](docs/04-build/troubleshooting-guide.md) for detailed solutions.
-
-**Quick fixes:**
-
-```bash
-# Reset everything (preserves settings)
-tinyclaw stop && rm -rf .tinyclaw/queue/* && tinysdlc start
-
-# Reset WhatsApp
-tinyclaw channels reset whatsapp
-
-# Check status
-tinyclaw status
-
-# View logs
-tinyclaw logs all
-```
-
-**Common issues:**
-
-- Bash version error → Install bash 4.0+: `brew install bash`
-- WhatsApp not connecting → Reset auth: `tinyclaw channels reset whatsapp`
-- Messages stuck → Clear queue: `rm -rf .tinyclaw/queue/processing/*`
-- Agent not found → Check: `tinysdlc agent list`
-- Corrupted settings.json → TinySDLC auto-repairs invalid JSON (trailing commas, comments, BOM) and creates a `.bak` backup
-
-**Need help?**
-
-- [GitHub Issues](https://github.com/jlia0/tinyclaw/issues)
-- Check logs: `tinyclaw logs all`
-
-## 🙏 Credits
-
-- Inspired by [OpenClaw](https://openclaw.ai/) by Peter Steinberger
-- Built on [Claude Code](https://claude.com/claude-code) and [Codex CLI](https://docs.openai.com/codex)
-- Uses [discord.js](https://discord.js.org/), [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js), [node-telegram-bot-api](https://github.com/yagop/node-telegram-bot-api)
-
-## 📄 License
-
-MIT
+| Variable | Purpose |
+| -------- | ------- |
+| `TINYSDLC_HOME` | Override data dir (default: `~/.tinysdlc`) |
+| `TINYSDLC_SKIP_UPDATE_CHECK` | Set `1` to disable update checks |
 
 ---
 
-**TinySDLC - Tiny but mighty!** 🦞✨
+## Channel Setup
 
-[![Star History Chart](https://api.star-history.com/svg?repos=jlia0/tinyclaw&type=date&legend=top-left)](https://www.star-history.com/#jlia0/tinyclaw&type=date&legend=top-left)
+<details>
+<summary>Discord</summary>
+
+1. [Discord Developer Portal](https://discord.com/developers/applications) → Create application → Bot
+2. Copy bot token, enable Message Content Intent
+3. Invite via OAuth2 URL Generator (bot scope + Send Messages)
+4. DM the bot directly
+
+</details>
+
+<details>
+<summary>Telegram</summary>
+
+1. Open Telegram, search `@BotFather`, send `/newbot`
+2. Copy the bot token
+3. Start a chat with your bot
+
+</details>
+
+<details>
+<summary>WhatsApp</summary>
+
+1. Run `tinysdlc start` — QR code appears in terminal
+2. WhatsApp → Settings → Linked Devices → Link a Device → scan QR
+3. Reset if needed: `tinysdlc channels reset whatsapp`
+
+</details>
+
+---
+
+## Project Structure
+
+```text
+tinysdlc/
+├── tinysdlc.sh                 # CLI entry point
+├── src/                        # TypeScript
+│   ├── queue-processor.ts      # Message processing loop
+│   ├── channels/               # Discord, Telegram, WhatsApp clients
+│   ├── lib/                    # config, invoke, routing, pairing, types
+│   └── visualizer/             # React/Ink TUI dashboard
+├── lib/                        # Bash
+│   ├── daemon.sh               # Start/stop/restart
+│   ├── agents.sh / teams.sh    # CRUD commands
+│   ├── sdlc.sh                 # SDLC commands
+│   ├── setup-wizard.sh         # Interactive setup
+│   └── heartbeat-cron.sh       # Periodic check-ins
+├── templates/                  # Role templates + default settings
+├── docs/                       # SDLC-structured docs (stages 00-04)
+└── scripts/                    # install, uninstall, bundle
+
+~/.tinysdlc/                    # Runtime data
+├── settings.json               # Configuration
+├── queue/{incoming,processing,outgoing}/
+├── logs/ channels/ files/ chats/ events/
+└── pairing.json                # Sender allowlist
+
+~/tinysdlc-workspace/           # Agent workspaces
+├── coder/  reviewer/  pm/  ... # Each with .claude/, AGENTS.md, heartbeat.md
+```
+
+---
+
+## Documentation
+
+| Stage | Key Documents |
+| ----- | ------------- |
+| 00 Foundation | [Problem Statement](docs/00-foundation/problem-statement.md) |
+| 01 Planning | [Requirements](docs/01-planning/requirements.md), [SDLC Agent Roles](docs/01-planning/sdlc-agent-roles.md) |
+| 02 Design | [Agent Architecture](docs/02-design/agent-architecture.md), [Queue System](docs/02-design/queue-system-design.md), [Team Archetypes](docs/02-design/sdlc-team-archetypes.md) |
+| 03 Integrate | [Channel Contracts](docs/03-integrate/channel-integration-contracts.md) |
+| 04 Build | [Installation](docs/04-build/installation-guide.md), [Troubleshooting](docs/04-build/troubleshooting-guide.md), [SDLC Setup](docs/04-build/sdlc-agent-setup-guide.md) |
+
+Full index: [docs/README.md](docs/README.md)
+
+---
+
+## Troubleshooting
+
+```bash
+tinysdlc status                              # check processes
+tinysdlc logs all                            # tail all logs
+tinysdlc stop && tinysdlc start              # restart
+tinysdlc channels reset whatsapp             # re-auth WhatsApp
+rm -rf ~/.tinysdlc/queue/processing/*        # unstick messages
+```
+
+| Problem | Fix |
+| ------- | --- |
+| Bash version error | `brew install bash` (need 4.0+) |
+| WhatsApp not connecting | `tinysdlc channels reset whatsapp` |
+| Messages stuck | `rm -rf ~/.tinysdlc/queue/processing/*` |
+| Agent not found | `tinysdlc agent list` |
+| Corrupted settings | Auto-repaired on start (`.bak` backup saved) |
+
+See [Troubleshooting Guide](docs/04-build/troubleshooting-guide.md) for more.
+
+---
+
+## Credits
+
+This project combines two open-source efforts:
+
+- **[TinyClaw](https://github.com/jlia0/tinyclaw)** by jlia0 — Multi-agent orchestrator foundation
+- **[SDLC Enterprise Framework v6.0.6](https://github.com/Minh-Tam-Solution/SDLC-Enterprise-Framework)** by Minh-Tam-Solution — AI+Human governance methodology
+
+## License
+
+MIT
