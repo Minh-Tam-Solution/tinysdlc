@@ -46,7 +46,7 @@ This project follows **SDLC Enterprise Framework v6.1.0** at **LITE tier**. The 
 
 ## Project Overview
 
-TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that integrates the SDLC Enterprise Framework v6.1.0 for AI+Human team governance. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, or Ollama) organized into teams with SDLC roles (PM, Architect, Coder, Reviewer, Tester, DevOps). Messages arrive from Discord, WhatsApp, Telegram, Zalo OA, and Zalo Personal through a file-based queue system with atomic operations. Agents collaborate via `[@teammate: message]` tags, enabling chain execution and parallel fan-out within teams.
+TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that integrates the SDLC Enterprise Framework v6.1.0 for AI+Human team governance. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, or Ollama) organized into teams with 12 SDLC roles: 8 SE4A agents (Researcher, PM, PJM, Architect, Coder, Reviewer, Tester, DevOps), 3 SE4H advisors (CEO, CPO, CTO at STANDARD+), and 1 Router (Assistant). Messages arrive from Discord, WhatsApp, Telegram, Zalo OA, and Zalo Personal through a file-based queue system with atomic operations. Agents collaborate via `[@teammate: message]` tags, enabling chain execution and parallel fan-out within teams.
 
 The project is a fork of [TinyClaw](https://github.com/jlia0/tinyclaw) by jlia0, combined with SDLC Enterprise Framework v6.1.0 by Minh-Tam-Solution (private repository, not open-sourced) to create a governance-aware agent orchestration platform.
 
@@ -246,20 +246,33 @@ Two tsconfig files: `tsconfig.json` (CommonJS, ES2020, strict) for main code, an
 
 ## SDLC Agent Roles
 
-TinySDLC supports 6 SDLC roles assigned via `sdlc_role` field in agent config:
+TinySDLC defines 12 SDLC roles via `sdlc_role` field in agent config. At LITE tier, 8 SE4A roles are active:
 
-| Role | SDLC Stages | Gate Ownership | Key Constraint |
-| ---- | ----------- | -------------- | -------------- |
-| **pm** | 00-01 | G0.1, G1 | Plans only, never writes code |
-| **architect** | 02-03 | G2 | Designs systems, defines contracts |
-| **coder** | 04 | Sprint Gate | Implements features, writes tests |
-| **reviewer** | 04-05 | G3 (primary) | Reviews code quality, blocks bad merges |
-| **tester** | 05 | G3 (co-owner) | Validates quality, writes test cases |
-| **devops** | 06-07 | G4 | Manages deployment and infrastructure |
+### SE4A Roles (8 Agent Executors — active at LITE)
+
+| Role | Type | SDLC Stages | Gate Ownership | Key Constraint |
+| ---- | ---- | ----------- | -------------- | -------------- |
+| **researcher** | SE4A | 00 | G0.1 | Research only, feeds findings to pm |
+| **pm** | SE4A | 00-01 | G0.1, G1 | Plans only, never writes code |
+| **pjm** | SE4A | 01-04 | Sprint Gate | Timeline and resources, not product decisions |
+| **architect** | SE4A | 02-03 | G2 | Designs systems, defines contracts |
+| **coder** | SE4A | 04 | Sprint Gate | Implements features, writes tests |
+| **reviewer** | SE4A | 04-05 | G3 (primary) | Reviews code quality, blocks bad merges |
+| **tester** | SE4A | 05 | G3 (co-owner) | Validates quality, writes test cases |
+| **devops** | SE4A | 06-07 | G4 | Manages deployment and infrastructure |
+
+### SE4H + Router Roles (4 additional — active at STANDARD+)
+
+| Role | Type | Purpose | Key Constraint |
+| ---- | ---- | ------- | -------------- |
+| **ceo** | SE4H | Strategic direction, business alignment | Advisory only, `max_delegation_depth=0` |
+| **cpo** | SE4H | Product vision, UX quality | Advisory only, read-only tool access |
+| **cto** | SE4H | Technical standards, architecture review | Advisory only, no autonomous execution |
+| **assistant** | Router | Routes users to correct agent/team | No decision authority, no code execution |
 
 Role templates: `templates/agents/{role}/AGENTS.md`
 Default SDLC settings: `templates/settings.sdlc-default.json`
-CLI: `tinysdlc sdlc init` applies all 6 agents + 4 team archetypes (planning, dev, qa, fullstack)
+CLI: `tinysdlc sdlc init` applies 8 SE4A agents + 4 core teams (planning, dev, qa, fullstack)
 
 ---
 
