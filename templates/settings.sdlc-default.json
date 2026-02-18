@@ -1,5 +1,5 @@
 {
-  "_comment": "SDLC Framework v6.0.6 default settings — run 'tinysdlc sdlc init' to apply",
+  "_comment": "SDLC Framework v6.0.6 default agents/teams — auto-applied by setup wizard, or manually via 'tinysdlc sdlc init'",
   "workspace": {
     "path": "~/tinysdlc-workspace",
     "name": "my-sdlc-project"

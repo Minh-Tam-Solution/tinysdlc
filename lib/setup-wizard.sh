@@ -420,8 +420,8 @@ if [ -f "$SDLC_TEMPLATE" ] && command -v jq &> /dev/null; then
         done
 
         echo ""
-        echo -e "${GREEN}✓ SDLC agents (6) and teams (4) applied${NC}"
-        echo -e "  Teams: planning (pm+architect), dev (coder+reviewer), qa (tester+reviewer), fullstack"
+        echo -e "${GREEN}✓ SDLC agents (7) and teams (4) applied${NC}"
+        echo -e "  Teams: planning (researcher+pm+architect), dev (coder+reviewer), qa (tester+reviewer), fullstack"
     else
         rm -f "$sdlc_merge_tmp"
         echo -e "${YELLOW}⚠ Could not merge SDLC defaults (jq error). Run 'tinysdlc sdlc init' manually.${NC}"

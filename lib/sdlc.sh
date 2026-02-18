@@ -96,8 +96,8 @@ sdlc_init() {
     echo -e "${BLUE}TinySDLC SDLC Init — applying SDLC Framework v6.0.6 defaults${NC}"
     echo ""
     echo "This will add the following to your settings.json:"
-    echo "  Agents: pm, architect, coder, reviewer, tester, devops"
-    echo "  Teams:  planning, dev, qa, fullstack"
+    echo "  Agents: researcher, pm, architect, coder, reviewer, tester, devops"
+    echo "  Teams:  planning (researcher+pm+architect), dev, qa, fullstack"
     echo ""
     echo -n "Continue? (y/n) "
     read -r confirm
@@ -149,7 +149,7 @@ sdlc_init() {
         for role in researcher pm architect coder reviewer tester devops; do
             mkdir -p "$workspace/$role"
         done
-        echo -e "${GREEN}Workspace directories created:${NC} $workspace/{pm,architect,coder,reviewer,tester,devops}"
+        echo -e "${GREEN}Workspace directories created:${NC} $workspace/{researcher,pm,architect,coder,reviewer,tester,devops}"
     fi
 }
 
