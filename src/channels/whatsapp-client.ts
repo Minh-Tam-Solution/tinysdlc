@@ -177,6 +177,11 @@ client.on('qr', (qr: string) => {
         log('INFO', 'QR code saved to .tinysdlc/channels/whatsapp_qr.txt');
     });
 
+    // Save raw QR data for external QR generators (PNG, etc.)
+    const qrRawFile = path.join(channelsDir, 'whatsapp_qr_raw.txt');
+    fs.writeFileSync(qrRawFile, qr);
+    log('INFO', 'Raw QR data saved to .tinysdlc/channels/whatsapp_qr_raw.txt');
+
     console.log('\n');
     log('INFO', 'Open WhatsApp → Settings → Linked Devices → Link a Device');
 });

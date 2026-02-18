@@ -8,11 +8,11 @@
 
 ## SDLC Compliance
 
-This project follows **SDLC Enterprise Framework v6.0.6** at **LITE tier**. The framework is a **private repository** (not open-sourced); a local copy is available at `.sdlc-framework/` (gitignored).
+This project follows **SDLC Enterprise Framework v6.1.0** at **LITE tier**. The framework is a **private repository** (not open-sourced); a local copy is available at `.sdlc-framework/` (gitignored).
 
 | Aspect | Value |
 | ------ | ----- |
-| SDLC Framework | 6.0.6 |
+| SDLC Framework | 6.1.0 |
 | Tier | LITE (1-2 developers) |
 | Config | `.sdlc-config.json` |
 | Active Stages | 00-foundation, 01-planning, 02-design, 03-integrate, 04-build |
@@ -34,7 +34,7 @@ This project follows **SDLC Enterprise Framework v6.0.6** at **LITE tier**. The 
 
    ```markdown
    # TinySDLC - [Title]
-   **SDLC Version**: 6.0.6
+   **SDLC Version**: 6.1.0
    **Stage**: NN - STAGE_NAME
    **Status**: Active
    **Authority**: CTO Approved
@@ -46,9 +46,9 @@ This project follows **SDLC Enterprise Framework v6.0.6** at **LITE tier**. The 
 
 ## Project Overview
 
-TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that integrates the SDLC Enterprise Framework v6.0.6 for AI+Human team governance. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, or Ollama) organized into teams with SDLC roles (PM, Architect, Coder, Reviewer, Tester, DevOps). Messages arrive from Discord, WhatsApp, Telegram, Zalo OA, and Zalo Personal through a file-based queue system with atomic operations. Agents collaborate via `[@teammate: message]` tags, enabling chain execution and parallel fan-out within teams.
+TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that integrates the SDLC Enterprise Framework v6.1.0 for AI+Human team governance. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, or Ollama) organized into teams with SDLC roles (PM, Architect, Coder, Reviewer, Tester, DevOps). Messages arrive from Discord, WhatsApp, Telegram, Zalo OA, and Zalo Personal through a file-based queue system with atomic operations. Agents collaborate via `[@teammate: message]` tags, enabling chain execution and parallel fan-out within teams.
 
-The project is a fork of [TinyClaw](https://github.com/jlia0/tinyclaw) by jlia0, combined with SDLC Enterprise Framework v6.0.6 by Minh-Tam-Solution (private repository, not open-sourced) to create a governance-aware agent orchestration platform.
+The project is a fork of [TinyClaw](https://github.com/jlia0/tinyclaw) by jlia0, combined with SDLC Enterprise Framework v6.1.0 by Minh-Tam-Solution (private repository, not open-sourced) to create a governance-aware agent orchestration platform.
 
 **Repository**: [Minh-Tam-Solution/tinysdlc](https://github.com/Minh-Tam-Solution/tinysdlc)
 

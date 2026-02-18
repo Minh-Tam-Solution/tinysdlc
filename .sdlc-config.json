@@ -7,7 +7,7 @@
     "repository": "https://github.com/Minh-Tam-Solution/tinysdlc"
   },
   "sdlc": {
-    "frameworkVersion": "6.0.6",
+    "frameworkVersion": "6.1.0",
     "tier": "LITE",
     "stages": {
       "00-foundation": "docs/00-foundation",
