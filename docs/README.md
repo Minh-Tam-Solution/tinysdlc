@@ -24,6 +24,7 @@ This project follows the SDLC Enterprise Framework v6.0.6 documentation standard
 - [Requirements](./01-planning/requirements.md) - Core + SDLC Framework requirements
 - [SDLC Agent Roles](./01-planning/sdlc-agent-roles.md) - 6 role definitions, SE4A/SE4H mapping
 - [Sprint Plan — SDLC Support](./01-planning/sprint-plan-sdlc-support.md) - S01 sprint plan
+- [Sprint Plan — Ecosystem Upgrade](./01-planning/sprint-plan-ecosystem-upgrade.md) - S02 sprint plan (CTO-2026-002)
 
 **Architecture** (Stage 02):
 - [Agent Architecture](./02-design/agent-architecture.md) - Multi-agent system design
@@ -36,6 +37,7 @@ This project follows the SDLC Enterprise Framework v6.0.6 documentation standard
 **Integration** (Stage 03):
 - [Channel Integration Contracts](./03-integrate/channel-integration-contracts.md) - Discord/Telegram/WhatsApp APIs
 - [SDLC-Orchestrator Integration Proposal](./03-integrate/sdlc-orchestrator-proposal.md) - Proposed integration with governance control plane
+- [CTO Directive — Ecosystem Upgrade V4](./03-integrate/CTO-DIRECTIVE-ECOSYSTEM-UPGRADE-V4.md) - 3-product ecosystem strategy (CTO-2026-002)
 
 **Development** (Stage 04):
 - [Installation Guide](./04-build/installation-guide.md) - Setup and installation
