@@ -1,6 +1,6 @@
 # TinySDLC - SDLC Agent Setup Guide
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 04 - BUILD
 **Status**: Active
 **Authority**: CTO Approved
@@ -9,7 +9,7 @@
 
 ## Overview
 
-This guide explains how to set up TinySDLC with SDLC Framework v6.0.6 agents and teams. After following this guide, you will have a fully configured multi-agent environment that any SDLC practitioner can use immediately.
+This guide explains how to set up TinySDLC with SDLC Framework v6.1.0 agents and teams. After following this guide, you will have a fully configured multi-agent environment that any SDLC practitioner can use immediately.
 
 ---
 

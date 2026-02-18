@@ -3,7 +3,7 @@ export interface AgentConfig {
     provider: string;       // 'anthropic', 'openai', or 'ollama'
     model: string;           // e.g. 'sonnet', 'opus', 'gpt-5.3-codex', 'llama3.2'
     working_directory: string;
-    // SDLC Framework v6.0.6 fields (optional, backward compatible)
+    // SDLC Framework v6.1.0 fields (optional, backward compatible)
     sdlc_role?: SdlcRole;        // enforced by TypeScript at compile time
     system_prompt?: string;      // Inline system prompt prepended via SYSTEM_CONTEXT.md
     prompt_file?: string;        // Path to .md file used as system prompt
@@ -152,6 +152,13 @@ export const OLLAMA_MODEL_IDS: Record<string, string> = {
     'deepseek-coder-v2': 'deepseek-coder-v2',
 };
 
-// Valid SDLC roles for Framework v6.0.6
-export const SDLC_ROLES = ['researcher', 'pm', 'pjm', 'architect', 'coder', 'reviewer', 'tester', 'devops'] as const;
+// Valid SDLC roles for Framework v6.1.0 — 12-Role SASE Classification
+// SE4A (Agent Executors): 8 roles — active at LITE tier
+export const SE4A_ROLES = ['researcher', 'pm', 'pjm', 'architect', 'coder', 'reviewer', 'tester', 'devops'] as const;
+// SE4H (Human Advisors): 3 roles — active at STANDARD+ tier
+export const SE4H_ROLES = ['ceo', 'cpo', 'cto'] as const;
+// Router: 1 role — active at STANDARD+ tier
+export const ROUTER_ROLES = ['assistant'] as const;
+// All 12 SDLC roles
+export const SDLC_ROLES = [...SE4A_ROLES, ...SE4H_ROLES, ...ROUTER_ROLES] as const;
 export type SdlcRole = typeof SDLC_ROLES[number];

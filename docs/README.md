@@ -1,13 +1,13 @@
 # TinySDLC Documentation
 
-**SDLC Framework**: 6.0.6 (LITE Tier)
+**SDLC Framework**: 6.1.0 (LITE Tier)
 **Project Version**: 0.0.5
 
 ---
 
 ## Documentation Structure
 
-This project follows the SDLC Enterprise Framework v6.0.6 documentation standard.
+This project follows the SDLC Enterprise Framework v6.1.0 documentation standard.
 
 | Stage | Folder | Purpose | Status |
 |-------|--------|---------|--------|
@@ -32,7 +32,7 @@ This project follows the SDLC Enterprise Framework v6.0.6 documentation standard
 - [Queue System Design](./02-design/queue-system-design.md) - File-based queue architecture
 - [Team Communication Design](./02-design/team-communication-design.md) - Team collaboration design
 - [SDLC Team Archetypes](./02-design/sdlc-team-archetypes.md) - 4 team templates, flows, gate mapping
-- [ADR: SDLC Framework Support](./02-design/adr-sdlc-framework-support.md) - Architecture decisions for v6.0.6 support
+- [ADR: SDLC Framework Support](./02-design/adr-sdlc-framework-support.md) - Architecture decisions for v6.1.0 support
 
 **Integration** (Stage 03):
 - [Channel Integration Contracts](./03-integrate/channel-integration-contracts.md) - Discord/Telegram/WhatsApp APIs

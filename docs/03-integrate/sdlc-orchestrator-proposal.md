@@ -1,6 +1,6 @@
 # TinySDLC - SDLC-Orchestrator Integration Proposal
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 03 - INTEGRATE
 **Status**: Active
 **Authority**: CTO Approved

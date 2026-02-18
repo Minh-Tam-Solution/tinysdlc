@@ -8,7 +8,7 @@
 
 ## SDLC Compliance
 
-This project follows **SDLC Enterprise Framework v6.1.0** at **LITE tier**. The framework is a **private repository** (not open-sourced); a local copy is available at `.sdlc-framework/` (gitignored).
+This project follows **SDLC Enterprise Framework v6.1.0** at **LITE tier**. All SDLC concepts (stages, roles, gates, teams, governance) are fully documented in **MTS-SDLC-Lite** (`MTS-SDLC-Lite/` subdir) — the MIT-licensed community edition. No access to the private Enterprise Framework repo is required.
 
 | Aspect | Value |
 | ------ | ----- |
@@ -17,7 +17,7 @@ This project follows **SDLC Enterprise Framework v6.1.0** at **LITE tier**. The 
 | Config | `.sdlc-config.json` |
 | Active Stages | 00-foundation, 01-planning, 02-design, 03-integrate, 04-build |
 | Current Gate | G0.1 |
-| Framework Reference | `.sdlc-framework/` (local copy, gitignored) |
+| SDLC Reference | `MTS-SDLC-Lite/` (MIT-licensed, all concepts documented) |
 
 ### Documentation Standards
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SDLC Framework v6.0.6 commands for TinySDLC
+# SDLC Framework v6.1.0 commands for TinySDLC
 # Sourced by tinysdlc.sh
 
 # Requires: jq, SETTINGS_FILE, SCRIPT_DIR (from common.sh)
@@ -15,7 +15,7 @@ sdlc_status() {
         echo -e "${RED}Error: jq is required.${NC}"; return 1
     fi
 
-    echo -e "${BLUE}TinySDLC — SDLC Framework v6.0.6 Status${NC}"
+    echo -e "${BLUE}TinySDLC — SDLC Framework v6.1.0 Status${NC}"
     echo ""
 
     # Agents with sdlc_role
@@ -61,21 +61,33 @@ sdlc_status() {
 # ─── sdlc roles ──────────────────────────────────────────────────────────────
 
 sdlc_roles() {
-    echo -e "${BLUE}SDLC Framework v6.0.6 — Role Reference${NC}"
+    echo -e "${BLUE}SDLC Framework v6.1.0 — 12-Role SASE Classification${NC}"
     echo ""
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "Role" "Title" "Stage" "Gate" "Key Constraint"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "──────────" "────────────────────" "────────────────────" "───────────────" "──────────────────────────────"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "researcher" "Researcher"          "00-01 Foundation/Plan" "G0.1"          "Research, never decide"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "pm"        "Product Manager"      "00-01 Foundation/Plan" "G0.1, G1"      "No self-approve requirements"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "pjm"       "Project Manager"     "01-04 Plan/Build"      "G-Sprint"      "Coordinate, never override"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "architect" "Solution Architect"   "02-03 Design/Integrate" "G2"           "No tech decisions without ADR"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "coder"     "Developer"            "04 Build"              "Sprint Gate"   "No merge without reviewer"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "reviewer"  "Code Reviewer"        "04-05 Build/Verify"    "G3 Ship Ready" "NEVER approve own code"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "tester"    "QA Tester"            "05 Verify"             "G3 (co-owner)" "No skip coverage thresholds"
-    printf "  %-10s %-20s %-20s %-15s %-30s\n" "devops"    "DevOps Engineer"      "06-07 Deploy/Operate"  "G4"           "No deploy without G3 confirmed"
+    echo -e "${GREEN}SE4A — Agent Executors (8 roles, active at LITE tier):${NC}"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "Role" "Title" "Stage" "Gate" "Key Constraint"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "──────────" "────────────────────" "──────────────────────" "───────────────" "──────────────────────────────"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "researcher" "Researcher"          "00-01 Foundation/Plan"  "G0.1"          "Research, never decide"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "pm"        "Product Manager"      "00-01 Foundation/Plan"  "G0.1, G1"      "No self-approve requirements"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "pjm"       "Project Manager"      "01-04 Plan/Build"      "G-Sprint"      "Coordinate, never override"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "architect" "Solution Architect"    "02-03 Design/Integrate" "G2"           "No tech decisions without ADR"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "coder"     "Developer"            "04 Build"               "Sprint Gate"   "No merge without reviewer"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "reviewer"  "Code Reviewer"        "04-05 Build/Verify"     "G3 Ship Ready" "NEVER approve own code"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "tester"    "QA Tester"            "05 Verify"              "G3 (co-owner)" "No skip coverage thresholds"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "devops"    "DevOps Engineer"      "06-07 Deploy/Operate"   "G4"           "No deploy without G3 confirmed"
     echo ""
-    echo -e "SE4H (Human Coach): The user on Telegram/Discord/WhatsApp"
-    echo -e "SE4A (Agent Executor): All agents — propose, implement, never self-approve"
+    echo -e "${GREEN}SE4H — Human Advisors (3 roles, active at STANDARD+ tier):${NC}"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "Role" "Title" "Stage" "Gate" "Key Constraint"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "──────────" "────────────────────" "──────────────────────" "───────────────" "──────────────────────────────"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "ceo"       "CEO Advisor"          "All stages"             "G0.1, G4"     "Strategic only, read-only tools"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "cpo"       "CPO Advisor"          "00-01 Foundation/Plan"  "G0.1, G1"     "Product only, no tech decisions"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "cto"       "CTO Advisor"          "02-04 Design/Build"     "G2, G3"       "Architecture only, no product"
+    echo ""
+    echo -e "${GREEN}Router (1 role, active at STANDARD+ tier):${NC}"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "──────────" "────────────────────" "──────────────────────" "───────────────" "──────────────────────────────"
+    printf "  %-10s %-20s %-22s %-15s %-30s\n" "assistant" "Router/Assistant"      "All stages"             "—"            "Route only, no authority"
+    echo ""
+    echo -e "LITE tier (1-2 devs): 8 SE4A roles as thinking modes — single person wears all hats"
+    echo -e "STANDARD+ (3+ devs): +3 SE4H advisors + 1 Router — dedicated agents per role"
     echo ""
 }
 
@@ -94,7 +106,7 @@ sdlc_init() {
         return 1
     fi
 
-    echo -e "${BLUE}TinySDLC SDLC Init — applying SDLC Framework v6.0.6 defaults${NC}"
+    echo -e "${BLUE}TinySDLC SDLC Init — applying SDLC Framework v6.1.0 defaults${NC}"
     echo ""
     echo "This will add the following to your settings.json:"
     echo "  Agents: researcher, pm, pjm, architect, coder, reviewer, tester, devops"
@@ -252,7 +264,7 @@ sdlc_command() {
             echo ""
             echo "Commands:"
             echo "  status          Show agents with SDLC roles and active teams"
-            echo "  roles           List all 6 SDLC roles with stage and gate mapping"
+            echo "  roles           List all 12 SDLC roles with stage and gate mapping"
             echo "  init            Apply SDLC default agents/teams to settings.json"
             echo "  reinit [agent]  Re-apply role templates to agent working directories"
             echo ""

@@ -1,6 +1,6 @@
-# TinySDLC - Sprint Plan: SDLC Framework v6.0.6 Support
+# TinySDLC - Sprint Plan: SDLC Framework v6.1.0 Support
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 01 - PLANNING
 **Status**: Active
 **Authority**: CTO Approved
@@ -11,7 +11,7 @@
 
 ## Sprint Goal
 
-Make TinySDLC SDLC Framework v6.0.6 ready out of the box. Any user who understands the framework should be able to apply it immediately using `tinysdlc sdlc init` without manual configuration.
+Make TinySDLC SDLC Framework v6.1.0 ready out of the box. Any user who understands the framework should be able to apply it immediately using `tinysdlc sdlc init` without manual configuration.
 
 ---
 

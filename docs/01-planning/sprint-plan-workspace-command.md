@@ -1,6 +1,6 @@
 # TinySDLC - Sprint S03: In-Chat Workspace Command
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 01 - PLANNING
 **Status**: Active
 **Authority**: CTO Approved

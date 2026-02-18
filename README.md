@@ -1,7 +1,7 @@
 # TinySDLC
 
 Multi-agent AI Orchestrator with SDLC Governance.
-Run teams of AI agents across Discord, WhatsApp, Telegram, and Zalo — governed by SDLC Framework v6.0.6 roles and quality gates.
+Run teams of AI agents across Discord, WhatsApp, Telegram, and Zalo — governed by SDLC Framework v6.1.0 roles and quality gates.
 
 **Open source for the community.** TinySDLC ships with 8 built-in SDLC agents and 4 team archetypes — ready to use out of the box for individuals and small teams.
 
@@ -48,7 +48,7 @@ npm install && npm run build
 tinysdlc start
 ```
 
-The setup wizard configures channels, AI provider, workspace, and all 8 SDLC agents + 4 teams automatically.
+The setup wizard configures channels, AI provider, workspace, and all 8 SE4A agents + 4 core teams automatically (LITE tier). SDLC 6.1.0 defines 12 roles total (8 SE4A + 3 SE4H + 1 Router) across 6 team archetypes.
 
 ---
 
@@ -123,8 +123,8 @@ Team collaboration: agent responses containing `[@teammate: message]` tags trigg
 | Command | Description |
 | ------- | ----------- |
 | `tinysdlc sdlc status` | Agents with SDLC roles and teams |
-| `tinysdlc sdlc roles` | Reference table of all 8 roles |
-| `tinysdlc sdlc init` | Apply defaults: 8 agents + 4 teams |
+| `tinysdlc sdlc roles` | Reference table of all 12 SDLC roles |
+| `tinysdlc sdlc init` | Apply defaults: 8 SE4A agents + 4 teams |
 | `tinysdlc sdlc reinit [agent]` | Re-apply role templates |
 
 ### Other
@@ -360,19 +360,21 @@ TinySDLC is one component of a three-product ecosystem:
 
 | Product | Scope | License |
 |---------|-------|---------|
-| **SDLC Enterprise Framework** | Methodology — 10 stages, quality gates, role definitions, templates | Private (MTS) |
+| **[MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite)** | SDLC methodology — 10 stages, 12 roles, quality gates, team archetypes | MIT (open source) |
 | **TinySDLC** | Community tool — multi-agent AI orchestrator for individuals and small teams | MIT (open source) |
+| **SDLC Enterprise Framework** | Full enterprise methodology — templates, SASE artifacts, specification standards | Private (MTS) |
 | **SDLC Orchestrator** | Enterprise platform — gate engine, evidence vault, policy-as-code, audit trail | Private (MTS) |
 
-TinySDLC is free and open source. It operationalizes the SDLC Framework at the LITE tier (1-2 developers). For enterprises that need enforced governance, full audit trails, and policy-as-code at STANDARD/PROFESSIONAL/ENTERPRISE tiers, contact [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) to apply the SDLC Enterprise Framework and SDLC Orchestrator.
+TinySDLC + MTS-SDLC-Lite are **fully self-contained** — anyone can fork, develop, and extend without access to the private Enterprise Framework. MTS-SDLC-Lite documents all SDLC concepts (stages, roles, gates, teams, governance model). For enterprises that need enforced governance, full audit trails, and policy-as-code at STANDARD/PROFESSIONAL/ENTERPRISE tiers, contact [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution).
 
 ---
 
 ## Credits
 
 - **[TinyClaw](https://github.com/jlia0/tinyclaw)** by jlia0 — Multi-agent orchestrator foundation (MIT)
-- **SDLC Enterprise Framework v6.0.6** by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) — AI+Human governance methodology (private, not open-sourced)
-- **SDLC Orchestrator** by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) — Enterprise governance platform (private, not open-sourced)
+- **[MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite)** by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) — SDLC 6.1.0 community methodology (MIT)
+- **SDLC Enterprise Framework v6.1.0** by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) — Full enterprise methodology (private)
+- **SDLC Orchestrator** by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) — Enterprise governance platform (private)
 
 ## License
 

@@ -1,6 +1,6 @@
 # TinySDLC - SDLC Team Archetypes
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 02 - DESIGN
 **Status**: Active
 **Authority**: CTO Approved
@@ -9,15 +9,19 @@
 
 ## Overview
 
-TinySDLC provides 4 pre-configured team archetypes aligned with SDLC Framework v6.0.6 stages. Each archetype defines which agents collaborate, who leads the team, and what stage of the SDLC it covers.
+SDLC 6.1.0 defines 6 team archetypes: 4 core teams (active at LITE tier) and 2 STANDARD+ teams. TinySDLC provides the 4 core teams pre-configured. Each archetype defines which agents collaborate, who leads the team, and what stage of the SDLC it covers.
 
 ```
 User (SE4H)
     │
-    ├── @planning  → [researcher → pm → pjm → architect]                Stage 00-01
-    ├── @dev       → [coder → reviewer]                                  Stage 04-05
-    ├── @qa        → [tester → reviewer]                                 Stage 05
-    └── @fullstack → [researcher → pm → pjm → architect → coder → reviewer]  All stages (LITE)
+    ├── @planning   → [researcher → pm → pjm → architect]                 Stage 00-01
+    ├── @dev        → [coder → reviewer]                                   Stage 04-05
+    ├── @qa         → [tester → reviewer]                                  Stage 05
+    ├── @fullstack  → [researcher → pm → pjm → architect → coder → reviewer]  All stages (LITE)
+    │
+    │  STANDARD+ tier (3+ developers):
+    ├── @executive  → [ceo → cpo → cto]                                   Strategic
+    └── @support    → [assistant]                                          Routing
 ```
 
 ---
@@ -171,7 +175,7 @@ User: @qa <validation request>
 ```
 
 ### Stage Coverage
-- All stages (00 through 05) — simplified pipeline with 6 core roles
+- All stages (00 through 05) — simplified pipeline with 8 SE4A roles
 
 ### Activation
 ```

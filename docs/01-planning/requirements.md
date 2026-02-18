@@ -1,6 +1,6 @@
 # TinySDLC - Requirements
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 01 - PLANNING
 **Status**: Active
 **Authority**: CTO Approved
@@ -61,7 +61,7 @@
 
 ---
 
-## SDLC Framework v6.0.6 Requirements
+## SDLC Framework v6.1.0 Requirements
 
 Added: 2026-02-16 — Gate G0.1 approved
 
@@ -106,7 +106,7 @@ Added: 2026-02-16 — Gate G0.1 approved
 
 ### SDLC User Stories
 
-1. As an SDLC practitioner, I want to assign SDLC roles (8 roles) to agents so they behave according to SE4A constraints
+1. As an SDLC practitioner, I want to assign SDLC roles (12 roles: 8 SE4A + 3 SE4H + 1 Router) to agents so they behave according to SE4A constraints
 2. As a project manager, I want a pre-configured SDLC team setup (8 agents + 4 teams) available with one command
 3. As a DevOps engineer, I want to use company-hosted Ollama models for data-sovereign agent deployments
 4. As a CTO, I want the `qa` team to be required (not optional) when targeting Gate G3 Ship Ready

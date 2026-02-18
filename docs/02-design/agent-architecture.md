@@ -1,6 +1,6 @@
 # TinySDLC - Agent Architecture
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 02 - DESIGN
 **Status**: Active
 **Authority**: CTO Approved
@@ -120,7 +120,7 @@ Each agent has its own configuration in `.tinysdlc/settings.json`:
 }
 ```
 
-**Note:** The `working_directory` is automatically set to `<workspace>/<agent_id>/` when creating agents via `tinysdlc agent add`. Run `tinysdlc sdlc init` to apply all 8 SDLC roles with optimized model assignments.
+**Note:** The `working_directory` is automatically set to `<workspace>/<agent_id>/` when creating agents via `tinysdlc agent add`. Run `tinysdlc sdlc init` to apply all 8 SE4A roles with optimized model assignments.
 
 ### 3. Agent Isolation
 

@@ -1,6 +1,6 @@
 # TinySDLC - Problem Statement & Vision
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 00 - FOUNDATION
 **Status**: Active
 **Authority**: CTO Approved

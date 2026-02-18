@@ -1,6 +1,6 @@
 # TinySDLC - Installation Guide
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 04 - BUILD
 **Status**: Active
 **Authority**: CTO Approved

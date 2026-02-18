@@ -144,6 +144,10 @@ const client = new Client({
     authStrategy: new LocalAuth({
         dataPath: SESSION_DIR
     }),
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1033620991-alpha.html',
+    },
     puppeteer: {
         headless: true,
         args: [
@@ -204,8 +208,8 @@ client.on('ready', () => {
 // Message received - Write to queue
 client.on('message_create', async (message: Message) => {
     try {
-        // Skip outgoing messages
-        if (message.fromMe) {
+        // Skip outgoing messages (allow self-messages for testing via WHATSAPP_ALLOW_SELF=1)
+        if (message.fromMe && !process.env.WHATSAPP_ALLOW_SELF) {
             return;
         }
 

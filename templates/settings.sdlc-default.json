@@ -1,5 +1,5 @@
 {
-  "_comment": "SDLC Framework v6.0.6 default agents/teams — auto-applied by setup wizard, or manually via 'tinysdlc sdlc init'",
+  "_comment": "SDLC Framework v6.1.0 — 12-Role SASE Classification. LITE tier: 8 SE4A agents below. STANDARD+: add ceo/cpo/cto (SE4H) + assistant (Router). Auto-applied by setup wizard or 'tinysdlc sdlc init'.",
   "workspace": {
     "path": "~/tinysdlc-workspace",
     "name": "my-sdlc-project"

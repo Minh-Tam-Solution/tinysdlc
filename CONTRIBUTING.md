@@ -34,7 +34,7 @@ npm run build
 
 ## Documentation Standards
 
-This project follows SDLC Enterprise Framework v6.0.6 (LITE tier). When adding documentation:
+This project follows SDLC Enterprise Framework v6.1.0 (LITE tier). When adding documentation:
 
 - Place docs in the appropriate stage folder under `docs/`:
   - `00-foundation/` - Why the project exists

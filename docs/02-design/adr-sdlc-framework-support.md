@@ -1,6 +1,6 @@
-# TinySDLC - ADR: SDLC Framework v6.0.6 Support
+# TinySDLC - ADR: SDLC Framework v6.1.0 Support
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 02 - DESIGN
 **Status**: Active
 **Authority**: CTO Approved
@@ -10,15 +10,15 @@
 
 ## Context
 
-TinySDLC is a multi-agent orchestrator that runs AI agents via messaging channels (Telegram, Discord, WhatsApp). Currently it has no concept of SDLC roles, stages, or quality gates. Any user who wants to apply SDLC Framework v6.0.6 must manually configure agents from scratch without guidance or tooling.
+TinySDLC is a multi-agent orchestrator that runs AI agents via messaging channels (Telegram, Discord, WhatsApp). Currently it has no concept of SDLC roles, stages, or quality gates. Any user who wants to apply SDLC Framework v6.1.0 must manually configure agents from scratch without guidance or tooling.
 
-**Problem**: TinySDLC cannot be used as an SDLC-aligned development platform out of the box. Users familiar with SDLC Framework v6.0.6 have no standardized way to map agents to SDLC roles, configure stage-specific behavior, or enforce SE4A/SE4H boundaries.
+**Problem**: TinySDLC cannot be used as an SDLC-aligned development platform out of the box. Users familiar with SDLC Framework v6.1.0 have no standardized way to map agents to SDLC roles, configure stage-specific behavior, or enforce SE4A/SE4H boundaries.
 
 ---
 
 ## Decision
 
-We will add native SDLC Framework v6.0.6 support to TinySDLC through:
+We will add native SDLC Framework v6.1.0 support to TinySDLC through:
 
 1. **Typed agent roles** (`sdlc_role` field in `AgentConfig`)
 2. **System prompt injection** via `SYSTEM_CONTEXT.md` in each agent's working directory
@@ -113,14 +113,14 @@ We will add native SDLC Framework v6.0.6 support to TinySDLC through:
 
 **Decision**: Document the `qa` team as **required** (not optional) when a project targets Gate G3 Ship Ready.
 
-**Rationale**: SDLC Framework v6.0.6 Gate G3 requires test validation. Without the `qa` team (tester + reviewer), G3 cannot be validated by agents. Marking it optional creates ambiguity.
+**Rationale**: SDLC Framework v6.1.0 Gate G3 requires test validation. Without the `qa` team (tester + reviewer), G3 cannot be validated by agents. Marking it optional creates ambiguity.
 
 ---
 
 ## Consequences
 
 ### Positive
-- Any TinySDLC user familiar with SDLC Framework v6.0.6 can set up a compliant multi-agent environment with `tinysdlc sdlc init`
+- Any TinySDLC user familiar with SDLC Framework v6.1.0 can set up a compliant multi-agent environment with `tinysdlc sdlc init`
 - TypeScript compile-time enforcement of SDLC roles prevents configuration errors
 - SYSTEM_CONTEXT.md approach enables rich role context without modifying routing code
 - Ollama support enables data-sovereign deployments

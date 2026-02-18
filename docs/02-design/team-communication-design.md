@@ -1,6 +1,6 @@
 # TinySDLC - Team Communication Design
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 02 - DESIGN
 **Status**: Active
 **Authority**: CTO Approved

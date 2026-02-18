@@ -131,7 +131,7 @@ export async function invokeAgent(
     }
     const workingDir = safeWorkingDir;
 
-    // --- SDLC v6.0.6: System prompt injection ---
+    // --- SDLC v6.1.0: System prompt injection ---
     // Write system prompt to SYSTEM_CONTEXT.md in agent's working dir (picked up via CLAUDE.md context)
     const promptFile = agent.prompt_file
         ? (expandTilde(agent.prompt_file))
@@ -146,7 +146,7 @@ export async function invokeAgent(
         fs.writeFileSync(contextPath, promptContent);
     }
 
-    // --- SDLC v6.0.6: Inject project_directory context ---
+    // --- SDLC v6.1.0: Inject project_directory context ---
     // If agent has a shared project_directory, prepend project path context to message
     let effectiveMessage = message;
     if (agent.project_directory) {

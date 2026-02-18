@@ -1,6 +1,6 @@
 # TinySDLC - SDLC Agent Roles Reference
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 01 - PLANNING
 **Status**: Active
 **Authority**: CTO Approved
@@ -14,11 +14,23 @@
 | **SE4H** (Human Coach) | User on Telegram/Discord/WhatsApp | Specifies goals, validates deliverables, approves gates | Full — final decision maker |
 | **SE4A** (Agent Executor) | All TinySDLC agents | Implements, proposes, analyzes | None — propose only, never self-approve |
 
-The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. Agents **never have approval authority** — they produce proposals, drafts, and implementations that the SE4H (human) validates.
+The SE4H/SE4A separation is the core governance model of SDLC Framework v6.1.0. Agents **never have approval authority** — they produce proposals, drafts, and implementations that the SE4H (human) validates.
 
 ---
 
-## The 8 SDLC Roles
+## 12-Role SASE Classification (SDLC 6.1.0)
+
+SDLC 6.1.0 defines 12 roles organized into 3 categories:
+
+| Category | Roles | Tier | Description |
+|----------|-------|------|-------------|
+| **SE4A** (Agent Executors) | researcher, pm, pjm, architect, coder, reviewer, tester, devops | LITE+ | Implement, propose, never self-approve |
+| **SE4H** (Human Advisors) | ceo, cpo, cto | STANDARD+ | Strategic guidance, read-only tools, output always reviewed |
+| **Router** | assistant | STANDARD+ | Route messages, no decision authority |
+
+At **LITE tier** (1-2 developers), the 8 SE4A roles operate as "thinking modes" — a single developer switches between roles. At **STANDARD+ tier** (3+ developers), SE4H advisors and the Router are activated as dedicated agents.
+
+### SE4A Roles (8 — Active at LITE Tier)
 
 ### Researcher (`researcher`)
 
@@ -271,6 +283,32 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 
 ---
 
+### SE4H Roles (3 — Active at STANDARD+ Tier)
+
+SE4H agents provide **advisory analysis only** — they never execute, never delegate, and their output is always reviewed by the human before action.
+
+| Role | Title | Stage | Gate | Key Constraint |
+|------|-------|-------|------|----------------|
+| `ceo` | CEO Advisor | All stages | G0.1, G4 | Strategic decisions only, read-only tools |
+| `cpo` | CPO Advisor | 00-01 Foundation/Planning | G0.1, G1 | Product decisions only, no tech decisions |
+| `cto` | CTO Advisor | 02-04 Design/Build | G2, G3 | Architecture decisions only, no product decisions |
+
+**SE4H Behavioral Constraints:**
+- Delegation depth: 0 (cannot delegate to other agents)
+- Tool permissions: read-only subset
+- Queue mode: queue only (no interrupt/steer)
+- All output reviewed by human before any action
+
+### Router Role (1 — Active at STANDARD+ Tier)
+
+| Role | Title | Stage | Gate | Key Constraint |
+|------|-------|-------|------|----------------|
+| `assistant` | Router/Assistant | All stages | — | Route messages only, no decision authority |
+
+The Router helps users navigate to the right agent but has no authority to make decisions or approve gates.
+
+---
+
 ## Gate Ownership Summary
 
 | Gate | Name | Owner(s) | Approver |
@@ -326,4 +364,4 @@ TinySDLC uses a 2-2-4 provider split optimized per role:
 }
 ```
 
-Run `tinysdlc sdlc init` to apply all 8 roles at once.
+Run `tinysdlc sdlc init` to apply all 8 SE4A roles at once (LITE tier). SE4H and Router roles are available at STANDARD+ tier.

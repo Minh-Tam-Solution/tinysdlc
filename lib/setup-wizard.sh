@@ -359,7 +359,7 @@ for agent_id in "${ADDITIONAL_AGENTS[@]}"; do
     echo -e "${GREEN}✓ Created agent directory: $AGENT_DIR${NC}"
 done
 
-# ─── Auto-apply SDLC Framework v6.0.6 defaults ─────────────────────────────
+# ─── Auto-apply SDLC Framework v6.1.0 defaults ─────────────────────────────
 # Built-in: 8 SDLC agents + 4 teams are always included out of the box.
 # Users can add/modify/remove agents later via 'tinysdlc agent' commands.
 
@@ -368,7 +368,7 @@ SDLC_TEMPLATE="$PROJECT_ROOT/templates/settings.sdlc-default.json"
 if [ -f "$SDLC_TEMPLATE" ] && command -v jq &> /dev/null; then
     echo ""
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${GREEN}  Applying SDLC Framework v6.0.6 Defaults${NC}"
+    echo -e "${GREEN}  Applying SDLC Framework v6.1.0 Defaults${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 
@@ -439,7 +439,7 @@ echo -e "  ${GREEN}@tester${NC}     QA Tester            ${GREEN}@devops${NC}   
 echo ""
 echo "Built-in teams:"
 echo -e "  ${GREEN}@planning${NC}  researcher+pm+pjm+architect  ${GREEN}@dev${NC}       coder+reviewer"
-echo -e "  ${GREEN}@qa${NC}        tester+reviewer               ${GREEN}@fullstack${NC} all 6 core roles"
+echo -e "  ${GREEN}@qa${NC}        tester+reviewer               ${GREEN}@fullstack${NC} all 8 SE4A roles"
 echo ""
 echo "You can manage agents and teams:"
 echo -e "  ${GREEN}tinysdlc agent list${NC}    — List agents"

@@ -1,6 +1,6 @@
 # TinySDLC — CTO Status Report for SDLC Orchestrator Alignment
 
-**SDLC Version**: 6.0.6
+**SDLC Version**: 6.1.0
 **Stage**: 04 - BUILD
 **Status**: Active
 **Authority**: CTO Approved
@@ -12,7 +12,7 @@
 
 ## Executive Summary
 
-TinySDLC has completed its SDLC Framework v6.0.6 integration sprint. The platform now ships with **8 built-in SDLC agents** and **4 team archetypes** that operationalize all 10 framework stages. ADR-056 (Multi-Agent Team Engine) alignment is complete across all protocol and security modules. This report provides the SDLC Orchestrator team with a comprehensive update for ecosystem alignment.
+TinySDLC has completed its SDLC Framework v6.1.0 integration sprint. The platform now ships with **8 built-in SDLC agents** and **4 team archetypes** that operationalize all 10 framework stages. ADR-056 (Multi-Agent Team Engine) alignment is complete across all protocol and security modules. This report provides the SDLC Orchestrator team with a comprehensive update for ecosystem alignment.
 
 ---
 
@@ -20,7 +20,7 @@ TinySDLC has completed its SDLC Framework v6.0.6 integration sprint. The platfor
 
 ### 1.1 Platform Overview
 
-TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that operationalizes the SDLC Enterprise Framework v6.0.6. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, Ollama) organized into teams with SDLC roles. Messages arrive from Discord, WhatsApp, Telegram, Zalo OA, and Zalo Personal through a file-based queue system with atomic operations.
+TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that operationalizes the SDLC Enterprise Framework v6.1.0. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, Ollama) organized into teams with SDLC roles. Messages arrive from Discord, WhatsApp, Telegram, Zalo OA, and Zalo Personal through a file-based queue system with atomic operations.
 
 ### 1.2 Agent Roster (8 Agents)
 
@@ -73,7 +73,7 @@ TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchest
 |--------|-------------|
 | `93729e9` | docs: add CTO Directive for SDLC Ecosystem Strategic Upgrade v4 |
 | `982540b` | feat: align protocol-adapter, failover, sanitizer, shell-guard with ADR-056 |
-| `349f2de` | feat: auto-apply SDLC Framework v6.0.6 defaults in setup wizard |
+| `349f2de` | feat: auto-apply SDLC Framework v6.1.0 defaults in setup wizard |
 | `653bf1e` | feat: add Researcher agent for Stage 00-01 (WHY/WHAT research) |
 | `2da4f2b` | fix: correct researcher agent count and team membership strings |
 | `2550454` | feat: add Project Manager (PJM) agent |
@@ -94,7 +94,7 @@ TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchest
 - Researcher agent for Stage 00-01 WHY research
 
 **Setup Wizard Enhancement**:
-- Auto-applies SDLC Framework v6.0.6 defaults during initial setup
+- Auto-applies SDLC Framework v6.1.0 defaults during initial setup
 - Creates workspace directories with role-specific templates
 - Preserves user channels/tokens during merge
 
@@ -171,7 +171,7 @@ Additional: `eval\s*\(` (eval injection), `fdisk` (disk operations), `truncateOu
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                   SDLC Enterprise Framework v6.0.6              │
+│                   SDLC Enterprise Framework v6.1.0              │
 │              (Methodology Layer — vendor-neutral)               │
 │                                                                 │
 │  10 Stages (00-09) · Quality Gates (G0.1-G4) · 4-Tier Class.  │
@@ -254,7 +254,7 @@ Integration is **gated** by `orchestrator_integration.enabled` (default: false) 
 
 ## 7. Conclusion
 
-TinySDLC is positioned as the **community tool** in the trinity ecosystem. It operationalizes the SDLC Enterprise Framework v6.0.6 for individuals and small teams using AI-powered agents. The ADR-056 alignment ensures protocol compatibility with SDLC Orchestrator, enabling a smooth upgrade path for teams that grow beyond LITE tier.
+TinySDLC is positioned as the **community tool** in the trinity ecosystem. It operationalizes the SDLC Enterprise Framework v6.1.0 for individuals and small teams using AI-powered agents. The ADR-056 alignment ensures protocol compatibility with SDLC Orchestrator, enabling a smooth upgrade path for teams that grow beyond LITE tier.
 
 The three products together — **SDLC Framework** (methodology), **TinySDLC** (community orchestration), and **SDLC Orchestrator** (enterprise governance) — enable developing applications at any scale with AI tools while maintaining quality gates and human oversight.
 

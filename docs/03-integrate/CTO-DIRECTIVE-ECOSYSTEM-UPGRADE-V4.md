@@ -20,7 +20,7 @@ The CTO has approved the **SDLC Ecosystem Strategic Upgrade Plan v4 (FINAL)** af
 
 | Product | Role | Tech | Tier |
 |---------|------|------|------|
-| **SDLC Framework 6.0.6** | Methodology — templates, governance rules, AI principles | Markdown/YAML | All tiers |
+| **SDLC Framework 6.1.0** | Methodology — templates, governance rules, AI principles | Markdown/YAML | All tiers |
 | **TinySDLC** (you) | Lightweight standalone — file-queue, OTT channels, CLI agents | Node.js, TypeScript | LITE |
 | **SDLC Orchestrator** | Enterprise governed — PostgreSQL, Redis, OPA, Evidence Vault | Python, FastAPI | PROFESSIONAL+ |
 
