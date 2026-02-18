@@ -78,6 +78,24 @@ function resolveMessageType(data: MessageData): MessageType {
     return 'request';
 }
 
+/**
+ * Map TinySDLC channel names to Orchestrator ChannelType values.
+ * Zalo OA and Zalo Personal both map to 'zalo' (CTO Finding 2).
+ * Heartbeat is internal — no channel mapping needed.
+ */
+const CHANNEL_MAP: Record<string, string> = {
+    telegram: 'telegram',
+    discord: 'discord',
+    whatsapp: 'whatsapp',
+    zalo: 'zalo',
+    zalouser: 'zalo',
+    heartbeat: 'cli',
+};
+
+export function mapChannel(tinysdlcChannel: string): string {
+    return CHANNEL_MAP[tinysdlcChannel] || 'cli';
+}
+
 // --- Public API ---
 
 /**
