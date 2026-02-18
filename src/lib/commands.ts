@@ -141,10 +141,13 @@ function handleWorkspaceCommand(text: string, workspacePath: string): CommandRes
         return showWorkspaceStatus();
     }
 
-    // /workspace add <alias> <path>
+    // /workspace add <alias> <path> [--external]
     const addMatch = text.match(/^[!/]workspace\s+add\s+(\S+)\s+(.+)$/i);
     if (addMatch) {
-        return addProject(addMatch[1], addMatch[2].trim());
+        const rawArgs = addMatch[2].trim();
+        const allowExternal = /\s+--external\s*$/i.test(rawArgs);
+        const cleanPath = rawArgs.replace(/\s+--external\s*$/i, '').trim();
+        return addProject(addMatch[1], cleanPath, allowExternal);
     }
 
     // /workspace set <alias>
@@ -167,7 +170,7 @@ function handleWorkspaceCommand(text: string, workspacePath: string): CommandRes
                 '',
                 '/workspace — Show current project',
                 '/workspace list — List projects',
-                '/workspace add <alias> <path> — Register project',
+                '/workspace add <alias> <path> [--external] — Register project',
                 '/workspace set <alias> — Switch project',
                 '/workspace remove <alias> — Unregister project',
             ].join('\n'),
@@ -217,7 +220,7 @@ function showWorkspaceStatus(): CommandResult {
     return { response: lines.join('\n') };
 }
 
-function addProject(alias: string, rawPath: string): CommandResult {
+function addProject(alias: string, rawPath: string, allowExternal: boolean = false): CommandResult {
     // Validate alias format
     if (!/^[a-z0-9][a-z0-9-]*$/i.test(alias)) {
         return { response: 'Project alias must be alphanumeric with hyphens (e.g., my-project).' };
@@ -238,16 +241,20 @@ function addProject(alias: string, rawPath: string): CommandResult {
         return { response: `Path is not a directory: ${resolvedPath}` };
     }
 
-    // SEC-003: Must be readable and within an allowed base path
+    // SEC-003: Path validation
     const realPath = fs.realpathSync(resolvedPath);
     const homedir = os.homedir();
-    const workspaceBase = expandTilde(getSettings()?.workspace?.path || '~/tinysdlc-workspace');
-    const allowedBases = [homedir, workspaceBase, '/home'];
-    const isAllowed = allowedBases.some(
-        base => realPath === base || realPath.startsWith(base + path.sep)
-    );
-    if (!isAllowed) {
-        return { response: `Project path must be within your home directory or /home/. Got: ${realPath}` };
+    const inHome = realPath === homedir || realPath.startsWith(homedir + path.sep);
+
+    if (!inHome && !allowExternal) {
+        return {
+            response: [
+                `Path is outside your home directory: ${realPath}`,
+                '',
+                'To allow external paths, add --external:',
+                `/workspace add ${alias} ${rawPath} --external`,
+            ].join('\n'),
+        };
     }
 
     // Check for duplicate alias
