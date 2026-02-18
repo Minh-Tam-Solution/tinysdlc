@@ -394,7 +394,7 @@ if [ -f "$SDLC_TEMPLATE" ] && command -v jq &> /dev/null; then
     if [ $? -eq 0 ]; then
         mv "$sdlc_merge_tmp" "$SETTINGS_FILE"
 
-        SDLC_ROLES=(researcher pm architect coder reviewer tester devops)
+        SDLC_ROLES=(researcher pm pjm architect coder reviewer tester devops)
         for role in "${SDLC_ROLES[@]}"; do
             AGENT_DIR="$WORKSPACE_PATH/$role"
             mkdir -p "$AGENT_DIR/.claude" "$AGENT_DIR/.tinysdlc"
@@ -420,8 +420,8 @@ if [ -f "$SDLC_TEMPLATE" ] && command -v jq &> /dev/null; then
         done
 
         echo ""
-        echo -e "${GREEN}✓ SDLC agents (7) and teams (4) applied${NC}"
-        echo -e "  Teams: planning (researcher+pm+architect), dev (coder+reviewer), qa (tester+reviewer), fullstack"
+        echo -e "${GREEN}✓ SDLC agents (8) and teams (4) applied${NC}"
+        echo -e "  Teams: planning (researcher+pm+pjm+architect), dev (coder+reviewer), qa (tester+reviewer), fullstack"
     else
         rm -f "$sdlc_merge_tmp"
         echo -e "${YELLOW}⚠ Could not merge SDLC defaults (jq error). Run 'tinysdlc sdlc init' manually.${NC}"
@@ -433,13 +433,13 @@ echo -e "${GREEN}✓ Configuration saved to ~/.tinysdlc/settings.json${NC}"
 echo ""
 echo "Built-in SDLC agents:"
 echo -e "  ${GREEN}@researcher${NC} Researcher           ${GREEN}@pm${NC}         Product Manager"
-echo -e "  ${GREEN}@architect${NC}  Solution Architect   ${GREEN}@coder${NC}      Developer"
-echo -e "  ${GREEN}@reviewer${NC}   Code Reviewer        ${GREEN}@tester${NC}     QA Tester"
-echo -e "  ${GREEN}@devops${NC}     DevOps Engineer"
+echo -e "  ${GREEN}@pjm${NC}        Project Manager      ${GREEN}@architect${NC}  Solution Architect"
+echo -e "  ${GREEN}@coder${NC}      Developer            ${GREEN}@reviewer${NC}   Code Reviewer"
+echo -e "  ${GREEN}@tester${NC}     QA Tester            ${GREEN}@devops${NC}     DevOps Engineer"
 echo ""
 echo "Built-in teams:"
-echo -e "  ${GREEN}@planning${NC}  pm + architect       ${GREEN}@dev${NC}       coder + reviewer"
-echo -e "  ${GREEN}@qa${NC}        tester + reviewer    ${GREEN}@fullstack${NC} pm + architect + coder + reviewer"
+echo -e "  ${GREEN}@planning${NC}  researcher+pm+pjm+architect  ${GREEN}@dev${NC}       coder+reviewer"
+echo -e "  ${GREEN}@qa${NC}        tester+reviewer               ${GREEN}@fullstack${NC} all 6 core roles"
 echo ""
 echo "You can manage agents and teams:"
 echo -e "  ${GREEN}tinysdlc agent list${NC}    — List agents"

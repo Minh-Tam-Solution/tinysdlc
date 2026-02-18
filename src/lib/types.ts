@@ -153,5 +153,5 @@ export const OLLAMA_MODEL_IDS: Record<string, string> = {
 };
 
 // Valid SDLC roles for Framework v6.0.6
-export const SDLC_ROLES = ['researcher', 'pm', 'architect', 'coder', 'reviewer', 'tester', 'devops'] as const;
+export const SDLC_ROLES = ['researcher', 'pm', 'pjm', 'architect', 'coder', 'reviewer', 'tester', 'devops'] as const;
 export type SdlcRole = typeof SDLC_ROLES[number];

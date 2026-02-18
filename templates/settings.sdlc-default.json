@@ -29,6 +29,13 @@
       "sdlc_role": "pm",
       "working_directory": "~/tinysdlc-workspace/pm"
     },
+    "pjm": {
+      "name": "Project Manager",
+      "provider": "anthropic",
+      "model": "sonnet",
+      "sdlc_role": "pjm",
+      "working_directory": "~/tinysdlc-workspace/pjm"
+    },
     "architect": {
       "name": "Solution Architect",
       "provider": "anthropic",
@@ -68,7 +75,7 @@
   "teams": {
     "planning": {
       "name": "Planning Team",
-      "agents": ["researcher", "pm", "architect"],
+      "agents": ["researcher", "pm", "pjm", "architect"],
       "leader_agent": "pm",
       "description": "Foundation & Planning — Stage 00-01 — Gates G0.1, G1"
     },
@@ -86,7 +93,7 @@
     },
     "fullstack": {
       "name": "Full Stack Team",
-      "agents": ["researcher", "pm", "architect", "coder", "reviewer"],
+      "agents": ["researcher", "pm", "pjm", "architect", "coder", "reviewer"],
       "leader_agent": "pm",
       "description": "End-to-End — all stages — LITE tier for small projects"
     }

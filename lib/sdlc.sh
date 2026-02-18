@@ -67,6 +67,7 @@ sdlc_roles() {
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "──────────" "────────────────────" "────────────────────" "───────────────" "──────────────────────────────"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "researcher" "Researcher"          "00-01 Foundation/Plan" "G0.1"          "Research, never decide"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "pm"        "Product Manager"      "00-01 Foundation/Plan" "G0.1, G1"      "No self-approve requirements"
+    printf "  %-10s %-20s %-20s %-15s %-30s\n" "pjm"       "Project Manager"     "01-04 Plan/Build"      "G-Sprint"      "Coordinate, never override"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "architect" "Solution Architect"   "02-03 Design/Integrate" "G2"           "No tech decisions without ADR"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "coder"     "Developer"            "04 Build"              "Sprint Gate"   "No merge without reviewer"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "reviewer"  "Code Reviewer"        "04-05 Build/Verify"    "G3 Ship Ready" "NEVER approve own code"
@@ -96,8 +97,8 @@ sdlc_init() {
     echo -e "${BLUE}TinySDLC SDLC Init — applying SDLC Framework v6.0.6 defaults${NC}"
     echo ""
     echo "This will add the following to your settings.json:"
-    echo "  Agents: researcher, pm, architect, coder, reviewer, tester, devops"
-    echo "  Teams:  planning (researcher+pm+architect), dev, qa, fullstack"
+    echo "  Agents: researcher, pm, pjm, architect, coder, reviewer, tester, devops"
+    echo "  Teams:  planning (researcher+pm+pjm+architect), dev, qa, fullstack"
     echo ""
     echo -n "Continue? (y/n) "
     read -r confirm
@@ -146,10 +147,10 @@ sdlc_init() {
     workspace=$(jq -r '.workspace.path // ""' "$SETTINGS_FILE" 2>/dev/null)
     workspace="${workspace/#\~/$HOME}"
     if [ -n "$workspace" ]; then
-        for role in researcher pm architect coder reviewer tester devops; do
+        for role in researcher pm pjm architect coder reviewer tester devops; do
             mkdir -p "$workspace/$role"
         done
-        echo -e "${GREEN}Workspace directories created:${NC} $workspace/{researcher,pm,architect,coder,reviewer,tester,devops}"
+        echo -e "${GREEN}Workspace directories created:${NC} $workspace/{researcher,pm,pjm,architect,coder,reviewer,tester,devops}"
     fi
 }
 
