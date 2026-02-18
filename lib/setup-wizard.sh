@@ -359,12 +359,93 @@ for agent_id in "${ADDITIONAL_AGENTS[@]}"; do
     echo -e "${GREEN}✓ Created agent directory: $AGENT_DIR${NC}"
 done
 
+# ─── Auto-apply SDLC Framework v6.0.6 defaults ─────────────────────────────
+# Built-in: 6 SDLC agents + 4 teams are always included out of the box.
+# Users can add/modify/remove agents later via 'tinysdlc agent' commands.
+
+SDLC_TEMPLATE="$PROJECT_ROOT/templates/settings.sdlc-default.json"
+
+if [ -f "$SDLC_TEMPLATE" ] && command -v jq &> /dev/null; then
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${GREEN}  Applying SDLC Framework v6.0.6 Defaults${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+
+    # Merge SDLC agents/teams into settings, resolving ~ to actual workspace path.
+    # SDLC agents use the user's chosen provider but keep role-specific model overrides
+    # (architect + reviewer use opus for better reasoning).
+    sdlc_merge_tmp="${SETTINGS_FILE}.sdlc_merge_tmp"
+    jq -s --arg wp "$WORKSPACE_PATH" --arg prov "$PROVIDER" '
+        .[0] as $existing |
+        .[1] as $template |
+        ($template.agents | to_entries | map(
+            .value.working_directory = ($wp + "/" + .key) |
+            .value.provider = $prov |
+            .
+        ) | from_entries) as $sdlc_agents |
+        $existing * {
+            "agents": ($sdlc_agents + ($existing.agents // {})),
+            "teams": ($template.teams + ($existing.teams // {})),
+            "providers": (($template.providers // {}) * ($existing.providers // {}))
+        }
+    ' "$SETTINGS_FILE" "$SDLC_TEMPLATE" > "$sdlc_merge_tmp" 2>/dev/null
+
+    if [ $? -eq 0 ]; then
+        mv "$sdlc_merge_tmp" "$SETTINGS_FILE"
+
+        SDLC_ROLES=(pm architect coder reviewer tester devops)
+        for role in "${SDLC_ROLES[@]}"; do
+            AGENT_DIR="$WORKSPACE_PATH/$role"
+            mkdir -p "$AGENT_DIR/.claude" "$AGENT_DIR/.tinysdlc"
+
+            # Copy role-specific AGENTS.md template
+            ROLE_TEMPLATE="$PROJECT_ROOT/templates/agents/$role/AGENTS.md"
+            if [ -f "$ROLE_TEMPLATE" ]; then
+                cp "$ROLE_TEMPLATE" "$AGENT_DIR/AGENTS.md"
+                cp "$ROLE_TEMPLATE" "$AGENT_DIR/.claude/CLAUDE.md"
+            elif [ -f "$TINYSDLC_HOME/AGENTS.md" ]; then
+                cp "$TINYSDLC_HOME/AGENTS.md" "$AGENT_DIR/AGENTS.md"
+                cp "$TINYSDLC_HOME/AGENTS.md" "$AGENT_DIR/.claude/CLAUDE.md"
+            fi
+
+            if [ -f "$PROJECT_ROOT/heartbeat.md" ]; then
+                cp "$PROJECT_ROOT/heartbeat.md" "$AGENT_DIR/heartbeat.md"
+            fi
+            if [ -f "$PROJECT_ROOT/SOUL.md" ]; then
+                cp "$PROJECT_ROOT/SOUL.md" "$AGENT_DIR/.tinysdlc/SOUL.md"
+            fi
+
+            echo -e "  ${GREEN}✓${NC} @${role} — $(jq -r ".agents[\"$role\"].name // \"$role\"" "$SETTINGS_FILE" 2>/dev/null)"
+        done
+
+        echo ""
+        echo -e "${GREEN}✓ SDLC agents (6) and teams (4) applied${NC}"
+        echo -e "  Teams: planning (pm+architect), dev (coder+reviewer), qa (tester+reviewer), fullstack"
+    else
+        rm -f "$sdlc_merge_tmp"
+        echo -e "${YELLOW}⚠ Could not merge SDLC defaults (jq error). Run 'tinysdlc sdlc init' manually.${NC}"
+    fi
+fi
+
+echo ""
 echo -e "${GREEN}✓ Configuration saved to ~/.tinysdlc/settings.json${NC}"
 echo ""
-echo "You can manage agents later with:"
-echo -e "  ${GREEN}tinysdlc agent list${NC}    - List agents"
-echo -e "  ${GREEN}tinysdlc agent add${NC}     - Add more agents"
+echo "Built-in SDLC agents:"
+echo -e "  ${GREEN}@pm${NC}        Product Manager     ${GREEN}@architect${NC}  Solution Architect"
+echo -e "  ${GREEN}@coder${NC}     Developer            ${GREEN}@reviewer${NC}  Code Reviewer"
+echo -e "  ${GREEN}@tester${NC}    QA Tester            ${GREEN}@devops${NC}    DevOps Engineer"
 echo ""
-echo "You can now start TinySDLC:"
+echo "Built-in teams:"
+echo -e "  ${GREEN}@planning${NC}  pm + architect       ${GREEN}@dev${NC}       coder + reviewer"
+echo -e "  ${GREEN}@qa${NC}        tester + reviewer    ${GREEN}@fullstack${NC} pm + architect + coder + reviewer"
+echo ""
+echo "You can manage agents and teams:"
+echo -e "  ${GREEN}tinysdlc agent list${NC}    — List agents"
+echo -e "  ${GREEN}tinysdlc agent add${NC}     — Add more agents"
+echo -e "  ${GREEN}tinysdlc team list${NC}     — List teams"
+echo -e "  ${GREEN}tinysdlc sdlc status${NC}   — Full SDLC status"
+echo ""
+echo "Start TinySDLC:"
 echo -e "  ${GREEN}tinysdlc start${NC}"
 echo ""
