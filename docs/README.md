@@ -43,6 +43,7 @@ This project follows the SDLC Enterprise Framework v6.0.6 documentation standard
 - [Installation Guide](./04-build/installation-guide.md) - Setup and installation
 - [Troubleshooting Guide](./04-build/troubleshooting-guide.md) - Common issues and fixes
 - [SDLC Agent Setup Guide](./04-build/sdlc-agent-setup-guide.md) - Configure SDLC roles, Ollama, system prompts
+- [CTO Report — TinySDLC Status](./04-build/cto-report-tinysdlc-status.md) - Status report for SDLC Orchestrator alignment
 
 ---
 
