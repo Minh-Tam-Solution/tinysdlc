@@ -360,7 +360,7 @@ for agent_id in "${ADDITIONAL_AGENTS[@]}"; do
 done
 
 # ─── Auto-apply SDLC Framework v6.0.6 defaults ─────────────────────────────
-# Built-in: 6 SDLC agents + 4 teams are always included out of the box.
+# Built-in: 8 SDLC agents + 4 teams are always included out of the box.
 # Users can add/modify/remove agents later via 'tinysdlc agent' commands.
 
 SDLC_TEMPLATE="$PROJECT_ROOT/templates/settings.sdlc-default.json"
