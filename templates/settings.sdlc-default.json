@@ -18,14 +18,14 @@
     "researcher": {
       "name": "Researcher",
       "provider": "anthropic",
-      "model": "sonnet",
+      "model": "opus",
       "sdlc_role": "researcher",
       "working_directory": "~/tinysdlc-workspace/researcher"
     },
     "pm": {
       "name": "Product Manager",
-      "provider": "anthropic",
-      "model": "sonnet",
+      "provider": "openai",
+      "model": "gpt-5.2",
       "sdlc_role": "pm",
       "working_directory": "~/tinysdlc-workspace/pm"
     },
@@ -52,8 +52,8 @@
     },
     "reviewer": {
       "name": "Code Reviewer",
-      "provider": "anthropic",
-      "model": "opus",
+      "provider": "openai",
+      "model": "gpt-5.2",
       "sdlc_role": "reviewer",
       "working_directory": "~/tinysdlc-workspace/reviewer"
     },
