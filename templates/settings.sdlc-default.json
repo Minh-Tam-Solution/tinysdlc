@@ -15,6 +15,13 @@
     "whatsapp": {}
   },
   "agents": {
+    "researcher": {
+      "name": "Researcher",
+      "provider": "anthropic",
+      "model": "sonnet",
+      "sdlc_role": "researcher",
+      "working_directory": "~/tinysdlc-workspace/researcher"
+    },
     "pm": {
       "name": "Product Manager",
       "provider": "anthropic",
@@ -61,7 +68,7 @@
   "teams": {
     "planning": {
       "name": "Planning Team",
-      "agents": ["pm", "architect"],
+      "agents": ["researcher", "pm", "architect"],
       "leader_agent": "pm",
       "description": "Foundation & Planning — Stage 00-01 — Gates G0.1, G1"
     },
@@ -79,7 +86,7 @@
     },
     "fullstack": {
       "name": "Full Stack Team",
-      "agents": ["pm", "architect", "coder", "reviewer"],
+      "agents": ["researcher", "pm", "architect", "coder", "reviewer"],
       "leader_agent": "pm",
       "description": "End-to-End — all stages — LITE tier for small projects"
     }

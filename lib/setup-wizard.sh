@@ -394,7 +394,7 @@ if [ -f "$SDLC_TEMPLATE" ] && command -v jq &> /dev/null; then
     if [ $? -eq 0 ]; then
         mv "$sdlc_merge_tmp" "$SETTINGS_FILE"
 
-        SDLC_ROLES=(pm architect coder reviewer tester devops)
+        SDLC_ROLES=(researcher pm architect coder reviewer tester devops)
         for role in "${SDLC_ROLES[@]}"; do
             AGENT_DIR="$WORKSPACE_PATH/$role"
             mkdir -p "$AGENT_DIR/.claude" "$AGENT_DIR/.tinysdlc"
@@ -432,9 +432,10 @@ echo ""
 echo -e "${GREEN}✓ Configuration saved to ~/.tinysdlc/settings.json${NC}"
 echo ""
 echo "Built-in SDLC agents:"
-echo -e "  ${GREEN}@pm${NC}        Product Manager     ${GREEN}@architect${NC}  Solution Architect"
-echo -e "  ${GREEN}@coder${NC}     Developer            ${GREEN}@reviewer${NC}  Code Reviewer"
-echo -e "  ${GREEN}@tester${NC}    QA Tester            ${GREEN}@devops${NC}    DevOps Engineer"
+echo -e "  ${GREEN}@researcher${NC} Researcher           ${GREEN}@pm${NC}         Product Manager"
+echo -e "  ${GREEN}@architect${NC}  Solution Architect   ${GREEN}@coder${NC}      Developer"
+echo -e "  ${GREEN}@reviewer${NC}   Code Reviewer        ${GREEN}@tester${NC}     QA Tester"
+echo -e "  ${GREEN}@devops${NC}     DevOps Engineer"
 echo ""
 echo "Built-in teams:"
 echo -e "  ${GREEN}@planning${NC}  pm + architect       ${GREEN}@dev${NC}       coder + reviewer"

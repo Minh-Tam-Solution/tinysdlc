@@ -65,6 +65,7 @@ sdlc_roles() {
     echo ""
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "Role" "Title" "Stage" "Gate" "Key Constraint"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "──────────" "────────────────────" "────────────────────" "───────────────" "──────────────────────────────"
+    printf "  %-10s %-20s %-20s %-15s %-30s\n" "researcher" "Researcher"          "00-01 Foundation/Plan" "G0.1"          "Research, never decide"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "pm"        "Product Manager"      "00-01 Foundation/Plan" "G0.1, G1"      "No self-approve requirements"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "architect" "Solution Architect"   "02-03 Design/Integrate" "G2"           "No tech decisions without ADR"
     printf "  %-10s %-20s %-20s %-15s %-30s\n" "coder"     "Developer"            "04 Build"              "Sprint Gate"   "No merge without reviewer"
@@ -145,7 +146,7 @@ sdlc_init() {
     workspace=$(jq -r '.workspace.path // ""' "$SETTINGS_FILE" 2>/dev/null)
     workspace="${workspace/#\~/$HOME}"
     if [ -n "$workspace" ]; then
-        for role in pm architect coder reviewer tester devops; do
+        for role in researcher pm architect coder reviewer tester devops; do
             mkdir -p "$workspace/$role"
         done
         echo -e "${GREEN}Workspace directories created:${NC} $workspace/{pm,architect,coder,reviewer,tester,devops}"
