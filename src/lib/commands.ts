@@ -229,12 +229,6 @@ function addProject(alias: string, rawPath: string): CommandResult {
     // Resolve path
     const resolvedPath = path.resolve(expandTilde(rawPath));
 
-    // SEC-003: Must be within homedir
-    const homedir = os.homedir();
-    if (!resolvedPath.startsWith(homedir + path.sep) && resolvedPath !== homedir) {
-        return { response: 'Project path must be within your home directory.' };
-    }
-
     // Must exist and be a directory
     if (!fs.existsSync(resolvedPath)) {
         return { response: `Path does not exist: ${resolvedPath}` };
@@ -244,10 +238,16 @@ function addProject(alias: string, rawPath: string): CommandResult {
         return { response: `Path is not a directory: ${resolvedPath}` };
     }
 
-    // Symlink escape check
+    // SEC-003: Must be readable and within an allowed base path
     const realPath = fs.realpathSync(resolvedPath);
-    if (!realPath.startsWith(homedir + path.sep) && realPath !== homedir) {
-        return { response: 'Project path resolves outside your home directory (symlink detected).' };
+    const homedir = os.homedir();
+    const workspaceBase = expandTilde(getSettings()?.workspace?.path || '~/tinysdlc-workspace');
+    const allowedBases = [homedir, workspaceBase, '/home'];
+    const isAllowed = allowedBases.some(
+        base => realPath === base || realPath.startsWith(base + path.sep)
+    );
+    if (!isAllowed) {
+        return { response: `Project path must be within your home directory or /home/. Got: ${realPath}` };
     }
 
     // Check for duplicate alias
