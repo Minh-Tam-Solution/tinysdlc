@@ -16,15 +16,19 @@
 
 import fs from 'fs';
 import path from 'path';
-import { MessageData, ResponseData, QueueFile, ChainStep, Conversation, TeamConfig } from './lib/types';
+import crypto from 'crypto';
+import { MessageData, ResponseData, QueueFile, ChainStep, Conversation, Settings, TeamConfig } from './lib/types';
 import {
     QUEUE_INCOMING, QUEUE_OUTGOING, QUEUE_PROCESSING,
     LOG_FILE, EVENTS_DIR, CHATS_DIR, FILES_DIR,
-    getSettings, getAgents, getTeams
+    getSettings, getAgents, getTeams,
+    DEFAULT_MAX_DELEGATION_DEPTH, DEFAULT_INPUT_SANITIZATION_ENABLED
 } from './lib/config';
 import { log, emitEvent } from './lib/logging';
 import { parseAgentRouting, findTeamForAgent, getAgentResetFlag, extractTeammateMentions } from './lib/routing';
 import { invokeAgent } from './lib/invoke';
+import { sanitize } from './lib/input-sanitizer';
+import { handleCommand } from './lib/commands';
 
 // Ensure directories exist
 [QUEUE_INCOMING, QUEUE_OUTGOING, QUEUE_PROCESSING, FILES_DIR, path.dirname(LOG_FILE)].forEach(dir => {
@@ -88,6 +92,8 @@ function enqueueInternalMessage(
     message: string,
     originalData: MessageData
 ): void {
+    // CTO-2026-002 ACTION 5: Propagate delegation depth + correlation_id
+    const currentDepth = originalData.delegation_depth || 0;
     const internalMessage: MessageData = {
         channel: originalData.channel,
         sender: originalData.sender,
@@ -98,11 +104,13 @@ function enqueueInternalMessage(
         agent: targetAgent,
         conversationId,
         fromAgent,
+        delegation_depth: currentDepth + 1,
+        correlation_id: originalData.correlation_id,
     };
 
     const filename = `internal_${conversationId}_${targetAgent}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}.json`;
     fs.writeFileSync(path.join(QUEUE_INCOMING, filename), JSON.stringify(internalMessage, null, 2));
-    log('INFO', `Enqueued internal message: @${fromAgent} → @${targetAgent}`);
+    log('INFO', `Enqueued internal message: @${fromAgent} → @${targetAgent} (depth: ${currentDepth + 1})`);
 }
 
 /**
@@ -251,8 +259,42 @@ async function processMessage(messageFile: string): Promise<void> {
         const agents = getAgents(settings);
         const teams = getTeams(settings);
 
+        // CTO-2026-002 Constraint 6.5: Input sanitization (external messages only)
+        if (!isInternal) {
+            const sanitizationEnabled = settings.input_sanitization_enabled !== false; // default: true
+            if (sanitizationEnabled) {
+                const sanitizeResult = sanitize(messageData.message);
+                if (sanitizeResult.modified) {
+                    log('WARN', `[SANITIZE] Input modified for ${sender} on ${channel}: stripped [${sanitizeResult.patternsMatched.join(', ')}]`);
+                    messageData.message = sanitizeResult.content;
+                }
+            }
+        }
+
         // Get workspace path from settings
         const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinysdlc-workspace');
+
+        // S03: Command intercept — handle /agent, /team, /reset, /workspace
+        // Intercepted here so ALL channels (legacy + plugin) benefit (CTO OBS-1)
+        if (!isInternal) {
+            const cmdResult = handleCommand(messageData.message, workspacePath);
+            if (cmdResult) {
+                log('INFO', `Command handled: ${messageData.message.substring(0, 40)}`);
+                const responseData: ResponseData = {
+                    channel,
+                    sender,
+                    senderId: messageData.senderId,
+                    message: cmdResult.response,
+                    originalMessage: rawMessage,
+                    timestamp: Date.now(),
+                    messageId,
+                };
+                const responseFile = path.join(QUEUE_OUTGOING, path.basename(processingFile));
+                fs.writeFileSync(responseFile, JSON.stringify(responseData, null, 2));
+                fs.unlinkSync(processingFile);
+                return;
+            }
+        }
 
         // Route message to agent (or team)
         let agentId: string;
@@ -409,8 +451,9 @@ async function processMessage(messageFile: string): Promise<void> {
         if (isInternal && messageData.conversationId && conversations.has(messageData.conversationId)) {
             conv = conversations.get(messageData.conversationId)!;
         } else {
-            // New conversation
+            // New conversation — CTO-2026-002 Constraint 6.4: Snapshot config at conversation-start
             const convId = `${messageId}_${Date.now()}`;
+            const correlationId = crypto.randomUUID();
             conv = {
                 id: convId,
                 channel,
@@ -426,9 +469,14 @@ async function processMessage(messageFile: string): Promise<void> {
                 teamContext,
                 startTime: Date.now(),
                 outgoingMentions: new Map(),
+                configSnapshot: settings,      // Constraint 6.4: freeze config for conversation lifetime
+                correlation_id: correlationId, // ACTION 5: correlation tracking
             };
             conversations.set(convId, conv);
-            log('INFO', `Conversation started: ${convId} (team: ${teamContext.team.name})`);
+            // Propagate correlation_id to the originating message data
+            messageData.correlation_id = correlationId;
+            messageData.delegation_depth = messageData.delegation_depth || 0;
+            log('INFO', `Conversation started: ${convId} (team: ${teamContext.team.name}, correlation: ${correlationId})`);
             emitEvent('team_chain_start', { teamId: teamContext.teamId, teamName: teamContext.team.name, agents: teamContext.team.agents, leader: teamContext.team.leader_agent });
         }
 
@@ -442,12 +490,18 @@ async function processMessage(messageFile: string): Promise<void> {
             response, agentId, conv.teamContext.teamId, teams, agents
         );
 
-        if (teammateMentions.length > 0 && conv.totalMessages < conv.maxMessages) {
+        // CTO-2026-002 ACTION 5: Check delegation depth before enqueuing
+        const currentDepth = messageData.delegation_depth || 0;
+        const maxDepth = agent.max_delegation_depth ?? DEFAULT_MAX_DELEGATION_DEPTH;
+
+        if (teammateMentions.length > 0 && currentDepth >= maxDepth) {
+            log('WARN', `[DELEGATION] Agent ${agentId} at depth ${currentDepth} (max: ${maxDepth}) — blocking further delegation`);
+        } else if (teammateMentions.length > 0 && conv.totalMessages < conv.maxMessages) {
             // Enqueue internal messages for each mention
             conv.pending += teammateMentions.length;
             conv.outgoingMentions.set(agentId, teammateMentions.length);
             for (const mention of teammateMentions) {
-                log('INFO', `@${agentId} → @${mention.teammateId}`);
+                log('INFO', `@${agentId} → @${mention.teammateId} (depth: ${currentDepth + 1})`);
                 emitEvent('chain_handoff', { teamId: conv.teamContext.teamId, fromAgent: agentId, toAgent: mention.teammateId });
 
                 const internalMsg = `[Message from teammate @${agentId}]:\n${mention.message}`;

@@ -8,6 +8,15 @@ export interface AgentConfig {
     system_prompt?: string;      // Inline system prompt prepended via SYSTEM_CONTEXT.md
     prompt_file?: string;        // Path to .md file used as system prompt
     project_directory?: string;  // Shared project dir for team members
+    // CTO-2026-002 Ecosystem Upgrade fields
+    shell_guard_enabled?: boolean;       // ACTION 1: Enable shell safety guards (default: true)
+    max_delegation_depth?: number;       // ACTION 5: Max delegation depth (default: 1)
+    fallback_providers?: string[];       // ACTION 4: Fallback provider chain (wiring P2, type now)
+}
+
+export interface ProjectConfig {
+    name: string;    // Human-readable project name
+    path: string;    // Absolute path to project directory
 }
 
 export interface TeamConfig {
@@ -50,6 +59,16 @@ export interface Settings {
     providers?: {
         ollama?: { url?: string };  // e.g. 'https://api.nhatquangholding.com'
     };
+    // CTO-2026-002 ACTION 2: Orchestrator integration (gated, off by default)
+    orchestrator_integration?: {
+        enabled: boolean;
+        endpoint?: string;
+    };
+    // CTO-2026-002 Constraint 6.5: Input sanitization toggle
+    input_sanitization_enabled?: boolean;  // default: true
+    // S03: Project workspace switching
+    projects?: Record<string, ProjectConfig>;  // Project registry (alias → config)
+    active_project?: string;                   // Key into projects registry
 }
 
 export interface MessageData {
@@ -64,6 +83,9 @@ export interface MessageData {
     // Internal message fields (agent-to-agent)
     conversationId?: string; // links to parent conversation
     fromAgent?: string;      // which agent sent this internal message
+    // CTO-2026-002 ACTION 5: Delegation tracking
+    delegation_depth?: number;   // current depth in delegation chain (default: 0)
+    correlation_id?: string;     // UUID linking all messages in a delegation chain
 }
 
 export interface Conversation {
@@ -82,6 +104,10 @@ export interface Conversation {
     startTime: number;
     // Track how many mentions each agent sent out (for inbox draining)
     outgoingMentions: Map<string, number>;
+    // CTO-2026-002 Constraint 6.4: Config snapshot for conversation lifetime
+    configSnapshot?: Settings;
+    // CTO-2026-002 ACTION 5: Correlation tracking
+    correlation_id?: string;
 }
 
 export interface ResponseData {

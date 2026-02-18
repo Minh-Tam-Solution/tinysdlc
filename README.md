@@ -1,7 +1,7 @@
 # TinySDLC
 
 Multi-agent AI Orchestrator with SDLC Governance.
-Run teams of AI agents across Discord, WhatsApp, and Telegram — governed by SDLC Framework v6.0.6 roles and quality gates.
+Run teams of AI agents across Discord, WhatsApp, Telegram, and Zalo — governed by SDLC Framework v6.0.6 roles and quality gates.
 
 ---
 
@@ -53,10 +53,12 @@ tinysdlc sdlc init    # Creates 6 agents + 4 teams with SDLC roles
 ## How It Works
 
 ```text
- Discord ─┐
-Telegram ─┤  JSON msg     ┌──────────────────────────────────┐
-WhatsApp ─┤ ────────────→  │  ~/.tinysdlc/queue/              │
-Heartbeat ┘                │  incoming/ → processing/ → outgoing/
+ Discord ──┐
+Telegram ──┤  JSON msg     ┌──────────────────────────────────┐
+WhatsApp ──┤ ────────────→  │  ~/.tinysdlc/queue/              │
+  Zalo OA ─┤               │  incoming/ → processing/ → outgoing/
+Zalo User ─┤
+ Heartbeat ┘
                            └──────────┬───────────────────────┘
                                       │ Queue Processor (1s poll)
                            ┌──────────┴───────────────────────┐
@@ -67,9 +69,11 @@ Heartbeat ┘                │  incoming/ → processing/ → outgoing/
                            │  @pm ─────→ codex CLI             │
                            └──────────┬───────────────────────┘
                                       │ response JSON
- Discord ─┐                           │
-Telegram ─┤  poll outgoing/ ←─────────┘
-WhatsApp ─┘
+ Discord ──┐                           │
+Telegram ──┤  poll outgoing/ ←─────────┘
+WhatsApp ──┤
+  Zalo OA ─┤
+Zalo User ─┘
 ```
 
 Channel receives DM → pairing check → JSON to `incoming/` → atomic rename to `processing/` → route to target agent → spawn CLI in agent workspace → response to `outgoing/` → channel delivers.
@@ -143,6 +147,9 @@ Team collaboration: agent responses containing `[@teammate: message]` tags trigg
 | `/agent` | List agents |
 | `/team` | List teams |
 | `@agent_id /reset` | Reset agent conversation |
+| `/workspace` | Show current project |
+| `/workspace add <alias> <path>` | Register project |
+| `/workspace set <alias>` | Switch active project |
 
 ---
 
@@ -252,6 +259,26 @@ Each agent workspace at `~/tinysdlc-workspace/{agent_id}/` contains:
 
 </details>
 
+<details>
+<summary>Zalo OA (Official Account)</summary>
+
+1. Register at [oa.zalo.me](https://oa.zalo.me), create Bot Platform API token
+2. Token format: `app_id:secret_key`
+3. Add to settings: `channels.zalo.token`
+4. Uses HTTP long-polling (no public endpoint required)
+
+</details>
+
+<details>
+<summary>Zalo Personal</summary>
+
+1. Install zca-cli: `curl -fsSL https://get.zca-cli.dev/install.sh | bash`
+2. Authenticate: `zca auth login` (scan QR with Zalo mobile app)
+3. Enable in settings: `channels.zalouser.enabled = true`
+4. See [Zalo Channel Setup](docs/03-integrate/zalo-channel-setup.md) for details
+
+</details>
+
 ---
 
 ## Project Structure
@@ -261,7 +288,7 @@ tinysdlc/
 ├── tinysdlc.sh                 # CLI entry point
 ├── src/                        # TypeScript
 │   ├── queue-processor.ts      # Message processing loop
-│   ├── channels/               # Discord, Telegram, WhatsApp clients
+│   ├── channels/               # Discord, Telegram, WhatsApp, Zalo clients + plugins
 │   ├── lib/                    # config, invoke, routing, pairing, types
 │   └── visualizer/             # React/Ink TUI dashboard
 ├── lib/                        # Bash
@@ -293,7 +320,7 @@ tinysdlc/
 | 00 Foundation | [Problem Statement](docs/00-foundation/problem-statement.md) |
 | 01 Planning | [Requirements](docs/01-planning/requirements.md), [SDLC Agent Roles](docs/01-planning/sdlc-agent-roles.md) |
 | 02 Design | [Agent Architecture](docs/02-design/agent-architecture.md), [Queue System](docs/02-design/queue-system-design.md), [Team Archetypes](docs/02-design/sdlc-team-archetypes.md) |
-| 03 Integrate | [Channel Contracts](docs/03-integrate/channel-integration-contracts.md) |
+| 03 Integrate | [Channel Contracts](docs/03-integrate/channel-integration-contracts.md), [Zalo Setup](docs/03-integrate/zalo-channel-setup.md) |
 | 04 Build | [Installation](docs/04-build/installation-guide.md), [Troubleshooting](docs/04-build/troubleshooting-guide.md), [SDLC Setup](docs/04-build/sdlc-agent-setup-guide.md) |
 
 Full index: [docs/README.md](docs/README.md)
@@ -325,7 +352,7 @@ See [Troubleshooting Guide](docs/04-build/troubleshooting-guide.md) for more.
 ## Credits
 
 - **[TinyClaw](https://github.com/jlia0/tinyclaw)** by jlia0 — Multi-agent orchestrator foundation (MIT)
-- **SDLC Enterprise Framework v6.0.6** by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) — AI+Human governance methodology
+- **SDLC Enterprise Framework v6.0.6** by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution) — AI+Human governance methodology (private repository, not open-sourced)
 
 ## License
 

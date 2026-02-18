@@ -1,7 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { jsonrepair } from 'jsonrepair';
-import { Settings, AgentConfig, TeamConfig, CLAUDE_MODEL_IDS, CODEX_MODEL_IDS, OLLAMA_MODEL_IDS } from './types';
+import os from 'os';
+import { Settings, AgentConfig, TeamConfig, ProjectConfig, CLAUDE_MODEL_IDS, CODEX_MODEL_IDS, OLLAMA_MODEL_IDS } from './types';
+
+// CTO-2026-002 defaults
+export const DEFAULT_MAX_DELEGATION_DEPTH = 1;
+export const DEFAULT_SHELL_GUARD_ENABLED = true;
+export const DEFAULT_INPUT_SANITIZATION_ENABLED = true;
 
 export const SCRIPT_DIR = path.resolve(__dirname, '../..');
 const _localTinysdlc = path.join(SCRIPT_DIR, '.tinysdlc');
@@ -124,4 +130,42 @@ export function resolveCodexModel(model: string): string {
  */
 export function resolveOllamaModel(model: string): string {
     return OLLAMA_MODEL_IDS[model] || model || '';
+}
+
+/**
+ * Expand ~ to home directory.
+ */
+export function expandTilde(p: string): string {
+    return p.startsWith('~/') || p === '~' ? os.homedir() + p.slice(1) : p;
+}
+
+/**
+ * Get the currently active project, or null if none set.
+ */
+export function getActiveProject(settings: Settings): { alias: string; name: string; path: string } | null {
+    const alias = settings.active_project;
+    if (!alias || !settings.projects?.[alias]) return null;
+    const project = settings.projects[alias];
+    return { alias, name: project.name, path: project.path };
+}
+
+/**
+ * Write settings to disk atomically (OBS-2: temp + renameSync).
+ * Re-reads current settings before write to avoid stale overwrites.
+ */
+export function writeSettings(updates: Partial<Settings>): void {
+    // Re-read current state to avoid overwriting concurrent changes
+    const current = getSettings();
+    const merged = { ...current, ...updates };
+
+    const tmpFile = SETTINGS_FILE + '.tmp';
+    fs.writeFileSync(tmpFile, JSON.stringify(merged, null, 2) + '\n');
+
+    // Backup existing
+    if (fs.existsSync(SETTINGS_FILE)) {
+        fs.copyFileSync(SETTINGS_FILE, SETTINGS_FILE + '.bak');
+    }
+
+    // Atomic rename
+    fs.renameSync(tmpFile, SETTINGS_FILE);
 }

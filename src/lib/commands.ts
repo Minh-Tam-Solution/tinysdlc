@@ -1,0 +1,328 @@
+/**
+ * Shared Command Handler — S03 Workspace Command
+ *
+ * Consolidates all in-chat command logic (/agent, /team, /reset, /workspace)
+ * into a single module. Invoked from queue-processor.ts so ALL channels
+ * (legacy + plugin) benefit without per-channel modifications (CTO OBS-1).
+ */
+
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { Settings, AgentConfig, TeamConfig, ProjectConfig } from './types';
+import { getSettings, getAgents, getTeams, getActiveProject, writeSettings, expandTilde, SETTINGS_FILE } from './config';
+
+export interface CommandResult {
+    response: string;
+}
+
+/**
+ * Try to handle a message as an in-chat command.
+ * Returns CommandResult if it was a command, null if it should be queued normally.
+ * Only processes external (non-internal) messages.
+ */
+export function handleCommand(messageText: string, workspacePath: string): CommandResult | null {
+    const text = messageText.trim();
+
+    // /agent — list agents
+    if (text.match(/^[!/]agent$/i)) {
+        return { response: getAgentListText() };
+    }
+
+    // /team — list teams
+    if (text.match(/^[!/]team$/i)) {
+        return { response: getTeamListText() };
+    }
+
+    // /reset (no args) — usage hint
+    if (text.match(/^[!/]reset$/i)) {
+        return { response: 'Usage: /reset @agent_id [@agent_id2 ...]\nSpecify which agent(s) to reset.' };
+    }
+
+    // /reset @agent_id [@agent_id2 ...]
+    const resetMatch = text.match(/^[!/]reset\s+(.+)$/i);
+    if (resetMatch) {
+        return handleResetCommand(resetMatch[1], workspacePath);
+    }
+
+    // /workspace commands
+    const wsResult = handleWorkspaceCommand(text, workspacePath);
+    if (wsResult) return wsResult;
+
+    return null;
+}
+
+// --- Agent list ---
+
+function getAgentListText(): string {
+    try {
+        const settings = getSettings();
+        const agents = settings.agents;
+        if (!agents || Object.keys(agents).length === 0) {
+            return 'No agents configured. Using default single-agent mode.\n\nConfigure agents in .tinysdlc/settings.json or run: tinysdlc agent add';
+        }
+
+        const activeProject = getActiveProject(settings);
+        let text = 'Available Agents:\n';
+        for (const [id, agent] of Object.entries(agents)) {
+            text += `\n@${id} - ${agent.name}`;
+            text += `\n  Provider: ${agent.provider}/${agent.model}`;
+            if ((agent as AgentConfig).sdlc_role) text += `\n  Role: ${(agent as AgentConfig).sdlc_role}`;
+        }
+        text += '\n\nUsage: Start your message with @agent_id to route to a specific agent.';
+        if (activeProject) {
+            text += `\n\nActive project: ${activeProject.alias} (${activeProject.name})`;
+        }
+        return text;
+    } catch {
+        return 'Could not load agent configuration.';
+    }
+}
+
+// --- Team list ---
+
+function getTeamListText(): string {
+    try {
+        const settings = getSettings();
+        const teams = settings.teams;
+        if (!teams || Object.keys(teams).length === 0) {
+            return 'No teams configured.\n\nCreate a team with: tinysdlc team add';
+        }
+        let text = 'Available Teams:\n';
+        for (const [id, team] of Object.entries(teams)) {
+            text += `\n@${id} - ${(team as TeamConfig).name}`;
+            text += `\n  Agents: ${(team as TeamConfig).agents.join(', ')}`;
+            text += `\n  Leader: @${(team as TeamConfig).leader_agent}`;
+        }
+        text += '\n\nUsage: Start your message with @team_id to route to a team.';
+        return text;
+    } catch {
+        return 'Could not load team configuration.';
+    }
+}
+
+// --- Reset command ---
+
+function handleResetCommand(argsStr: string, workspacePath: string): CommandResult {
+    try {
+        const settings = getSettings();
+        const agents = settings.agents || {};
+        const resolvedWorkspace = expandTilde(workspacePath);
+        const agentArgs = argsStr.split(/\s+/).map(a => a.replace(/^@/, '').toLowerCase());
+        const results: string[] = [];
+
+        for (const agentId of agentArgs) {
+            if (!agents[agentId]) {
+                results.push(`Agent '${agentId}' not found.`);
+                continue;
+            }
+            const flagDir = path.join(resolvedWorkspace, agentId);
+            if (!fs.existsSync(flagDir)) fs.mkdirSync(flagDir, { recursive: true });
+            fs.writeFileSync(path.join(flagDir, 'reset_flag'), 'reset');
+            results.push(`Reset @${agentId} (${(agents[agentId] as AgentConfig).name}).`);
+        }
+
+        return { response: results.join('\n') };
+    } catch {
+        return { response: 'Could not process reset command. Check settings.' };
+    }
+}
+
+// --- Workspace commands ---
+
+function handleWorkspaceCommand(text: string, workspacePath: string): CommandResult | null {
+    // /workspace — show status
+    if (text.match(/^[!/]workspace$/i)) {
+        return showWorkspaceStatus();
+    }
+
+    // /workspace list
+    if (text.match(/^[!/]workspace\s+list$/i)) {
+        return showWorkspaceStatus();
+    }
+
+    // /workspace add <alias> <path>
+    const addMatch = text.match(/^[!/]workspace\s+add\s+(\S+)\s+(.+)$/i);
+    if (addMatch) {
+        return addProject(addMatch[1], addMatch[2].trim());
+    }
+
+    // /workspace set <alias>
+    const setMatch = text.match(/^[!/]workspace\s+set\s+(\S+)$/i);
+    if (setMatch) {
+        return setActiveProject(setMatch[1], workspacePath);
+    }
+
+    // /workspace remove <alias>
+    const removeMatch = text.match(/^[!/]workspace\s+remove\s+(\S+)$/i);
+    if (removeMatch) {
+        return removeProject(removeMatch[1]);
+    }
+
+    // /workspace with unknown subcommand — show help
+    if (text.match(/^[!/]workspace\s/i)) {
+        return {
+            response: [
+                'Workspace Commands:',
+                '',
+                '/workspace — Show current project',
+                '/workspace list — List projects',
+                '/workspace add <alias> <path> — Register project',
+                '/workspace set <alias> — Switch project',
+                '/workspace remove <alias> — Unregister project',
+            ].join('\n'),
+        };
+    }
+
+    return null;
+}
+
+function showWorkspaceStatus(): CommandResult {
+    const settings = getSettings();
+    const projects = settings.projects || {};
+    const activeAlias = settings.active_project;
+
+    if (Object.keys(projects).length === 0) {
+        return {
+            response: [
+                'No projects registered.',
+                '',
+                'Register a project:',
+                '/workspace add <alias> <path>',
+                '',
+                'Example:',
+                '/workspace add myapp ~/repos/my-app',
+            ].join('\n'),
+        };
+    }
+
+    const lines: string[] = [];
+
+    if (activeAlias && projects[activeAlias]) {
+        const p = projects[activeAlias];
+        lines.push(`Active project: ${activeAlias} (${p.name})`);
+        lines.push(`Path: ${p.path}`);
+        lines.push('');
+    } else {
+        lines.push('No active project set.');
+        lines.push('');
+    }
+
+    lines.push('Registered projects:');
+    for (const [alias, project] of Object.entries(projects)) {
+        const active = alias === activeAlias ? ' [ACTIVE]' : '';
+        lines.push(`  ${alias} — ${(project as ProjectConfig).name} (${(project as ProjectConfig).path})${active}`);
+    }
+
+    return { response: lines.join('\n') };
+}
+
+function addProject(alias: string, rawPath: string): CommandResult {
+    // Validate alias format
+    if (!/^[a-z0-9][a-z0-9-]*$/i.test(alias)) {
+        return { response: 'Project alias must be alphanumeric with hyphens (e.g., my-project).' };
+    }
+
+    // Normalize alias to lowercase
+    const normalizedAlias = alias.toLowerCase();
+
+    // Resolve path
+    const resolvedPath = path.resolve(expandTilde(rawPath));
+
+    // SEC-003: Must be within homedir
+    const homedir = os.homedir();
+    if (!resolvedPath.startsWith(homedir + path.sep) && resolvedPath !== homedir) {
+        return { response: 'Project path must be within your home directory.' };
+    }
+
+    // Must exist and be a directory
+    if (!fs.existsSync(resolvedPath)) {
+        return { response: `Path does not exist: ${resolvedPath}` };
+    }
+    const stat = fs.statSync(resolvedPath);
+    if (!stat.isDirectory()) {
+        return { response: `Path is not a directory: ${resolvedPath}` };
+    }
+
+    // Symlink escape check
+    const realPath = fs.realpathSync(resolvedPath);
+    if (!realPath.startsWith(homedir + path.sep) && realPath !== homedir) {
+        return { response: 'Project path resolves outside your home directory (symlink detected).' };
+    }
+
+    // Check for duplicate alias
+    const settings = getSettings();
+    const projects = settings.projects || {};
+    if (projects[normalizedAlias]) {
+        return { response: `Project '${normalizedAlias}' already registered. Remove it first with /workspace remove ${normalizedAlias}` };
+    }
+
+    // Save
+    projects[normalizedAlias] = { name: alias, path: realPath };
+    writeSettings({ projects });
+
+    return { response: `Registered project '${normalizedAlias}' at ${realPath}` };
+}
+
+function setActiveProject(alias: string, workspacePath: string): CommandResult {
+    const normalizedAlias = alias.toLowerCase();
+    const settings = getSettings();
+    const projects = settings.projects || {};
+
+    if (!projects[normalizedAlias]) {
+        const available = Object.keys(projects);
+        if (available.length === 0) {
+            return { response: `No projects registered. Use /workspace add <alias> <path> first.` };
+        }
+        return { response: `Project '${normalizedAlias}' not found.\n\nAvailable: ${available.join(', ')}` };
+    }
+
+    const project = projects[normalizedAlias] as ProjectConfig;
+
+    // Verify path still exists
+    if (!fs.existsSync(expandTilde(project.path))) {
+        return { response: `Project path no longer exists: ${project.path}\nRemove with /workspace remove ${normalizedAlias}` };
+    }
+
+    // Update active project
+    writeSettings({ active_project: normalizedAlias });
+
+    // Reset all agent conversations
+    const agents = settings.agents || {};
+    const resolvedWorkspace = expandTilde(workspacePath);
+    const resetAgents: string[] = [];
+    for (const agentId of Object.keys(agents)) {
+        const flagDir = path.join(resolvedWorkspace, agentId);
+        if (!fs.existsSync(flagDir)) fs.mkdirSync(flagDir, { recursive: true });
+        fs.writeFileSync(path.join(flagDir, 'reset_flag'), 'reset');
+        resetAgents.push(agentId);
+    }
+
+    const resetMsg = resetAgents.length > 0
+        ? `\nAll agent conversations reset (${resetAgents.map(a => '@' + a).join(', ')}).`
+        : '';
+
+    return {
+        response: `Switched to project '${normalizedAlias}' (${project.name})\nPath: ${project.path}${resetMsg}`,
+    };
+}
+
+function removeProject(alias: string): CommandResult {
+    const normalizedAlias = alias.toLowerCase();
+    const settings = getSettings();
+    const projects = settings.projects || {};
+
+    if (!projects[normalizedAlias]) {
+        return { response: `Project '${normalizedAlias}' not found.` };
+    }
+
+    // Cannot remove active project
+    if (settings.active_project === normalizedAlias) {
+        return { response: `Cannot remove active project '${normalizedAlias}'. Switch to another project first with /workspace set <alias>.` };
+    }
+
+    delete projects[normalizedAlias];
+    writeSettings({ projects });
+
+    return { response: `Removed project '${normalizedAlias}' from registry.` };
+}

@@ -291,18 +291,18 @@ Batches 1, 2, 3, 6 can run in parallel (no dependencies between them).
 
 ## Definition of Done
 
-- [ ] `npm run build` passes with 0 TypeScript errors
-- [ ] All 8 shell deny patterns block destructive commands
-- [ ] `guardCommand()` called before every CLI spawn in `invoke.ts`
-- [ ] Provider errors classified with `FailoverReason`
-- [ ] `fallback_providers` type in `AgentConfig` (wiring deferred to P2)
-- [ ] Delegation depth enforced per agent config
-- [ ] Config snapshotted at team conversation-start (constraint 6.4)
-- [ ] `toCanonical()` / `fromCanonical()` round-trip preserves data
-- [ ] Protocol adapter gated by config flag (off by default)
-- [ ] `ChannelPlugin` interface defined and Telegram plugin implemented
-- [ ] Input sanitization strips known injection patterns
-- [ ] All existing features still work (zero breaking changes)
+- [x] `npm run build` passes with 0 TypeScript errors
+- [x] All 8 shell deny patterns block destructive commands
+- [x] `guardCommand()` called before every CLI spawn in `invoke.ts`
+- [x] Provider errors classified with `FailoverReason`
+- [x] `fallback_providers` type in `AgentConfig` (wiring deferred to P2)
+- [x] Delegation depth enforced per agent config
+- [x] Config snapshotted at team conversation-start (constraint 6.4)
+- [x] `toCanonical()` / `fromCanonical()` round-trip preserves data
+- [x] Protocol adapter gated by config flag (off by default)
+- [x] `ChannelPlugin` interface defined and Telegram plugin implemented
+- [x] Input sanitization strips known injection patterns
+- [x] All existing features still work (zero breaking changes)
 - [ ] CTO review checkpoints passed
 
 ---

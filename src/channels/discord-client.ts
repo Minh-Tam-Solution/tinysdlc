@@ -146,51 +146,8 @@ function log(level: string, message: string): void {
     fs.appendFileSync(LOG_FILE, logMessage);
 }
 
-// Load teams from settings for /team command
-function getTeamListText(): string {
-    try {
-        const settingsData = fs.readFileSync(SETTINGS_FILE, 'utf8');
-        const settings = JSON.parse(settingsData);
-        const teams = settings.teams;
-        if (!teams || Object.keys(teams).length === 0) {
-            return 'No teams configured.\n\nCreate a team with `tinysdlc team add`.';
-        }
-        let text = '**Available Teams:**\n';
-        for (const [id, team] of Object.entries(teams) as [string, any][]) {
-            text += `\n**@${id}** - ${team.name}`;
-            text += `\n  Agents: ${team.agents.join(', ')}`;
-            text += `\n  Leader: @${team.leader_agent}`;
-        }
-        text += '\n\nUsage: Start your message with `@team_id` to route to a team.';
-        return text;
-    } catch {
-        return 'Could not load team configuration.';
-    }
-}
-
-// Load agents from settings for /agent command
-function getAgentListText(): string {
-    try {
-        const settingsData = fs.readFileSync(SETTINGS_FILE, 'utf8');
-        const settings = JSON.parse(settingsData);
-        const agents = settings.agents;
-        if (!agents || Object.keys(agents).length === 0) {
-            return 'No agents configured. Using default single-agent mode.\n\nConfigure agents in `.tinysdlc/settings.json` or run `tinysdlc agent add`.';
-        }
-        let text = '**Available Agents:**\n';
-        for (const [id, agent] of Object.entries(agents) as [string, any][]) {
-            text += `\n**@${id}** - ${agent.name}`;
-            text += `\n  Provider: ${agent.provider}/${agent.model}`;
-            text += `\n  Directory: ${agent.working_directory}`;
-            if (agent.system_prompt) text += `\n  Has custom system prompt`;
-            if (agent.prompt_file) text += `\n  Prompt file: ${agent.prompt_file}`;
-        }
-        text += '\n\nUsage: Start your message with `@agent_id` to route to a specific agent.';
-        return text;
-    } catch {
-        return 'Could not load agent configuration.';
-    }
-}
+// S03: Commands (/agent, /team, /reset, /workspace) now handled by
+// queue-processor.ts via shared command handler (CTO OBS-1).
 
 // Split long messages for Discord's 2000 char limit
 function splitMessage(text: string, maxLength = 2000): string[] {
@@ -314,53 +271,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
             return;
         }
 
-        // Check for agent list command
-        if (message.content.trim().match(/^[!/]agent$/i)) {
-            log('INFO', 'Agent list command received');
-            const agentList = getAgentListText();
-            await message.reply(agentList);
-            return;
-        }
-
-        // Check for team list command
-        if (message.content.trim().match(/^[!/]team$/i)) {
-            log('INFO', 'Team list command received');
-            const teamList = getTeamListText();
-            await message.reply(teamList);
-            return;
-        }
-
-        // Check for reset command: /reset @agent_id [@agent_id2 ...]
-        const resetMatch = messageText.trim().match(/^[!/]reset\s+(.+)$/i);
-        if (messageText.trim().match(/^[!/]reset$/i)) {
-            await message.reply('Usage: `/reset @agent_id [@agent_id2 ...]`\nSpecify which agent(s) to reset.');
-            return;
-        }
-        if (resetMatch) {
-            log('INFO', 'Per-agent reset command received');
-            const agentArgs = resetMatch[1].split(/\s+/).map(a => a.replace(/^@/, '').toLowerCase());
-            try {
-                const settingsData = fs.readFileSync(SETTINGS_FILE, 'utf8');
-                const settings = JSON.parse(settingsData);
-                const agents = settings.agents || {};
-                const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinysdlc-workspace');
-                const resetResults: string[] = [];
-                for (const agentId of agentArgs) {
-                    if (!agents[agentId]) {
-                        resetResults.push(`Agent '${agentId}' not found.`);
-                        continue;
-                    }
-                    const flagDir = path.join(workspacePath, agentId);
-                    if (!fs.existsSync(flagDir)) fs.mkdirSync(flagDir, { recursive: true });
-                    fs.writeFileSync(path.join(flagDir, 'reset_flag'), 'reset');
-                    resetResults.push(`Reset @${agentId} (${agents[agentId].name}).`);
-                }
-                await message.reply(resetResults.join('\n'));
-            } catch {
-                await message.reply('Could not process reset command. Check settings.');
-            }
-            return;
-        }
+        // S03: Commands flow through queue → intercepted by queue-processor (CTO OBS-1)
 
         // Show typing indicator
         await (message.channel as DMChannel).sendTyping();

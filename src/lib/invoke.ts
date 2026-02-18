@@ -22,9 +22,11 @@ function validatePath(resolved: string, ...allowedBases: string[]): string | nul
     return null;
 }
 import { AgentConfig, TeamConfig } from './types';
-import { SCRIPT_DIR, resolveClaudeModel, resolveCodexModel, resolveOllamaModel, getSettings } from './config';
+import { SCRIPT_DIR, resolveClaudeModel, resolveCodexModel, resolveOllamaModel, getSettings, getActiveProject } from './config';
 import { log } from './logging';
 import { ensureAgentDirectory, updateAgentTeammates } from './agent-setup';
+import { fullGuard } from './shell-guard';
+import { classifyError, shouldFallback, shouldRetry } from './failover';
 
 const DEFAULT_AGENT_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -114,7 +116,11 @@ export async function invokeAgent(
     updateAgentTeammates(agentDir, agentId, agents, teams);
 
     // Resolve working directory — SEC-003: validate path stays within homedir or workspacePath
-    const rawWorkingDir = agent.working_directory ? expandTilde(agent.working_directory) : '';
+    // S03: active_project overrides per-agent working_directory
+    const activeProject = getActiveProject(getSettings());
+    const rawWorkingDir = activeProject
+        ? expandTilde(activeProject.path)
+        : (agent.working_directory ? expandTilde(agent.working_directory) : '');
     const candidateWorkingDir = rawWorkingDir
         ? (path.isAbsolute(rawWorkingDir) ? rawWorkingDir : path.join(workspacePath, rawWorkingDir))
         : agentDir;
@@ -160,7 +166,7 @@ export async function invokeAgent(
     const provider = agent.provider || 'anthropic';
 
     if (provider === 'ollama') {
-        // --- Ollama (local models) ---
+        // --- Ollama (local models) — HTTP, shell guard not applicable ---
         log('INFO', `Using Ollama provider (agent: ${agentId})`);
         const modelId = resolveOllamaModel(agent.model);
         const ollamaUrl = process.env.OLLAMA_URL || getSettings()?.providers?.ollama?.url || 'http://localhost:11434';
@@ -177,17 +183,32 @@ export async function invokeAgent(
             });
 
             if (!response.ok) {
-                throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
+                const err = { status: response.status, message: `Ollama API error: ${response.status} ${response.statusText}` };
+                const classified = classifyError(err, 'ollama');
+                log('ERROR', `Ollama error classified: ${JSON.stringify({ reason: classified.reason, retryable: classified.retryable, agent_id: agentId })}`);
+                throw new Error(err.message);
             }
 
             const data = await response.json() as { message?: { content?: string } };
             return data?.message?.content || 'Sorry, I could not generate a response from Ollama.';
         } catch (err) {
-            log('ERROR', `Ollama invocation failed: ${(err as Error).message}`);
+            const classified = classifyError(err, 'ollama');
+            log('ERROR', `Ollama invocation failed: ${JSON.stringify({ reason: classified.reason, provider: classified.provider, statusCode: classified.statusCode, retryable: classified.retryable, agent_id: agentId })}`);
             throw err;
         }
     } else if (provider === 'openai') {
+        // --- Codex CLI: shell guard applies ---
         log('INFO', `Using Codex CLI (agent: ${agentId})`);
+
+        // CTO-2026-002 ACTION 1: Shell safety guard (CLI spawn path)
+        const shellGuardEnabled = agent.shell_guard_enabled !== false; // default: true
+        if (shellGuardEnabled) {
+            const guardResult = fullGuard(effectiveMessage, workingDir);
+            if (!guardResult.allowed) {
+                log('WARN', `[SHELL-GUARD] Blocked command for agent ${agentId}: ${guardResult.reason}`);
+                return `Shell guard blocked this request: ${guardResult.reason}`;
+            }
+        }
 
         if (shouldReset) {
             log('INFO', `🔄 Resetting Codex conversation for agent: ${agentId}`);
@@ -200,26 +221,69 @@ export async function invokeAgent(
         }
         codexArgs.push('--skip-git-repo-check', '--dangerously-bypass-approvals-and-sandbox', '--json');
         codexArgs.push(effectiveMessage);
-        const rawOutput = await runCommand('codex', codexArgs, workingDir);
 
-        // Parse JSONL output and extract final agent_message
-        let response = '';
-        const lines = rawOutput.trim().split('\n');
-        for (const line of lines) {
-            try {
-                const json = JSON.parse(line);
-                if (json.type === 'item.completed' && json.item?.type === 'agent_message') {
-                    response = json.item.text;
+        try {
+            const rawOutput = await runCommand('codex', codexArgs, workingDir);
+
+            // Parse JSONL output and extract final agent_message
+            let response = '';
+            const lines = rawOutput.trim().split('\n');
+            for (const line of lines) {
+                try {
+                    const json = JSON.parse(line);
+                    if (json.type === 'item.completed' && json.item?.type === 'agent_message') {
+                        response = json.item.text;
+                    }
+                } catch (e) {
+                    // Ignore lines that aren't valid JSON
                 }
-            } catch (e) {
-                // Ignore lines that aren't valid JSON
+            }
+
+            return response || 'Sorry, I could not generate a response from Codex.';
+        } catch (err) {
+            const classified = classifyError(err, 'openai');
+            log('ERROR', `Codex error classified: ${JSON.stringify({ reason: classified.reason, provider: classified.provider, statusCode: classified.statusCode, retryable: classified.retryable, agent_id: agentId })}`);
+
+            // ACTION 4: Retry once for format errors
+            if (shouldRetry(classified)) {
+                log('INFO', `Retrying Codex invocation for agent ${agentId} (reason: ${classified.reason})`);
+                try {
+                    const retryOutput = await runCommand('codex', codexArgs, workingDir);
+                    let response = '';
+                    const lines = retryOutput.trim().split('\n');
+                    for (const line of lines) {
+                        try {
+                            const json = JSON.parse(line);
+                            if (json.type === 'item.completed' && json.item?.type === 'agent_message') {
+                                response = json.item.text;
+                            }
+                        } catch (e) { /* ignore */ }
+                    }
+                    return response || 'Sorry, I could not generate a response from Codex.';
+                } catch (retryErr) {
+                    log('ERROR', `Codex retry also failed for agent ${agentId}: ${(retryErr as Error).message}`);
+                }
+            }
+
+            if (shouldFallback(classified)) {
+                log('INFO', `Fallback recommended for agent ${agentId} (reason: ${classified.reason}). Fallback chain wiring deferred to P2.`);
+            }
+
+            throw err;
+        }
+    } else {
+        // --- Claude (Anthropic): shell guard applies ---
+        log('INFO', `Using Claude provider (agent: ${agentId})`);
+
+        // CTO-2026-002 ACTION 1: Shell safety guard (CLI spawn path)
+        const shellGuardEnabled = agent.shell_guard_enabled !== false; // default: true
+        if (shellGuardEnabled) {
+            const guardResult = fullGuard(effectiveMessage, workingDir);
+            if (!guardResult.allowed) {
+                log('WARN', `[SHELL-GUARD] Blocked command for agent ${agentId}: ${guardResult.reason}`);
+                return `Shell guard blocked this request: ${guardResult.reason}`;
             }
         }
-
-        return response || 'Sorry, I could not generate a response from Codex.';
-    } else {
-        // Default to Claude (Anthropic)
-        log('INFO', `Using Claude provider (agent: ${agentId})`);
 
         const continueConversation = !shouldReset;
 
@@ -237,6 +301,27 @@ export async function invokeAgent(
         }
         claudeArgs.push('-p', effectiveMessage);
 
-        return await runCommand('claude', claudeArgs, workingDir);
+        try {
+            return await runCommand('claude', claudeArgs, workingDir);
+        } catch (err) {
+            const classified = classifyError(err, 'anthropic');
+            log('ERROR', `Claude error classified: ${JSON.stringify({ reason: classified.reason, provider: classified.provider, statusCode: classified.statusCode, retryable: classified.retryable, agent_id: agentId })}`);
+
+            // ACTION 4: Retry once for format errors
+            if (shouldRetry(classified)) {
+                log('INFO', `Retrying Claude invocation for agent ${agentId} (reason: ${classified.reason})`);
+                try {
+                    return await runCommand('claude', claudeArgs, workingDir);
+                } catch (retryErr) {
+                    log('ERROR', `Claude retry also failed for agent ${agentId}: ${(retryErr as Error).message}`);
+                }
+            }
+
+            if (shouldFallback(classified)) {
+                log('INFO', `Fallback recommended for agent ${agentId} (reason: ${classified.reason}). Fallback chain wiring deferred to P2.`);
+            }
+
+            throw err;
+        }
     }
 }
