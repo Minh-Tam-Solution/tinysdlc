@@ -21,8 +21,11 @@
 - Discord direct messages
 - WhatsApp messages (via WhatsApp Web.js)
 - Telegram messages (via Bot API)
+- Zalo OA messages (via Zalo Bot Platform API)
+- Zalo Personal messages (via zca-cli)
 - Unified message format across all channels
 - File exchange (incoming/outgoing) for all channels
+- Plugin-based channel architecture for extensibility
 
 ### Team Collaboration
 
@@ -64,14 +67,19 @@ Added: 2026-02-16 — Gate G0.1 approved
 
 ### SDLC Role Support (SE4A/SE4H Model)
 
-- Agents must be configurable with SDLC roles: `pm`, `architect`, `coder`, `reviewer`, `tester`, `devops`
+- Agents must be configurable with SDLC roles: `researcher`, `pm`, `pjm`, `architect`, `coder`, `reviewer`, `tester`, `devops`
 - Role assignment via optional `sdlc_role` field in agent config (backward compatible)
 - Role-specific AGENTS.md templates encode SE4A constraints, stage responsibilities, and quality gate ownership
+- Multi-provider model assignment: Opus (deep reasoning), GPT 5.2 (precise analysis), Sonnet (fast execution)
 - System prompt injection via `SYSTEM_CONTEXT.md` — does NOT pollute user message (SE4H intent preserved)
 
 ### SDLC-Aligned Default Teams
 
-- Four pre-configured team archetypes: `planning` (Stage 00-01), `dev` (Stage 04-05), `qa` (Stage 05, required for G3), `fullstack` (LITE tier)
+- Four pre-configured team archetypes:
+  - `planning` (researcher + pm + pjm + architect — Stage 00-01, Gates G0.1, G1)
+  - `dev` (coder + reviewer — Stage 04-05, Sprint Gate)
+  - `qa` (tester + reviewer — Stage 05, required for G3)
+  - `fullstack` (researcher + pm + pjm + architect + coder + reviewer — LITE tier, all stages)
 - Default settings template (`templates/settings.sdlc-default.json`) enables one-command SDLC setup
 - Setup wizard must offer SDLC preset option during initial configuration
 
@@ -85,15 +93,27 @@ Added: 2026-02-16 — Gate G0.1 approved
 ### CLI SDLC Commands
 
 - `tinysdlc sdlc status` — show agents with their SDLC roles and active teams
-- `tinysdlc sdlc init` — apply SDLC default template to settings.json
+- `tinysdlc sdlc init` — apply SDLC default template (8 agents + 4 teams) to settings.json
 - `tinysdlc sdlc roles` — list role-to-stage-to-gate mapping
+
+### Workspace Management
+
+- `/workspace add <alias> <path>` — register a project workspace (path must be within $HOME)
+- `/workspace add <alias> <path> --external` — register a workspace outside $HOME (opt-in for shared directories)
+- `/workspace list` — list registered project workspaces
+- `/workspace switch <alias>` — switch active project workspace
+- SEC-003: Path validation prevents directory traversal; `--external` flag required for paths outside $HOME
 
 ### SDLC User Stories
 
-1. As an SDLC practitioner, I want to assign SDLC roles to agents so they behave according to SE4A constraints
-2. As a project manager, I want a pre-configured SDLC team setup available with one command
+1. As an SDLC practitioner, I want to assign SDLC roles (8 roles) to agents so they behave according to SE4A constraints
+2. As a project manager, I want a pre-configured SDLC team setup (8 agents + 4 teams) available with one command
 3. As a DevOps engineer, I want to use company-hosted Ollama models for data-sovereign agent deployments
 4. As a CTO, I want the `qa` team to be required (not optional) when targeting Gate G3 Ship Ready
+5. As a researcher, I want a dedicated agent with Opus model for deep research and evidence gathering
+6. As a project manager, I want a dedicated PJM agent to track sprint execution and timelines
+7. As a user in Vietnam, I want to message agents via Zalo OA and Zalo Personal
+8. As a developer, I want to register project workspaces outside $HOME using `--external` flag
 
 ---
 

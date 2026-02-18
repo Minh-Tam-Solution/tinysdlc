@@ -19,7 +19,8 @@ The agent management feature enables you to:
 - **Route messages** to specific agents using `@agent_id` syntax
 - **Isolate conversations** - each agent has its own workspace directory and conversation history
 - **Specialize agents** - give each agent a custom system prompt and configuration
-- **Switch providers** - mix Anthropic (Claude) and OpenAI (Codex) agents
+- **Switch providers** - mix Anthropic (Claude), OpenAI (Codex), and Ollama agents
+- **Assign SDLC roles** - agents follow SE4A constraints per their role (researcher, pm, pjm, architect, coder, reviewer, tester, devops)
 - **Customize workspaces** - organize agents in your own workspace directory
 
 ## Architecture
@@ -27,7 +28,7 @@ The agent management feature enables you to:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Message Channels                          │
-│              (Discord, Telegram, WhatsApp)                   │
+│     (Discord, Telegram, WhatsApp, Zalo OA, Zalo Personal)   │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      │ User sends: "@coder fix the bug"
@@ -94,31 +95,32 @@ Each agent has its own configuration in `.tinysdlc/settings.json`:
     "name": "tinysdlc-workspace"
   },
   "agents": {
-    "coder": {
-      "name": "Code Assistant",
-      "provider": "anthropic",
-      "model": "sonnet",
-      "working_directory": "/Users/me/tinysdlc-workspace/coder",
-      "system_prompt": "You are a senior software engineer..."
-    },
-    "writer": {
-      "name": "Technical Writer",
-      "provider": "openai",
-      "model": "gpt-5.3-codex",
-      "working_directory": "/Users/me/tinysdlc-workspace/writer",
-      "prompt_file": "/path/to/writer-prompt.md"
-    },
-    "assistant": {
-      "name": "Assistant",
+    "researcher": {
+      "name": "Researcher",
       "provider": "anthropic",
       "model": "opus",
-      "working_directory": "/Users/me/tinysdlc-workspace/assistant"
+      "sdlc_role": "researcher",
+      "working_directory": "/Users/me/tinysdlc-workspace/researcher"
+    },
+    "pm": {
+      "name": "Product Manager",
+      "provider": "openai",
+      "model": "gpt-5.2",
+      "sdlc_role": "pm",
+      "working_directory": "/Users/me/tinysdlc-workspace/pm"
+    },
+    "coder": {
+      "name": "Developer",
+      "provider": "anthropic",
+      "model": "sonnet",
+      "sdlc_role": "coder",
+      "working_directory": "/Users/me/tinysdlc-workspace/coder"
     }
   }
 }
 ```
 
-**Note:** The `working_directory` is automatically set to `<workspace>/<agent_id>/` when creating agents via `tinysdlc agent add`.
+**Note:** The `working_directory` is automatically set to `<workspace>/<agent_id>/` when creating agents via `tinysdlc agent add`. Run `tinysdlc sdlc init` to apply all 8 SDLC roles with optimized model assignments.
 
 ### 3. Agent Isolation
 
@@ -192,12 +194,20 @@ claude --dangerously-skip-permissions \
 ```bash
 cd "$agent_working_directory"  # e.g., ~/tinysdlc-workspace/coder/
 codex exec resume --last \
-  --model gpt-5.3-codex \
+  --model gpt-5.2 \
   --skip-git-repo-check \
   --dangerously-bypass-approvals-and-sandbox \
   --json \
   "User message here"
 ```
+
+**Ollama (Local/Company-hosted):**
+```bash
+# HTTP POST to Ollama REST API (no CLI needed)
+curl -s http://localhost:11434/api/chat \
+  -d '{"model": "qwen2.5-coder:32b", "messages": [{"role": "user", "content": "User message here"}]}'
+```
+Ollama URL configurable via `settings.providers.ollama.url` or `OLLAMA_URL` env var. Company infrastructure: `https://api.nhatquangholding.com`.
 
 ## Configuration
 
@@ -256,9 +266,10 @@ Edit `.tinysdlc/settings.json`:
 | Field | Required | Description |
 |-------|----------|-------------|
 | `name` | Yes | Human-readable display name |
-| `provider` | Yes | `anthropic` or `openai` |
-| `model` | Yes | Model identifier (e.g., `sonnet`, `opus`, `gpt-5.3-codex`) |
+| `provider` | Yes | `anthropic`, `openai`, or `ollama` |
+| `model` | Yes | Model identifier (e.g., `sonnet`, `opus`, `gpt-5.2`) |
 | `working_directory` | Yes | Directory where agent operates (auto-set to `<workspace>/<agent_id>/`) |
+| `sdlc_role` | No | SDLC role: `researcher`, `pm`, `pjm`, `architect`, `coder`, `reviewer`, `tester`, `devops` |
 | `system_prompt` | No | Inline system prompt text |
 | `prompt_file` | No | Path to file containing system prompt |
 
@@ -388,27 +399,40 @@ Assign different roles to agents:
 }
 ```
 
-### Provider Mixing
+### Provider Mixing (SDLC 2-2-4 Split)
 
-Use different AI providers for different tasks:
+TinySDLC assigns models per SDLC role using a 2-2-4 provider split:
 
 ```json
 {
   "agents": {
-    "quick": {
-      "provider": "anthropic",
-      "model": "sonnet",
-      "system_prompt": "Fast, efficient responses for quick questions."
-    },
-    "deep": {
-      "provider": "anthropic",
-      "model": "opus",
-      "system_prompt": "Thorough, detailed analysis for complex problems."
-    },
-    "codegen": {
-      "provider": "openai",
-      "model": "gpt-5.3-codex",
-      "system_prompt": "Code generation specialist."
+    "researcher": { "provider": "anthropic", "model": "opus", "sdlc_role": "researcher" },
+    "pm":         { "provider": "openai",    "model": "gpt-5.2", "sdlc_role": "pm" },
+    "pjm":        { "provider": "anthropic", "model": "sonnet", "sdlc_role": "pjm" },
+    "architect":  { "provider": "anthropic", "model": "opus", "sdlc_role": "architect" },
+    "coder":      { "provider": "anthropic", "model": "sonnet", "sdlc_role": "coder" },
+    "reviewer":   { "provider": "openai",    "model": "gpt-5.2", "sdlc_role": "reviewer" },
+    "tester":     { "provider": "anthropic", "model": "sonnet", "sdlc_role": "tester" },
+    "devops":     { "provider": "anthropic", "model": "sonnet", "sdlc_role": "devops" }
+  }
+}
+```
+
+| Tier | Provider | Model | Roles | Rationale |
+|------|----------|-------|-------|-----------|
+| Deep reasoning | Anthropic | opus | researcher, architect | Complex analysis, system design |
+| Precise analysis | OpenAI | gpt-5.2 | pm, reviewer | Structured output, checklist evaluation |
+| Fast execution | Anthropic | sonnet | pjm, coder, tester, devops | High-frequency operational tasks |
+
+Custom configurations can also mix providers freely:
+
+```json
+{
+  "agents": {
+    "local": {
+      "provider": "ollama",
+      "model": "qwen2.5-coder:32b",
+      "system_prompt": "Code generation using local model."
     }
   }
 }
@@ -631,12 +655,14 @@ When an agent is added to a team, its `AGENTS.md` file is automatically updated 
 
 Potential features for agent management:
 
+- **Cross-team communication:** Agents mentioning agents from other teams
 - **Shared context:** Optional shared memory between agents
 - **Agent scheduling:** Time-based or event-based agent activation
 - **Web dashboard:** Visual agent management and monitoring
 - **Agent analytics:** Track usage, performance per agent
 - **Workspace templates:** Pre-configured agent workspaces for common use cases
 - **Agent migration:** Export/import agent configurations
+- **Orchestrator integration:** Forward messages to SDLC Orchestrator via canonical protocol (gated, ADR-056)
 
 ## See Also
 

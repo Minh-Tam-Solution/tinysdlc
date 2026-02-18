@@ -29,15 +29,102 @@
 - **Auth**: QR code pairing
 - **Message flow**: Message listener -> queue/incoming -> queue/outgoing -> MessageMedia reply
 - **File support**: All media types via MessageMedia
+- **Plugin**: `src/channels/plugins/whatsapp.ts`
 
-### AI Providers
-- **Anthropic**: Claude Code CLI (`claude --dangerously-skip-permissions`)
-- **OpenAI**: Codex CLI (`codex exec ... --dangerously-bypass-approvals-and-sandbox`)
-- **Per-agent configuration**: Provider and model selectable per agent via `tinysdlc agent provider`
+### Zalo OA (Zalo Bot Platform API)
+- **Type**: OA bot via Zalo Bot Platform API (HTTP long-polling)
+- **Auth**: OA access token (`ZALO_OA_TOKEN`)
+- **Message flow**: Long-polling listener -> queue/incoming -> queue/outgoing -> reply
+- **Char limit**: 2000 per message (auto-split)
+- **File support**: Images, documents
+- **Plugin**: `src/channels/plugins/zalo.ts`
+- **Orchestrator mapping**: `zalo` → `zalo` (ChannelType)
+
+### Zalo Personal (zca-cli)
+- **Type**: Personal account via zca-cli child process wrapper
+- **Auth**: zca-cli login session
+- **Message flow**: JSON line streaming -> queue/incoming -> queue/outgoing -> zca-cli send
+- **Auto-restart**: Exponential backoff on process crash
+- **Plugin**: `src/channels/plugins/zalouser.ts`
+- **Orchestrator mapping**: `zalouser` → `zalo` (ChannelType — both Zalo variants map to `zalo`)
+
+---
+
+## AI Providers
+
+### Anthropic (Claude Code CLI)
+- **CLI**: `claude --dangerously-skip-permissions -c -p <message>`
+- **Models**: `opus` (deep reasoning), `sonnet` (fast execution)
+- **SDLC roles**: researcher (opus), architect (opus), pjm (sonnet), coder (sonnet), tester (sonnet), devops (sonnet)
+- **Auth**: `ANTHROPIC_API_KEY` env var or Claude CLI login
+
+### OpenAI (Codex CLI)
+- **CLI**: `codex exec ... --dangerously-bypass-approvals-and-sandbox --json`
+- **Models**: `gpt-5.2`
+- **SDLC roles**: pm (gpt-5.2), reviewer (gpt-5.2)
+- **Auth**: `OPENAI_API_KEY` env var (loaded via dotenv from `.env`)
+
+### Ollama (Local/Company-hosted)
+- **API**: HTTP POST to `/api/chat` endpoint
+- **Models**: `qwen2.5-coder:32b` (default), any Ollama-hosted model
+- **URL**: Configurable via `settings.providers.ollama.url` or `OLLAMA_URL` env var
+- **Company infra**: `https://api.nhatquangholding.com`
+- **Stateless**: No conversation memory between invocations
+
+---
+
+## ChannelPlugin Architecture (CTO-2026-002)
+
+All channels implement the `ChannelPlugin` interface:
+
+```typescript
+interface ChannelPlugin {
+  id: string;
+  name: string;
+  capabilities: {
+    threading: boolean;
+    reactions: boolean;
+    fileAttachments: boolean;
+    maxMessageLength: number;
+  };
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  sendMessage(channelId: string, message: string, options?: SendOptions): Promise<void>;
+  onMessage(handler: (msg: IncomingMessage) => void): void;
+}
+```
+
+**Plugin loader** (`src/channels/plugin-loader.ts`):
+- `register(plugin)` — register a channel plugin
+- `get(id)` — get plugin by channel ID
+- `getAll()` — list all registered plugins
+- `connectEnabled()` — connect all enabled channels from settings
+- `disconnectAll()` — graceful shutdown
+
+**Adding a new channel**: Implement `ChannelPlugin`, register in plugin loader, add channel ID to settings — zero core changes needed.
+
+---
+
+## Channel Mapping for Orchestrator
+
+When `orchestrator_integration.enabled = true`, TinySDLC maps internal channel names to Orchestrator's `ChannelType` enum via `mapChannel()` in `src/lib/protocol-adapter.ts`:
+
+| TinySDLC Channel | Orchestrator ChannelType |
+|-----------------|-------------------------|
+| `telegram` | `telegram` |
+| `discord` | `discord` |
+| `whatsapp` | `whatsapp` |
+| `zalo` | `zalo` |
+| `zalouser` | `zalo` |
+| `heartbeat` | `cli` |
+| _(unknown)_ | `cli` |
+
+---
 
 ## Integration Pattern
 
-All channel clients follow the same pattern (see `src/channels/`):
+All channel clients follow the same pattern (via ChannelPlugin or legacy `src/channels/`):
 1. Listen for messages -> apply sender pairing check -> write JSON to `queue/incoming/`
 2. Poll `queue/outgoing/` every 1s -> deliver responses (split long messages, file attachments)
 3. Long responses (>4000 chars) saved as `.md` files and sent as attachments
+4. Input sanitization: 12 prompt injection patterns stripped from OTT input before agent context injection

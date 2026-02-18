@@ -14,10 +14,10 @@ TinySDLC provides 4 pre-configured team archetypes aligned with SDLC Framework v
 ```
 User (SE4H)
     │
-    ├── @planning → [pm → architect]          Stage 00-01
-    ├── @dev      → [coder → reviewer]        Stage 04-05
-    ├── @qa       → [tester → reviewer]       Stage 05
-    └── @fullstack → [pm → architect/coder/reviewer]  All stages (LITE)
+    ├── @planning  → [researcher → pm → pjm → architect]                Stage 00-01
+    ├── @dev       → [coder → reviewer]                                  Stage 04-05
+    ├── @qa        → [tester → reviewer]                                 Stage 05
+    └── @fullstack → [researcher → pm → pjm → architect → coder → reviewer]  All stages (LITE)
 ```
 
 ---
@@ -27,15 +27,15 @@ User (SE4H)
 ```json
 {
   "name": "Planning Team",
-  "agents": ["pm", "architect"],
+  "agents": ["researcher", "pm", "pjm", "architect"],
   "leader_agent": "pm",
   "description": "Foundation & Planning — Stage 00-01 — Gates G0.1, G1"
 }
 ```
 
 ### Stage Coverage
-- Stage 00: Foundation (problem statement, stakeholder analysis)
-- Stage 01: Planning (requirements, user stories, sprint plan)
+- Stage 00: Foundation (problem statement, stakeholder analysis, market research)
+- Stage 01: Planning (requirements, user stories, sprint plan, execution timeline)
 
 ### Activation
 ```
@@ -45,21 +45,28 @@ User (SE4H)
 ### Interaction Flow
 ```
 User: @planning <feature request>
-  └── pm: analyzes, writes requirements
-        └── [@architect: review technical feasibility]
-              └── architect: confirms feasibility, flags constraints
-                    └── pm: finalizes requirements → presents to SE4H
+  └── pm: analyzes scope, assigns research
+        └── [@researcher: investigate market need and technical landscape]
+              └── researcher: produces research brief
+                    └── [@pm: research complete — key findings: ...]
+                          └── pm: writes requirements
+                                └── [@architect: review technical feasibility]
+                                      └── architect: confirms feasibility, flags constraints
+                                            └── [@pjm: create sprint plan for implementation]
+                                                  └── pjm: creates timeline → pm presents to SE4H
 ```
 
 ### Quality Gate Outputs
-- **G0.1**: Problem statement document in `docs/00-foundation/`
+- **G0.1**: Problem statement + research brief in `docs/00-foundation/`
 - **G1**: Requirements document in `docs/01-planning/requirements.md`
+- **Sprint Plan**: Timeline and task breakdown from PJM
 
 ### When to Use
 - Starting a new project or feature
 - Clarifying requirements before development
 - Prioritizing backlog items
 - Creating sprint plans
+- Conducting market or technical research
 
 ---
 
@@ -157,14 +164,14 @@ User: @qa <validation request>
 ```json
 {
   "name": "Full Stack Team",
-  "agents": ["pm", "architect", "coder", "reviewer"],
+  "agents": ["researcher", "pm", "pjm", "architect", "coder", "reviewer"],
   "leader_agent": "pm",
   "description": "End-to-End — all stages — LITE tier for small projects"
 }
 ```
 
 ### Stage Coverage
-- All stages (00 through 05) — simplified pipeline
+- All stages (00 through 05) — simplified pipeline with 6 core roles
 
 ### Activation
 ```
@@ -175,7 +182,9 @@ User: @qa <validation request>
 ```
 User: @fullstack <task>
   └── pm: analyzes, defines scope
+        └── [@researcher: quick research on approach]
         └── [@architect: quick feasibility check]
+        └── [@pjm: create task breakdown]
         └── [@coder: implement: <spec>]
               └── [@reviewer: review when ready]
 ```
@@ -186,7 +195,7 @@ User: @fullstack <task>
 - Rapid prototyping where full SDLC overhead isn't needed
 
 ### Limitation
-- Does not include `tester` — cannot fulfill G3 formally
+- Does not include `tester` or `devops` — cannot fulfill G3 or G4 formally
 - Suitable for internal tools or early-stage projects
 - Upgrade to separate `planning`/`dev`/`qa` teams when project matures
 
@@ -198,6 +207,7 @@ Some agents work best as standalone (not in a team) for specific queries:
 
 | Agent | Usage |
 |-------|-------|
+| `@researcher <topic>` | Quick research or competitive analysis |
 | `@architect <question>` | Quick architectural consultation |
 | `@reviewer <code snippet>` | Ad-hoc security review |
 | `@devops <question>` | Infrastructure/deployment questions |
@@ -217,7 +227,7 @@ Some agents work best as standalone (not in a team) for specific queries:
 ## Quick Setup
 
 ```bash
-# Apply all 4 teams + 6 agents at once
+# Apply all 4 teams + 8 agents at once
 tinysdlc sdlc init
 
 # Verify

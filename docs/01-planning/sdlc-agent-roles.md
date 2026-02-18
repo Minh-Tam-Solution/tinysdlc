@@ -18,14 +18,44 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 
 ---
 
-## The 6 SDLC Roles
+## The 8 SDLC Roles
+
+### Researcher (`researcher`)
+
+| Attribute | Value |
+|-----------|-------|
+| **Provider** | anthropic |
+| **Recommended Model** | opus |
+| **Stage** | 00-Foundation, 01-Planning |
+| **Gates** | G0.1 (Problem Validated) |
+| **Template** | `templates/agents/researcher/AGENTS.md` |
+
+**Responsibilities:**
+- Conduct market research, competitive analysis, and user research
+- Gather evidence for problem validation (interviews, surveys, data)
+- Analyze industry trends and technology landscape
+- Produce research briefs that feed into PM's requirements
+- Validate assumptions with data before committing to solutions
+
+**Forbidden (SE4A constraints):**
+- Making product decisions (that's PM's role)
+- Approving gates without SE4H sign-off
+- Starting development based on research alone
+- Presenting research as final requirements
+
+**Why Opus:** Research requires deep reasoning, synthesizing large volumes of information, and producing nuanced analysis — Opus excels at complex, multi-step reasoning tasks.
+
+**Communication pattern:**
+> Researcher receives research request → investigates → produces research brief → `[@pm: research complete — key findings: ...]` → PM incorporates into requirements
+
+---
 
 ### Product Manager (`pm`)
 
 | Attribute | Value |
 |-----------|-------|
-| **Provider** | anthropic |
-| **Recommended Model** | sonnet |
+| **Provider** | openai |
+| **Recommended Model** | gpt-5.2 |
 | **Stage** | 00-Foundation, 01-Planning |
 | **Gates** | G0.1 (Problem Validated), G1 (Requirements Complete) |
 | **Template** | `templates/agents/pm/AGENTS.md` |
@@ -42,8 +72,40 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 - Making technology or architecture decisions
 - Starting or assigning coding tasks directly
 
+**Why GPT 5.2:** PM requires precise, structured output (requirements, user stories, acceptance criteria) and strong analytical reasoning — GPT 5.2 excels at structured analysis and clear documentation.
+
 **Communication pattern:**
 > PM receives feature request → analyzes → `[@architect: review feasibility]` → finalizes → presents to SE4H for G1
+
+---
+
+### Project Manager (`pjm`)
+
+| Attribute | Value |
+|-----------|-------|
+| **Provider** | anthropic |
+| **Recommended Model** | sonnet |
+| **Stage** | 01-Planning, 02-Design, 03-Integrate, 04-Build |
+| **Gates** | G-Sprint (Sprint Gate) |
+| **Template** | `templates/agents/pjm/AGENTS.md` |
+
+**Responsibilities:**
+- Create and maintain sprint plans with task breakdown
+- Track execution progress, blockers, and dependencies
+- Manage timelines and resource allocation
+- Run daily standups and sprint retrospectives
+- Escalate risks and blockers to SE4H
+
+**Forbidden (SE4A constraints):**
+- Making product scope decisions (that's PM's role)
+- Making architecture decisions (that's architect's role)
+- Approving gates without SE4H sign-off
+- Changing sprint scope without PM agreement
+
+**Why Sonnet:** Project management is execution-focused — tracking tasks, updating timelines, generating reports. Sonnet provides fast, reliable output for high-frequency operational tasks.
+
+**Communication pattern:**
+> PJM receives sprint plan → breaks into tasks → tracks progress → `[@pm: sprint status — 3/5 tasks done, 1 blocked on API contract]` → escalates blockers
 
 ---
 
@@ -69,6 +131,8 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 - Making product priority decisions
 - Writing production implementation code
 - Selecting technology without documenting in an ADR
+
+**Why Opus:** Architecture requires deep reasoning about system trade-offs, security implications, and long-term maintainability — Opus excels at complex multi-dimensional analysis.
 
 **Communication pattern:**
 > Architect receives feasibility request → analyzes → drafts ADR if needed → `[@reviewer: security review of design]` → presents to CTO for G2
@@ -97,6 +161,8 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 - Bypassing CI/CD gates (`--no-verify`, force push)
 - Making product decisions about scope
 
+**Why Sonnet:** Development is high-frequency execution work — writing code, running tests, iterating quickly. Sonnet provides fast, reliable output ideal for rapid development cycles.
+
 **Communication pattern:**
 > Coder receives task → implements → writes tests → `[@reviewer: please review PR for <task>]`
 
@@ -106,8 +172,8 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 
 | Attribute | Value |
 |-----------|-------|
-| **Provider** | anthropic |
-| **Recommended Model** | opus |
+| **Provider** | openai |
+| **Recommended Model** | gpt-5.2 |
 | **Stage** | 04-Build (review), 05-Verify (gate) |
 | **Gates** | G3 Ship Ready — primary owner |
 | **Template** | `templates/agents/reviewer/AGENTS.md` |
@@ -131,6 +197,8 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 - Input validation at system boundaries
 - No hardcoded secrets
 - Error handling doesn't leak sensitive data
+
+**Why GPT 5.2:** Code review demands precise pattern matching, checklist adherence, and structured analysis of security vulnerabilities — GPT 5.2 excels at systematic, criteria-based evaluation.
 
 **Communication pattern:**
 > Reviewer receives review request → runs checklist → either `[@coder: 2 issues found: ...]` or `[@tester: LGTM — security clean, coverage check needed for G3]`
@@ -158,6 +226,8 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 - Marking G3 ready without running full test plan
 - Modifying production code to make tests pass
 - Approving G3 without reviewer co-sign
+
+**Why Sonnet:** Testing is execution-heavy — running test plans, measuring coverage, producing reports. Sonnet provides fast, reliable output for high-throughput QA workflows.
 
 **Communication pattern:**
 > Tester receives verify task → creates test plan → executes → `[@reviewer: 85% coverage, all acceptance criteria pass — tester G3 sign-off]` or `[@coder: 67% coverage, need 80% — missing tests for: <list>]`
@@ -194,6 +264,8 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 - No secrets in configuration files
 - Post-deploy smoke test passing
 
+**Why Sonnet:** DevOps is operational — CI/CD pipelines, deployments, monitoring. Sonnet provides fast, reliable output for infrastructure automation tasks.
+
 **Communication pattern:**
 > DevOps receives deploy request → `[@reviewer: confirming G3 sign-off]` → deploys to staging → smoke test → deploys to production → health check
 
@@ -203,11 +275,24 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 
 | Gate | Name | Owner(s) | Approver |
 |------|------|---------|----------|
-| G0.1 | Problem Validated | pm | SE4H |
+| G0.1 | Problem Validated | researcher, pm | SE4H |
 | G1 | Requirements Complete | pm, architect | SE4H |
+| G-Sprint | Sprint Gate | pjm, coder | SE4H |
 | G2 | Design Approved | architect, reviewer | SE4H/CTO |
 | G3 | Ship Ready | reviewer (primary), tester (co-owner) | SE4H |
 | G4 | Production Ready | devops | SE4H |
+
+---
+
+## Multi-Provider Model Assignment
+
+TinySDLC uses a 2-2-4 provider split optimized per role:
+
+| Provider | Model | Roles | Rationale |
+|----------|-------|-------|-----------|
+| **Anthropic** | opus | researcher, architect | Deep reasoning, complex analysis |
+| **OpenAI** | gpt-5.2 | pm, reviewer | Precise structured output, criteria-based evaluation |
+| **Anthropic** | sonnet | pjm, coder, tester, devops | Fast execution, high-frequency tasks |
 
 ---
 
@@ -216,15 +301,29 @@ The SE4H/SE4A separation is the core governance model of SDLC Framework v6.0.6. 
 ```json
 {
   "agents": {
+    "researcher": {
+      "name": "Researcher",
+      "provider": "anthropic",
+      "model": "opus",
+      "sdlc_role": "researcher",
+      "working_directory": "~/tinysdlc-workspace/researcher"
+    },
     "pm": {
       "name": "Product Manager",
-      "provider": "anthropic",
-      "model": "sonnet",
+      "provider": "openai",
+      "model": "gpt-5.2",
       "sdlc_role": "pm",
       "working_directory": "~/tinysdlc-workspace/pm"
+    },
+    "pjm": {
+      "name": "Project Manager",
+      "provider": "anthropic",
+      "model": "sonnet",
+      "sdlc_role": "pjm",
+      "working_directory": "~/tinysdlc-workspace/pjm"
     }
   }
 }
 ```
 
-Run `tinysdlc sdlc init` to apply all 6 roles at once.
+Run `tinysdlc sdlc init` to apply all 8 roles at once.
