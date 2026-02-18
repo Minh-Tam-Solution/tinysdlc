@@ -14,6 +14,7 @@
  *   - Conversations complete when all branches resolve (no more pending mentions)
  */
 
+import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
