@@ -5,32 +5,45 @@
  * and SDLC Orchestrator's canonical message protocol (CanonicalAgentMessage).
  *
  * Gated by `settings.orchestrator_integration.enabled` (default: false).
- * Blocked on ADR-056 publication — interface designed now, finalize after schema is published.
+ * ADR-056 FINALIZED — schema aligned with agent_messages table (Section 4.3).
  *
- * Constraint 6.1: Protocol owner = Orchestrator. TinySDLC translates; never sends raw internal format.
+ * Decision 4: Protocol owner = Orchestrator. TinySDLC is a client; never sends raw internal format.
  */
 
 import crypto from 'crypto';
 import { MessageData, ResponseData } from './types';
+import { FailoverReason } from './failover';
 
-// --- Canonical types (per CTO Directive Section 3.2 / ADR-056 draft) ---
+// --- Canonical types (per ADR-056 Section 4.3 agent_messages schema) ---
 
 export type SenderType = 'user' | 'agent' | 'system';
 export type MessageType = 'request' | 'response' | 'mention' | 'system' | 'interrupt';
 export type QueueMode = 'queue' | 'steer' | 'interrupt';
+export type ProcessingStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'dead_letter';
 
 export interface CanonicalAgentMessage {
     id: string;                      // UUID
     conversation_id: string;         // UUID
+    parent_message_id?: string;      // UUID — thread support
     sender_type: SenderType;
     sender_id: string;
     recipient_id: string;
     content: string;
-    mentions: string[];              // Parsed @agent mentions
+    mentions: string[];              // Parsed [@agent: message] tags
     message_type: MessageType;
     queue_mode: QueueMode;
-    correlation_id: string;          // Request tracing
-    dedupe_key?: string;             // Idempotency
+    processing_status: ProcessingStatus;
+    processing_lane: string;         // Lane for concurrency control
+    dedupe_key?: string;             // Idempotency (UNIQUE)
+    correlation_id: string;          // Request tracing UUID
+    token_count?: number;
+    latency_ms?: number;
+    provider_used?: string;
+    failover_reason?: FailoverReason;
+    failed_count: number;
+    last_error?: string;
+    next_retry_at?: string;          // ISO 8601
+    evidence_id?: string;            // FK to gate_evidence (nullable)
     created_at: string;              // ISO 8601
 }
 
@@ -72,19 +85,23 @@ function resolveMessageType(data: MessageData): MessageType {
  */
 export function toCanonical(data: MessageData): CanonicalAgentMessage {
     const mentions = extractMentions(data.message);
+    const agentId = data.agent || '';
 
     return {
         id: crypto.randomUUID(),
         conversation_id: data.conversationId || crypto.randomUUID(),
         sender_type: resolveSenderType(data),
         sender_id: data.fromAgent || data.senderId || data.sender,
-        recipient_id: data.agent || '',
+        recipient_id: agentId,
         content: data.message,
         mentions,
         message_type: resolveMessageType(data),
         queue_mode: 'queue',
+        processing_status: 'pending',
+        processing_lane: agentId || 'default',
         correlation_id: data.correlation_id || crypto.randomUUID(),
         dedupe_key: `${data.messageId}_${data.timestamp}`,
+        failed_count: 0,
         created_at: new Date(data.timestamp).toISOString(),
     };
 }
@@ -101,7 +118,7 @@ export function fromCanonical(canonical: CanonicalAgentMessage, channel: string 
 
     return {
         channel,
-        sender: canonical.sender_type === 'agent' ? canonical.sender_id : canonical.sender_id,
+        sender: canonical.sender_id,
         senderId: canonical.sender_id,
         message,
         timestamp: new Date(canonical.created_at).getTime() || Date.now(),
@@ -117,18 +134,23 @@ export function fromCanonical(canonical: CanonicalAgentMessage, channel: string 
  * Convert TinySDLC ResponseData → Orchestrator CanonicalAgentMessage (outbound).
  */
 export function responseToCanonical(data: ResponseData, correlationId?: string): CanonicalAgentMessage {
+    const agentId = data.agent || 'unknown';
+
     return {
         id: crypto.randomUUID(),
         conversation_id: correlationId || crypto.randomUUID(),
         sender_type: 'agent',
-        sender_id: data.agent || 'unknown',
+        sender_id: agentId,
         recipient_id: data.senderId || data.sender,
         content: data.message,
         mentions: [],
         message_type: 'response',
         queue_mode: 'queue',
+        processing_status: 'completed',
+        processing_lane: agentId,
         correlation_id: correlationId || crypto.randomUUID(),
         dedupe_key: `${data.messageId}_${data.timestamp}`,
+        failed_count: 0,
         created_at: new Date(data.timestamp).toISOString(),
     };
 }

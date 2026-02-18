@@ -1,16 +1,22 @@
 /**
- * FailoverError Classification — CTO-2026-002 ACTION 4 (P1)
+ * FailoverError Classification — ADR-056 Decision 3 (P0)
  *
- * Classifies provider errors into 6 categories with defined actions:
- *   auth       → ABORT (credential issue)
- *   billing    → ABORT (payment issue)
- *   rate_limit → FALLBACK to next provider
- *   timeout    → FALLBACK to next provider
- *   format     → RETRY 1x with same provider
- *   unknown    → ABORT + log for investigation
+ * Classifies provider errors into 6 categories with defined actions (CTO-verified):
+ *   auth       → ABORT — credential issue, won't resolve by retrying
+ *   billing    → ABORT — payment issue, needs human intervention
+ *   rate_limit → FALLBACK — transient, other providers likely available
+ *   timeout    → FALLBACK — transient, other providers likely faster
+ *   format     → RETRY 1x — likely prompt issue, not provider issue
+ *   unknown    → ABORT — unclassifiable, needs human investigation
+ *
+ * Provider Profile Key format: {provider}:{account}:{region}:{model_family}
+ *   e.g. "ollama:local:vietnam:qwen3-coder", "anthropic:team-alpha:us-east-1:claude-sonnet"
  */
 
 export type FailoverReason = 'auth' | 'format' | 'rate_limit' | 'billing' | 'timeout' | 'unknown';
+
+/** Maximum retries for format errors before aborting */
+export const FORMAT_MAX_RETRIES = 1;
 
 export interface FailoverError {
     reason: FailoverReason;
@@ -18,6 +24,14 @@ export interface FailoverError {
     statusCode?: number;
     message: string;
     retryable: boolean;
+}
+
+/**
+ * Build a provider profile key per ADR-056 Decision 3.
+ * Format: {provider}:{account}:{region}:{model_family}
+ */
+export function buildProfileKey(provider: string, model: string, account: string = 'default', region: string = 'local'): string {
+    return `${provider}:${account}:${region}:${model}`;
 }
 
 /**
@@ -36,7 +50,7 @@ export function classifyError(error: any, provider: string): FailoverError {
     if (status === 429) {
         return { reason: 'rate_limit', provider, statusCode: status, message: msg, retryable: true };
     }
-    if (status === 408 || /timeout|timed out|ETIMEDOUT|ECONNRESET/i.test(msg)) {
+    if (status === 408 || /timeout|timed out|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND/i.test(msg)) {
         return { reason: 'timeout', provider, statusCode: status, message: msg, retryable: true };
     }
     if (status === 400) {

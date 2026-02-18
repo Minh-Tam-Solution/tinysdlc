@@ -1,21 +1,24 @@
 import path from 'path';
 
 /**
- * Shell Safety Guards — CTO-2026-002 ACTION 1 (P0)
+ * Shell Safety Guards — ADR-056 Non-Negotiable #5 + Section 10.2 (P0)
  *
  * 8 mandatory deny patterns (cannot be removed, can add more).
  * Guards CLI spawn paths (Claude, Codex) only. Ollama uses HTTP — not applicable.
+ * Output truncation at 10KB per ADR-056.
  */
 
+const MAX_OUTPUT_SIZE = 10 * 1024; // 10KB per ADR-056 Section 10.2
+
 const DENY_PATTERNS: { pattern: RegExp; description: string }[] = [
-    { pattern: /rm\s+(-[a-zA-Z]*f[a-zA-Z]*\s+|.*--no-preserve-root)/, description: 'rm -rf / destructive delete' },
-    { pattern: /:\(\)\{.*\|.*&\s*\};\s*:/, description: 'fork bomb' },
-    { pattern: /mkfs\./, description: 'format disk' },
-    { pattern: /dd\s+if=.*of=\/dev\//, description: 'disk overwrite via dd' },
-    { pattern: />\s*\/dev\/sd[a-z]/, description: 'direct device write' },
-    { pattern: /shutdown|reboot|init\s+[06]/, description: 'system shutdown/reboot' },
-    { pattern: /chmod\s+(-[a-zA-Z]*\s+)?[0-7]*777/, description: 'world-writable permissions' },
-    { pattern: /curl.*\|\s*(ba)?sh/, description: 'pipe remote script to shell' },
+    { pattern: /rm\s+(-[rf]+\s+)*\//, description: 'recursive delete' },
+    { pattern: /:\(\)\{.*\|.*&\s*\};\s*/, description: 'fork bomb' },
+    { pattern: /(shutdown|reboot|halt|poweroff)/, description: 'system control' },
+    { pattern: /(mkfs|fdisk|dd\s+if=)/, description: 'disk operations' },
+    { pattern: />\s*\/dev\/sd/, description: 'raw disk write' },
+    { pattern: /chmod\s+(-R\s+)?777/, description: 'unsafe permissions' },
+    { pattern: /curl.*\|\s*(bash|sh)/, description: 'pipe to shell' },
+    { pattern: /eval\s*\(/, description: 'eval injection' },
 ];
 
 export interface GuardResult {
@@ -71,4 +74,14 @@ export function fullGuard(command: string, workspacePath?: string): GuardResult 
     }
 
     return { allowed: true };
+}
+
+/**
+ * Truncate command output to MAX_OUTPUT_SIZE (10KB) per ADR-056 Section 10.2.
+ */
+export function truncateOutput(output: string): string {
+    if (output.length > MAX_OUTPUT_SIZE) {
+        return output.slice(0, MAX_OUTPUT_SIZE) + `\n... truncated (${output.length} bytes total)`;
+    }
+    return output;
 }
