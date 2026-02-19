@@ -3,7 +3,7 @@ export interface AgentConfig {
     provider: string;       // 'anthropic', 'openai', or 'ollama'
     model: string;           // e.g. 'sonnet', 'opus', 'gpt-5.3-codex', 'llama3.2'
     working_directory: string;
-    // SDLC Framework v6.1.0 fields (optional, backward compatible)
+    // MTS-SDLC-Lite (SDLC 6.1.0) fields (optional, backward compatible)
     sdlc_role?: SdlcRole;        // enforced by TypeScript at compile time
     system_prompt?: string;      // Inline system prompt prepended via SYSTEM_CONTEXT.md
     prompt_file?: string;        // Path to .md file used as system prompt
@@ -41,6 +41,8 @@ export interface Settings {
         discord?: { bot_token?: string };
         telegram?: { bot_token?: string };
         whatsapp?: {};
+        zalo?: { token?: string; apiBaseUrl?: string };
+        zalouser?: { zcaPath?: string; profile?: string };
     };
     models?: {
         provider?: string; // 'anthropic' or 'openai'
@@ -59,16 +61,14 @@ export interface Settings {
     providers?: {
         ollama?: { url?: string };  // e.g. 'https://api.nhatquangholding.com'
     };
-    // CTO-2026-002 ACTION 2: Orchestrator integration (gated, off by default)
-    orchestrator_integration?: {
-        enabled: boolean;
-        endpoint?: string;
-    };
     // CTO-2026-002 Constraint 6.5: Input sanitization toggle
     input_sanitization_enabled?: boolean;  // default: true
     // S03: Project workspace switching
     projects?: Record<string, ProjectConfig>;  // Project registry (alias → config)
     active_project?: string;                   // Key into projects registry
+    // S04: ZeroClaw security + UX patterns
+    credential_scrubbing_enabled?: boolean;    // Pattern A: scrub credentials from OTT input (default: true)
+    processing_status_enabled?: boolean;       // Pattern F: show progress feedback in channels (default: true)
 }
 
 export interface MessageData {
@@ -152,7 +152,7 @@ export const OLLAMA_MODEL_IDS: Record<string, string> = {
     'deepseek-coder-v2': 'deepseek-coder-v2',
 };
 
-// Valid SDLC roles for Framework v6.1.0 — 12-Role SASE Classification
+// Valid SDLC roles for MTS-SDLC-Lite (SDLC 6.1.0) — 12-Role SASE Classification
 // SE4A (Agent Executors): 8 roles — active at LITE tier
 export const SE4A_ROLES = ['researcher', 'pm', 'pjm', 'architect', 'coder', 'reviewer', 'tester', 'devops'] as const;
 // SE4H (Human Advisors): 3 roles — active at STANDARD+ tier

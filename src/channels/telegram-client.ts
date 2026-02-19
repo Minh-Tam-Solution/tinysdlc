@@ -14,6 +14,7 @@ import path from 'path';
 import https from 'https';
 import http from 'http';
 import { ensureSenderPaired } from '../lib/pairing';
+import { readStatuses, formatStatusMessage, STATUS_INITIAL_DELAY_MS, STATUS_UPDATE_INTERVAL_MS } from '../lib/processing-status';
 
 const SCRIPT_DIR = path.resolve(__dirname, '..', '..');
 const _localTinysdlc = path.join(SCRIPT_DIR, '.tinysdlc');
@@ -487,6 +488,44 @@ setInterval(() => {
         });
     }
 }, 4000);
+
+// S04 Pattern F: Processing status updates — notify user when agent takes a long time
+// Reads queue/status/ files written by queue-processor. Sends a message once after
+// STATUS_INITIAL_DELAY_MS (15s) and every STATUS_UPDATE_INTERVAL_MS (30s) thereafter.
+const statusSentAt = new Map<string, number>(); // messageId → timestamp of last status message sent
+
+setInterval(() => {
+    const now = Date.now();
+    try {
+        const statuses = readStatuses();
+        for (const status of statuses) {
+            // Only send status for messages this client is tracking
+            const pending = pendingMessages.get(status.messageId);
+            if (!pending) continue;
+
+            const elapsed = now - status.startedAt;
+            if (elapsed < STATUS_INITIAL_DELAY_MS) continue; // Too early — don't spam
+
+            const lastSent = statusSentAt.get(status.messageId) ?? 0;
+            if (now - lastSent < STATUS_UPDATE_INTERVAL_MS) continue; // Already sent recently
+
+            const text = formatStatusMessage(status, now);
+            bot.sendMessage(pending.chatId, text).catch(() => {
+                // Ignore send errors — status updates are best-effort
+            });
+            statusSentAt.set(status.messageId, now);
+        }
+
+        // Clean up statusSentAt for resolved messages (no longer in pendingMessages)
+        for (const [id] of statusSentAt.entries()) {
+            if (!pendingMessages.has(id)) {
+                statusSentAt.delete(id);
+            }
+        }
+    } catch {
+        // Ignore status polling errors — they must never affect core message delivery
+    }
+}, STATUS_UPDATE_INTERVAL_MS);
 
 // Handle polling errors
 bot.on('polling_error', (error: Error) => {

@@ -30,6 +30,12 @@ import { parseAgentRouting, findTeamForAgent, getAgentResetFlag, extractTeammate
 import { invokeAgent } from './lib/invoke';
 import { sanitize } from './lib/input-sanitizer';
 import { handleCommand } from './lib/commands';
+import { scrubCredentials } from './lib/credential-scrubber';
+import { writeStatus, clearStatus } from './lib/processing-status';
+import * as pluginLoader from './channels/plugin-loader';
+import { ZaloPlugin } from './channels/plugins/zalo';
+import { ZaloUserPlugin } from './channels/plugins/zalouser';
+import { IncomingChannelMessage } from './lib/channel-plugin';
 
 // Ensure directories exist
 [QUEUE_INCOMING, QUEUE_OUTGOING, QUEUE_PROCESSING, FILES_DIR, path.dirname(LOG_FILE)].forEach(dir => {
@@ -270,6 +276,17 @@ async function processMessage(messageFile: string): Promise<void> {
                     messageData.message = sanitizeResult.content;
                 }
             }
+
+            // S04 Pattern A: Credential scrubbing (after injection-pattern strip, before agent routing)
+            const credScrubEnabled = settings.credential_scrubbing_enabled !== false; // default: true
+            if (credScrubEnabled) {
+                const credResult = scrubCredentials(messageData.message);
+                if (credResult.modified) {
+                    log('WARN', `[CRED-SCRUB] Credentials detected and redacted for ${sender} on ${channel}: [${credResult.credentialsFound.join(', ')}]`);
+                    messageData.message = credResult.content;
+                }
+            }
+
         }
 
         // Get workspace path from settings
@@ -394,6 +411,22 @@ async function processMessage(messageFile: string): Promise<void> {
 
         // Invoke agent
         emitEvent('chain_step_start', { agentId, agentName: agent.name, fromAgent: messageData.fromAgent || null });
+
+        // S04 Pattern F: Write processing status (external messages only — no status for internal chain hops)
+        const statusEnabled = !isInternal && settings.processing_status_enabled !== false; // default: true
+        if (statusEnabled) {
+            writeStatus({
+                messageId,
+                agentId,
+                agentName: agent.name,
+                channel,
+                sender,
+                chatId: messageData.senderId || sender,
+                status: 'invoking_agent',
+                startedAt: Date.now(),
+            });
+        }
+
         let response: string;
         try {
             response = await invokeAgent(agent, agentId, message, workspacePath, shouldReset, agents, teams);
@@ -401,6 +434,9 @@ async function processMessage(messageFile: string): Promise<void> {
             const provider = agent.provider || 'anthropic';
             log('ERROR', `${provider === 'openai' ? 'Codex' : 'Claude'} error (agent: ${agentId}): ${(error as Error).message}`);
             response = "Sorry, I encountered an error processing your request. Please check the queue logs.";
+        } finally {
+            // S04 Pattern F: Always clear status after agent finishes (success or error)
+            if (statusEnabled) clearStatus(messageId);
         }
 
         emitEvent('chain_step_done', { agentId, agentName: agent.name, responseLength: response.length, responseText: response });
@@ -645,6 +681,113 @@ if (!fs.existsSync(EVENTS_DIR)) {
     fs.mkdirSync(EVENTS_DIR, { recursive: true });
 }
 
+// --- Channel Plugin Bridge ---
+
+/**
+ * Write an incoming plugin message to the file-based queue.
+ * chatId (thread ID) is stored in senderId so responses can be delivered back.
+ */
+function writeMessageToIncoming(msg: IncomingChannelMessage): void {
+    if (!msg.chatId?.trim()) {
+        log('WARN', `[plugin:${msg.channelId}] dropped message — missing chatId`);
+        return;
+    }
+    const messageId = crypto.randomUUID();
+    const sender = ((msg.senderName || msg.senderId || '').trim()) || 'unknown';
+    const messageData: MessageData = {
+        channel: msg.channelId,
+        sender,
+        senderId: msg.chatId.trim(),   // chatId = thread ID — used for reply delivery
+        message: msg.content || '',
+        timestamp: msg.timestamp || Date.now(),
+        messageId,
+    };
+    const filename = `${msg.channelId}_${messageData.timestamp}_${messageId}.json`;
+    const filePath = path.join(QUEUE_INCOMING, filename);
+    fs.writeFileSync(filePath, JSON.stringify(messageData, null, 2));
+    log('DEBUG', `[plugin:${msg.channelId}] queued message from ${msg.senderId}`);
+}
+
+/**
+ * Instantiate and register channel plugins based on settings.channels.enabled.
+ * Currently supports: zalo (Zalo OA), zalouser (Zalo Personal via zca-cli).
+ */
+function initPlugins(): void {
+    const settings = getSettings();
+    const enabled: string[] = settings?.channels?.enabled ?? [];
+
+    if (enabled.includes('zalouser')) {
+        const cfg = settings?.channels?.zalouser ?? {};
+        const plugin = new ZaloUserPlugin({ filesDir: FILES_DIR, ...cfg });
+        plugin.onMessage((msg) => writeMessageToIncoming(msg));
+        plugin.onReady?.(() => log('INFO', '[zalouser] Zalo Personal connected'));
+        plugin.onError?.((err) => log('WARN', `[zalouser] ${err.message}`));
+        pluginLoader.register(plugin);
+        log('INFO', '[zalouser] Zalo Personal plugin registered');
+    }
+
+    if (enabled.includes('zalo')) {
+        const cfg = settings?.channels?.zalo ?? {};
+        if (!cfg.token) {
+            log('WARN', '[zalo] Skipping Zalo OA — missing channels.zalo.token in settings');
+        } else {
+            const plugin = new ZaloPlugin({ token: cfg.token, filesDir: FILES_DIR, apiBaseUrl: cfg.apiBaseUrl });
+            plugin.onMessage((msg) => writeMessageToIncoming(msg));
+            plugin.onReady?.(() => log('INFO', '[zalo] Zalo OA connected'));
+            plugin.onError?.((err) => log('WARN', `[zalo] ${err.message}`));
+            pluginLoader.register(plugin);
+            log('INFO', '[zalo] Zalo OA plugin registered');
+        }
+    }
+}
+
+// Guards for shutdown and concurrent delivery loop
+let pluginShutdown = false;
+let pluginDelivering = false;
+
+/**
+ * Poll outgoing queue for plugin-channel responses and deliver via sendMessage().
+ * Only processes files whose channel matches a registered plugin — legacy channel
+ * clients (bash processes) handle the rest.
+ *
+ * File is deleted AFTER successful delivery to allow retry on sendMessage failure.
+ */
+async function deliverPluginResponses(): Promise<void> {
+    if (pluginShutdown || pluginDelivering) return;
+    pluginDelivering = true;
+    try {
+        const files = fs.readdirSync(QUEUE_OUTGOING).filter(f => f.endsWith('.json'));
+        for (const file of files) {
+            if (pluginShutdown) break;
+            const filePath = path.join(QUEUE_OUTGOING, file);
+            let data: ResponseData;
+            try {
+                data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            } catch {
+                continue;
+            }
+
+            const plugin = pluginLoader.get(data.channel);
+            if (!plugin) continue; // not a plugin channel — leave for legacy client
+
+            const chatId = data.senderId || data.sender;
+            try {
+                await plugin.sendMessage(chatId, data.message);
+                // Delete AFTER successful delivery — retains file for retry on failure
+                try { fs.unlinkSync(filePath); } catch { /* already gone */ }
+                log('INFO', `[plugin:${data.channel}] delivered to ${chatId} (${data.message.length} chars)`);
+            } catch (err) {
+                log('ERROR', `[plugin:${data.channel}] sendMessage failed: ${(err as Error).message}`);
+                // File retained — will retry on next tick
+            }
+        }
+    } catch (err) {
+        log('ERROR', `deliverPluginResponses error: ${(err as Error).message}`);
+    } finally {
+        pluginDelivering = false;
+    }
+}
+
 // Main loop
 log('INFO', 'Queue processor started');
 recoverOrphanedFiles();
@@ -653,15 +796,26 @@ logAgentConfig();
 emitEvent('processor_start', { agents: Object.keys(getAgents(getSettings())), teams: Object.keys(getTeams(getSettings())) });
 
 // Process queue every 1 second
-setInterval(processQueue, 1000);
+const processQueueTimer = setInterval(processQueue, 1000);
+
+// Initialize and connect channel plugins (zalo, zalouser)
+initPlugins();
+const enabledChannels: string[] = getSettings()?.channels?.enabled ?? [];
+pluginLoader.connectEnabled(enabledChannels).catch(err => {
+    log('ERROR', `Plugin connect failed: ${(err as Error).message}`);
+});
+
+// Deliver plugin responses every 1 second
+const deliverPluginTimer = setInterval(deliverPluginResponses, 1000);
 
 // Graceful shutdown
-process.on('SIGINT', () => {
+function gracefulShutdown(): void {
     log('INFO', 'Shutting down queue processor...');
-    process.exit(0);
-});
+    pluginShutdown = true;
+    clearInterval(processQueueTimer);
+    clearInterval(deliverPluginTimer);
+    pluginLoader.disconnectAll().finally(() => process.exit(0));
+}
 
-process.on('SIGTERM', () => {
-    log('INFO', 'Shutting down queue processor...');
-    process.exit(0);
-});
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);

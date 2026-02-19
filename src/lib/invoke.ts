@@ -27,14 +27,18 @@ import { log } from './logging';
 import { ensureAgentDirectory, updateAgentTeammates } from './agent-setup';
 import { fullGuard } from './shell-guard';
 import { classifyError, shouldFallback, shouldRetry } from './failover';
+import { scrubEnv } from './env-scrubber';
 
 const DEFAULT_AGENT_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
 export async function runCommand(command: string, args: string[], cwd?: string, stdinData?: string, timeoutMs: number = DEFAULT_AGENT_TIMEOUT_MS): Promise<string> {
     return new Promise((resolve, reject) => {
-        // Unset CLAUDECODE so Claude CLI can run outside a Claude Code session
-        const env = { ...process.env };
-        delete env['CLAUDECODE'];
+        // S04 Pattern C: Scrub sensitive env vars before spawning AI CLI child processes
+        // Always-on — PRESERVE_LIST in env-scrubber.ts is the escape hatch
+        const { env, removedKeys } = scrubEnv(process.env);
+        if (removedKeys.length > 0) {
+            log('DEBUG', `[ENV-SCRUB] Removed ${removedKeys.length} sensitive var(s) from child process env`);
+        }
 
         const child = spawn(command, args, {
             cwd: cwd || SCRIPT_DIR,

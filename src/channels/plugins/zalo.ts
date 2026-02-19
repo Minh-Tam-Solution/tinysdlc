@@ -41,12 +41,14 @@ interface ApiResponseAlt<T> {
 
 interface ZaloUpdate {
     update_id?: number;
-    event?: string;
+    event?: string;       // Some API versions use "event"
+    event_name?: string;  // Actual Zalo Bot API uses "event_name"
     message?: {
         text?: string;
-        from?: { id: string };
-        chat?: { id: string };
+        message_id?: string;
         date?: number;
+        from?: { id: string; display_name?: string };
+        chat?: { id: string };
     };
 }
 
@@ -162,15 +164,15 @@ export class ZaloPlugin implements ChannelPlugin {
                     payload.offset = this.pollOffset;
                 }
 
-                const updates = await this.callApi<ZaloUpdate[]>('getUpdates', payload);
+                const raw = await this.callApi<ZaloUpdate | ZaloUpdate[]>('getUpdates', payload);
 
                 // Reset backoff on success
                 backoff = MIN_BACKOFF;
 
-                if (updates && Array.isArray(updates)) {
-                    for (const update of updates) {
-                        this.processUpdate(update);
-                    }
+                // API may return a single update object or an array
+                const updates = Array.isArray(raw) ? raw : (raw ? [raw] : []);
+                for (const update of updates) {
+                    this.processUpdate(update);
                 }
             } catch (err: unknown) {
                 // HTTP 408 is normal long-poll timeout — not an error
@@ -200,21 +202,23 @@ export class ZaloPlugin implements ChannelPlugin {
         }
 
         // Only process text messages (Phase 1)
-        if (update.event !== 'message.text.received') return;
+        // Zalo Bot API uses "event_name"; older versions may use "event"
+        const eventName = update.event_name || update.event;
+        if (eventName !== 'message.text.received') return;
         if (!update.message?.text || !update.message?.from?.id || !update.message?.chat?.id) return;
 
         if (!this.messageHandler) return;
 
-        const msgId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
+        const msgId = update.message.message_id || `${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
         this.messageHandler({
             channelId: 'zalo',
             chatId: update.message.chat.id,
             senderId: update.message.from.id,
-            senderName: update.message.from.id, // OA API doesn't provide display name
+            senderName: update.message.from.display_name || update.message.from.id,
             content: update.message.text,
             messageId: msgId,
-            timestamp: Date.now(),
+            timestamp: update.message.date || Date.now(),
         });
     }
 

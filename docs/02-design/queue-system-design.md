@@ -21,11 +21,24 @@ The queue system acts as a central coordinator between:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     Message Channels                         │
+│               Legacy Channel Clients                        │
 │         (Discord, Telegram, WhatsApp, Heartbeat)            │
+│         src/channels/{discord,telegram,whatsapp}-client.ts  │
 └────────────────────┬────────────────────────────────────────┘
-                     │ Write message.json
+                     │ Write message.json directly
                      ↓
+┌─────────────────────────────────────────────────────────────┐
+│              ChannelPlugin Bridge (S03 upgrade)              │
+│      (Zalo OA, Zalo Personal — src/channels/plugins/)       │
+│                                                              │
+│  plugin.onMessage() ──→ writeMessageToIncoming()            │
+│                                                              │
+│  deliverPluginResponses() ←── poll queue/outgoing/          │
+│       ↓                                                      │
+│  plugin.sendMessage(chatId, text)                            │
+└────────┬───────────────────────────────────────────────────┘
+         │ Write / Read message.json
+         ↓
 ┌─────────────────────────────────────────────────────────────┐
 │                   ~/.tinysdlc/queue/                         │
 │                                                              │
@@ -504,8 +517,83 @@ Add metrics:
 - agent_active_processing (concurrent count)
 ```
 
+## ChannelPlugin Bridge
+
+New channels (Zalo OA, Zalo Personal) use the `ChannelPlugin` interface instead of writing to the file queue directly. The queue-processor bridges them:
+
+### Inbound (plugin → queue)
+
+```typescript
+// queue-processor.ts — called from initPlugins()
+function writeMessageToIncoming(msg: IncomingChannelMessage): void {
+    if (!msg.chatId?.trim()) return;  // guard: drop if no chatId
+    const messageId = crypto.randomUUID();
+    const messageData: MessageData = {
+        channel: msg.channelId,
+        sender: msg.senderName || msg.senderId || 'unknown',
+        senderId: msg.chatId.trim(),
+        message: msg.content || '',
+        timestamp: msg.timestamp || Date.now(),
+        messageId,
+    };
+    const filename = `${msg.channelId}_${messageData.timestamp}_${messageId}.json`;
+    fs.writeFileSync(path.join(QUEUE_INCOMING, filename), JSON.stringify(messageData, null, 2));
+}
+```
+
+`initPlugins()` registers each enabled plugin's `onMessage(writeMessageToIncoming)` handler. Once registered, the plugin's long-poll loop fires `writeMessageToIncoming` for every received message.
+
+### Outbound (queue → plugin)
+
+```typescript
+// queue-processor.ts — runs every 1s via setInterval
+async function deliverPluginResponses(): Promise<void> {
+    if (pluginShutdown || pluginDelivering) return;
+    pluginDelivering = true;
+    // For each file in queue/outgoing/:
+    //   if plugin.id matches file.channel:
+    //     await plugin.sendMessage(chatId, message)
+    //     fs.unlinkSync(file)   ← delete only after successful send
+    pluginDelivering = false;
+}
+```
+
+Files are kept on disk if `sendMessage` throws — they will be retried on the next 1s tick.
+
+### Startup Sequence
+
+```
+queue-processor.ts main():
+  1. initPlugins()              ← instantiate + register plugins
+  2. pluginLoader.connectEnabled()  ← start long-poll loops
+  3. setInterval(processQueue, 1000)    ← existing queue loop
+  4. setInterval(deliverPluginResponses, 1000)  ← new delivery loop
+```
+
+### Graceful Shutdown
+
+```typescript
+process.on('SIGTERM', async () => {
+    pluginShutdown = true;
+    clearInterval(processQueueTimer);
+    clearInterval(deliverPluginTimer);
+    await pluginLoader.disconnectAll();
+    process.exit(0);
+});
+```
+
+### Operational Notes
+
+- **Queue backlog**: Heartbeat messages accumulate in `queue/incoming/` when the daemon is stopped. On restart, avoid processing large backlogs — clear stale heartbeat files first to prevent event loop saturation.
+- **Event loop health**: If `setInterval` callbacks stop firing while the process is still running at high CPU, the event loop is blocked. Symptoms: log stops updating, zombie child processes. Fix: clear queue, restart daemon.
+- **Long-poll 408**: Zalo OA API returns HTTP 408 when `getUpdates` times out with no messages. This is expected behavior — the plugin reconnects immediately. Do not treat 408 as an error.
+
+---
+
 ## See Also
 
 - [Agent Architecture](agent-architecture.md) - Agent configuration and management
+- [Channel Integration Contracts](../03-integrate/channel-integration-contracts.md) - Per-channel API details
 - [README.md](../README.md) - Main project documentation
 - [src/queue-processor.ts](../src/queue-processor.ts) - Implementation
+- [src/channels/plugins/](../src/channels/plugins/) - ChannelPlugin implementations

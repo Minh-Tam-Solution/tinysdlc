@@ -33,12 +33,35 @@
 
 ### Zalo OA (Zalo Bot Platform API)
 - **Type**: OA bot via Zalo Bot Platform API (HTTP long-polling)
-- **Auth**: OA access token (`ZALO_OA_TOKEN`)
-- **Message flow**: Long-polling listener -> queue/incoming -> queue/outgoing -> reply
+- **Auth**: Bot token stored in `settings.json` at `channels.zalo.token` (format: `app_id:secret_key`). No environment variable — configured via `tinysdlc setup` or direct JSON edit.
+- **API base URL**: `https://bot-api.zapps.me/bot{token}/{method}` (token embedded in path, no separator slash between "bot" and token value)
+- **Message flow**: Long-polling `getUpdates` → `writeMessageToIncoming()` → `queue/incoming/` → queue-processor → `queue/outgoing/` → `deliverPluginResponses()` → `sendMessage`
+- **Long-poll behavior**: Server holds the connection for `timeout` seconds (default 30s), returns HTTP 408 on timeout (no new messages). This is normal — plugin reconnects immediately.
+- **Actual API response format** (single object, not array):
+  ```json
+  {
+    "ok": true,
+    "result": {
+      "message": {
+        "msg_id": "...",
+        "text": "Hi @assistant",
+        "from_id": "6c4c467767348e6ad725",
+        "to_id": "...",
+        "timestamp": 1740000000000
+      },
+      "event_name": "message.text.received",
+      "from": {
+        "id": "6c4c467767348e6ad725",
+        "display_name": "Đặng Thế Tài"
+      }
+    }
+  }
+  ```
 - **Char limit**: 2000 per message (auto-split)
-- **File support**: Images, documents
+- **File support**: Text only (Phase 1). Image/document send via `send_file:` tag is not yet implemented for Zalo OA.
 - **Plugin**: `src/channels/plugins/zalo.ts`
 - **Orchestrator mapping**: `zalo` → `zalo` (ChannelType)
+- **Queue bridge**: Plugin messages are bridged via `writeMessageToIncoming()` and `deliverPluginResponses()` in `queue-processor.ts` — see [Queue System Design](../02-design/queue-system-design.md)
 
 ### Zalo Personal (zca-cli)
 - **Type**: Personal account via zca-cli child process wrapper
@@ -102,22 +125,6 @@ interface ChannelPlugin {
 - `disconnectAll()` — graceful shutdown
 
 **Adding a new channel**: Implement `ChannelPlugin`, register in plugin loader, add channel ID to settings — zero core changes needed.
-
----
-
-## Channel Mapping for Orchestrator
-
-When `orchestrator_integration.enabled = true`, TinySDLC maps internal channel names to Orchestrator's `ChannelType` enum via `mapChannel()` in `src/lib/protocol-adapter.ts`:
-
-| TinySDLC Channel | Orchestrator ChannelType |
-|-----------------|-------------------------|
-| `telegram` | `telegram` |
-| `discord` | `discord` |
-| `whatsapp` | `whatsapp` |
-| `zalo` | `zalo` |
-| `zalouser` | `zalo` |
-| `heartbeat` | `cli` |
-| _(unknown)_ | `cli` |
 
 ---
 

@@ -12,6 +12,7 @@ import path from 'path';
 import https from 'https';
 import http from 'http';
 import { ensureSenderPaired } from '../lib/pairing';
+import { readStatuses, formatStatusMessage, STATUS_INITIAL_DELAY_MS, STATUS_UPDATE_INTERVAL_MS } from '../lib/processing-status';
 
 const SCRIPT_DIR = path.resolve(__dirname, '..', '..');
 const _localTinysdlc = path.join(SCRIPT_DIR, '.tinysdlc');
@@ -416,6 +417,36 @@ setInterval(() => {
         });
     }
 }, 8000);
+
+// S04 Pattern F: Processing status updates for long-running agent invocations
+const statusSentAt = new Map<string, number>(); // messageId → timestamp of last status message sent
+
+setInterval(() => {
+    const now = Date.now();
+    try {
+        const statuses = readStatuses();
+        for (const status of statuses) {
+            const pending = pendingMessages.get(status.messageId);
+            if (!pending) continue;
+
+            const elapsed = now - status.startedAt;
+            if (elapsed < STATUS_INITIAL_DELAY_MS) continue;
+
+            const lastSent = statusSentAt.get(status.messageId) ?? 0;
+            if (now - lastSent < STATUS_UPDATE_INTERVAL_MS) continue;
+
+            const text = formatStatusMessage(status, now);
+            pending.channel.send(text).catch(() => {});
+            statusSentAt.set(status.messageId, now);
+        }
+
+        for (const [id] of statusSentAt.entries()) {
+            if (!pendingMessages.has(id)) statusSentAt.delete(id);
+        }
+    } catch {
+        // Never let status polling break message delivery
+    }
+}, STATUS_UPDATE_INTERVAL_MS);
 
 // Graceful shutdown
 process.on('SIGINT', () => {
