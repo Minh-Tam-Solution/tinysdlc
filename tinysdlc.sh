@@ -412,7 +412,7 @@ case "${1:-}" in
         echo "  agent {list|add|remove|show|reset|provider}  Manage agents"
         echo "  team {list|add|remove|show|visualize}  Manage teams"
         echo "  pairing {pending|approved|list|approve <code>|unpair <channel> <sender_id>}  Manage sender approvals"
-        echo "  sdlc {status|roles|init}  SDLC Framework v6.1.0 commands"
+        echo "  sdlc {status|roles|init}  MTS-SDLC-Lite commands"
         echo "  update                   Update TinySDLC to latest version"
         echo "  attach                   Attach to tmux session"
         echo ""

@@ -34,7 +34,7 @@ npm run build
 
 ## Documentation Standards
 
-This project follows SDLC Enterprise Framework v6.1.0 (LITE tier). When adding documentation:
+This project follows [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) v1.0.0 (SDLC 6.1.0, LITE tier). When adding documentation:
 
 - Place docs in the appropriate stage folder under `docs/`:
   - `00-foundation/` - Why the project exists

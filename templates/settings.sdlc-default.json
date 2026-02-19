@@ -1,5 +1,5 @@
 {
-  "_comment": "SDLC Framework v6.1.0 — 12-Role SASE Classification. LITE tier: 8 SE4A agents below. STANDARD+: add ceo/cpo/cto (SE4H) + assistant (Router). Auto-applied by setup wizard or 'tinysdlc sdlc init'.",
+  "_comment": "MTS-SDLC-Lite v1.0.0 (SDLC 6.1.0) — 12-Role SASE Classification. LITE tier: 8 SE4A agents below. STANDARD+: add ceo/cpo/cto (SE4H) + assistant (Router). Auto-applied by setup wizard or 'tinysdlc sdlc init'.",
   "workspace": {
     "path": "~/tinysdlc-workspace",
     "name": "my-sdlc-project"
@@ -25,7 +25,7 @@
     "pm": {
       "name": "Product Manager",
       "provider": "openai",
-      "model": "gpt-5.2",
+      "model": "o3-mini",
       "sdlc_role": "pm",
       "working_directory": "~/tinysdlc-workspace/pm"
     },
@@ -53,7 +53,7 @@
     "reviewer": {
       "name": "Code Reviewer",
       "provider": "openai",
-      "model": "gpt-5.2",
+      "model": "o3-mini",
       "sdlc_role": "reviewer",
       "working_directory": "~/tinysdlc-workspace/reviewer"
     },
@@ -77,25 +77,29 @@
       "name": "Planning Team",
       "agents": ["researcher", "pm", "pjm", "architect"],
       "leader_agent": "pm",
-      "description": "Foundation & Planning — Stage 00-01 — Gates G0.1, G1"
+      "description": "Discovery & Requirements — Stage 00-01 — Gates G0.1, G0.2, G1. Owns the WHY and WHAT. No feature enters Stage 04 without this team's sign-off.",
+      "charter_doc": "templates/teams/planning/TEAM.md"
     },
     "dev": {
       "name": "Development Team",
       "agents": ["coder", "reviewer"],
       "leader_agent": "coder",
-      "description": "Build & Review — Stage 04-05 — Sprint Gate"
+      "description": "Build & Review — Stage 04-05 — Sprint Gate + G3 contribution. Coder implements per design; reviewer enforces Zero Mock, OWASP, and design conformance before any merge.",
+      "charter_doc": "templates/teams/dev/TEAM.md"
     },
     "qa": {
       "name": "QA Team",
       "agents": ["tester", "reviewer"],
       "leader_agent": "tester",
-      "description": "Quality Assurance — Stage 05 — Gate G3 (required for Ship Ready)"
+      "description": "Quality Assurance & Gate Validation — Stage 05 — Gate G3 joint owners. Both tester AND reviewer must sign off. Nothing ships without this team's confirmation.",
+      "charter_doc": "templates/teams/qa/TEAM.md"
     },
     "fullstack": {
       "name": "Full Stack Team",
       "agents": ["researcher", "pm", "pjm", "architect", "coder", "reviewer"],
       "leader_agent": "pm",
-      "description": "End-to-End — all stages — LITE tier for small projects"
+      "description": "End-to-End LITE tier — Stage 00 through 07 — all gates. For 1-2 developer teams. Formality reduced, quality unchanged. Stages still run in order: 00→01→02→04.",
+      "charter_doc": "templates/teams/fullstack/TEAM.md"
     }
   },
   "models": {

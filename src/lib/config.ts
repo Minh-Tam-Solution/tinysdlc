@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { jsonrepair } from 'jsonrepair';
 import os from 'os';
-import { Settings, AgentConfig, TeamConfig, ProjectConfig, CLAUDE_MODEL_IDS, CODEX_MODEL_IDS, OLLAMA_MODEL_IDS } from './types';
+import { Settings, AgentConfig, TeamConfig, CLAUDE_MODEL_IDS, CODEX_MODEL_IDS, OLLAMA_MODEL_IDS } from './types';
 
 // CTO-2026-002 defaults
 export const DEFAULT_MAX_DELEGATION_DEPTH = 1;

@@ -176,3 +176,53 @@ Added: 2026-02-17 — CTO Directive CTO-2026-002 approved
 4. As an integrator, I want TinySDLC to speak the Orchestrator's canonical protocol when connected
 5. As a developer, I want to add new messaging channels as plugins without modifying core code
 6. As a security engineer, I want OTT channel input sanitized against prompt injection attacks
+
+---
+
+## ZeroClaw Security & UX Requirements (S04)
+
+Added: 2026-02-19 — CTO Conditional Approval (2 fixes applied)
+
+Reference: [ADR: ZeroClaw Security Patterns](../02-design/adr-zeroclaw-security-patterns.md)
+
+### Credential Scrubbing (P0 — Pattern A)
+
+- User messages from OTT channels MUST be scanned for credential patterns before agent delivery
+- 11 minimum credential patterns: AWS keys, GitHub tokens, Slack tokens, Anthropic keys, OpenAI keys, generic API key assignments, bearer tokens, connection strings, PEM private keys, password fields
+- Detected credentials MUST be replaced with `[REDACTED]` placeholders
+- Scrubbing MUST log credential types found (for audit) but NOT log the actual credential values
+- Configurable via `credential_scrubbing_enabled` (default: true)
+- Internal agent-to-agent messages are exempt (already within trust boundary)
+
+### Environment Scrubbing (P0 — Pattern C)
+
+- Sensitive environment variables MUST be removed from child processes before spawning AI CLIs
+- 20+ exact var names (API keys, tokens, passwords, cloud credentials) plus 8 suffix patterns (`*_SECRET`, `*_TOKEN`, `*_PASSWORD`, `*_PASS`, `*_API_KEY`, `*_PRIVATE_KEY`, `*_CREDENTIAL`, `*_CREDENTIALS`)
+- Provider authentication keys MUST be preserved: `ANTHROPIC_API_KEY`, `CLAUDE_API_KEY`, `OPENAI_API_KEY`, `CODEX_API_KEY`
+- Runtime essentials MUST be preserved: `PATH`, `HOME`, `NODE_ENV`, `TINYSDLC_HOME`, `OLLAMA_URL`
+- Always-on (no config toggle); `PRESERVE_LIST` is the escape hatch
+
+### ~~Query Classification (P1 — Pattern E)~~ — CANCELLED
+
+~~Cancelled per CTO over-engineering audit — not required for LITE tier. Future enhancement for STANDARD+ if needed.~~
+
+### Processing Status Indicators (P1 — Pattern F)
+
+- Channel clients SHOULD display progress feedback during agent processing
+- Queue processor writes status files to `queue/status/` before agent invocation
+- Channel clients poll status directory and send updates every 30s for tasks running >15s
+- Elapsed time MUST be computed client-side (`Date.now() - startedAt`), NOT read from stale file
+- Status files cleaned up after agent response received
+- Configurable via `processing_status_enabled` (default: true)
+
+### ~~History Compaction (P2 — Pattern B)~~ — CANCELLED
+
+~~Cancelled per CTO over-engineering audit — premature optimization for LITE tier. The 50-message conversation cap is sufficient.~~
+
+### ZeroClaw User Stories
+
+1. As a user, I want my accidentally pasted API keys to be automatically redacted before reaching AI agents
+2. As a security engineer, I want agent subprocesses to not inherit my shell's GitHub token or database password
+3. ~~As a developer, I want incoming messages classified so I can see analytics on query types~~ — CANCELLED (Pattern E)
+4. As a user, I want to see progress feedback when my agent is processing a long request
+5. ~~As a team lead, I want long team conversations to automatically compact older messages to stay efficient~~ — CANCELLED (Pattern B)

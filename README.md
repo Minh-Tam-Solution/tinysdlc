@@ -1,11 +1,11 @@
 # TinySDLC
 
 Multi-agent AI Orchestrator with SDLC Governance.
-Run teams of AI agents across Discord, WhatsApp, Telegram, and Zalo — governed by SDLC Framework v6.1.0 roles and quality gates.
+Run teams of AI agents across Discord, WhatsApp, Telegram, and Zalo — governed by [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) roles and quality gates.
 
 **Open source for the community.** TinySDLC ships with 8 built-in SDLC agents and 4 team archetypes — ready to use out of the box for individuals and small teams.
 
-> **Enterprise scale?** TinySDLC is part of the SDLC ecosystem by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution). For large or complex projects, contact MTS to apply the **SDLC Enterprise Framework** and **SDLC Orchestrator** — a full governance platform with gate engines, evidence vaults, and policy-as-code enforcement. [Contact MTS](https://github.com/Minh-Tam-Solution)
+> **Enterprise scale?** TinySDLC is part of the SDLC ecosystem by [Minh-Tam-Solution](https://github.com/Minh-Tam-Solution). For large or complex projects, contact MTS for the **SDLC Enterprise Framework** and **SDLC Orchestrator** — a full governance platform with gate engines, evidence vaults, and policy-as-code enforcement. [Contact MTS](https://github.com/Minh-Tam-Solution)
 
 ---
 

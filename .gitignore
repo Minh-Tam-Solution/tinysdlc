@@ -21,11 +21,10 @@ dist/
 .idea/
 *.swp
 
-# SDLC Framework reference (local symlink)
-.sdlc-framework
 
 # MTS-SDLC-Lite (separate repo, co-located locally for reference)
 MTS-SDLC-Lite/
+
 
 # Local Claude settings (may contain API keys)
 .claude/settings.local.json

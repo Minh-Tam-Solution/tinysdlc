@@ -8,16 +8,16 @@
 
 ## SDLC Compliance
 
-This project follows **SDLC Enterprise Framework v6.1.0** at **LITE tier**. All SDLC concepts (stages, roles, gates, teams, governance) are fully documented in **MTS-SDLC-Lite** (`MTS-SDLC-Lite/` subdir) — the MIT-licensed community edition. No access to the private Enterprise Framework repo is required.
+This project follows **[MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite)** v1.0.0 — the MIT-licensed community edition of SDLC methodology 6.1.0 — at **LITE tier**. All SDLC concepts (stages, roles, gates, teams, governance) are documented in MTS-SDLC-Lite. For enterprise tiers (STANDARD/PROFESSIONAL/ENTERPRISE) with enforced governance, audit trails, and policy-as-code, contact [MTS](https://github.com/Minh-Tam-Solution).
 
 | Aspect | Value |
 | ------ | ----- |
-| SDLC Framework | 6.1.0 |
+| SDLC Methodology | [MTS-SDLC-Lite v1.0.0](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) (based on SDLC 6.1.0) |
 | Tier | LITE (1-2 developers) |
 | Config | `.sdlc-config.json` |
 | Active Stages | 00-foundation, 01-planning, 02-design, 03-integrate, 04-build |
 | Current Gate | G0.1 |
-| SDLC Reference | `MTS-SDLC-Lite/` (MIT-licensed, all concepts documented) |
+| SDLC Reference | [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) (MIT, all concepts documented) |
 
 ### Documentation Standards
 
@@ -46,9 +46,9 @@ This project follows **SDLC Enterprise Framework v6.1.0** at **LITE tier**. All 
 
 ## Project Overview
 
-TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that integrates the SDLC Enterprise Framework v6.1.0 for AI+Human team governance. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, or Ollama) organized into teams with 12 SDLC roles: 8 SE4A agents (Researcher, PM, PJM, Architect, Coder, Reviewer, Tester, DevOps), 3 SE4H advisors (CEO, CPO, CTO at STANDARD+), and 1 Router (Assistant). Messages arrive from Discord, WhatsApp, Telegram, Zalo OA, and Zalo Personal through a file-based queue system with atomic operations. Agents collaborate via `[@teammate: message]` tags, enabling chain execution and parallel fan-out within teams.
+TinySDLC is a **multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator** that implements [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) for AI+Human team governance. It runs AI agents (Claude Code CLI, OpenAI Codex CLI, or Ollama) organized into teams with 12 SDLC roles: 8 SE4A agents (Researcher, PM, PJM, Architect, Coder, Reviewer, Tester, DevOps), 3 SE4H advisors (CEO, CPO, CTO at STANDARD+), and 1 Router (Assistant). Messages arrive from Discord, WhatsApp, Telegram, Zalo OA, and Zalo Personal through a file-based queue system with atomic operations. Agents collaborate via `[@teammate: message]` tags, enabling chain execution and parallel fan-out within teams.
 
-The project is a fork of [TinyClaw](https://github.com/jlia0/tinyclaw) by jlia0, combined with SDLC Enterprise Framework v6.1.0 by Minh-Tam-Solution (private repository, not open-sourced) to create a governance-aware agent orchestration platform.
+The project is a fork of [TinyClaw](https://github.com/jlia0/tinyclaw) by jlia0, combined with [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) (SDLC 6.1.0 community methodology) by Minh-Tam-Solution to create a governance-aware agent orchestration platform.
 
 **Repository**: [Minh-Tam-Solution/tinysdlc](https://github.com/Minh-Tam-Solution/tinysdlc)
 
@@ -172,7 +172,6 @@ tinysdlc sdlc init     # Creates 6 agents + 4 teams with SDLC roles
 - `src/lib/shell-guard.ts` — 8 mandatory deny patterns for CLI spawn paths (rm -rf, fork bomb, mkfs, dd, device write, shutdown, chmod 777, curl|sh). `guardCommand()`, `isWithinWorkspace()`, `fullGuard()`.
 - `src/lib/failover.ts` — 6-category error classification (auth/billing/rate_limit/timeout/format/unknown). `classifyError()`, `shouldFallback()`, `shouldRetry()`. Abort matrix: auth→ABORT, rate_limit→FALLBACK, format→RETRY 1x.
 - `src/lib/input-sanitizer.ts` — 12 prompt injection patterns stripped from OTT input. `sanitize()` returns `{content, modified, patternsMatched}`.
-- `src/lib/protocol-adapter.ts` — Canonical protocol translation for Orchestrator integration. `toCanonical()`, `fromCanonical()`, `responseToCanonical()`. Gated by `orchestrator_integration.enabled` (default: false). Blocked on ADR-056.
 - `src/lib/channel-plugin.ts` — `ChannelPlugin` interface: connect/disconnect/sendMessage/onMessage. Capabilities: threading, reactions, fileAttachments, maxMessageLength.
 - `src/channels/plugin-loader.ts` — Registry pattern: `register()`, `get()`, `getAll()`, `connectEnabled()`, `disconnectAll()`.
 - `src/channels/plugins/telegram.ts` — Telegram `ChannelPlugin` implementation (node-telegram-bot-api).

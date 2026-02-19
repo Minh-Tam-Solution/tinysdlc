@@ -33,7 +33,7 @@ Additionally, two UX gaps impact usability:
 
 ## Decision
 
-Implement 5 ZeroClaw patterns as Sprint S04, organized in 4 phases by priority. All modules follow the established `input-sanitizer.ts` pattern (exported const array + pure function + typed result interface). All features are backward-compatible with config toggles.
+Implement 3 ZeroClaw patterns (A, C, F) as Sprint S04. Patterns E (Query Classification) and B (History Compaction) were cancelled per CTO over-engineering audit — not required for LITE tier. All delivered modules follow the established `input-sanitizer.ts` pattern (exported const array + pure function + typed result interface). All features are backward-compatible with config toggles.
 
 ---
 
@@ -87,23 +87,9 @@ Keeping them separate allows independent enable/disable and avoids conflating se
 
 ---
 
-### ADR-010: Regex-Based Query Classification (Pattern E)
+### ~~ADR-010: Regex-Based Query Classification (Pattern E)~~ — CANCELLED
 
-**Decision**: Create `src/lib/query-classifier.ts` using lightweight regex-based heuristics (no LLM call). Classification result is attached to `MessageData` for downstream logging and future routing optimization.
-
-**Rationale**: Zero added latency, zero cost, deterministic results. Classification is informational in S04 (logging + events only). Future sprints can use the classification to route simple queries to lighter models.
-
-**Categories**: `command`, `question`, `code_request`, `file_operation`, `conversation`, `unknown`.
-
-**Alternatives considered**:
-- LLM-based classification → adds latency (1-5s), costs per message, non-deterministic
-- No classification → miss opportunity for routing optimization and analytics
-
-**Trade-offs**: Regex heuristics have lower accuracy than LLM classification (~70-80% vs ~95%). Acceptable for S04 since classification is informational only.
-
-**Implementation note — expanded `code_request` entity list**: The `code_request` pattern was expanded during implementation to include: `page`, `app`, `bot`, `tool`, `plugin`, `widget`, `form`, `button`, `route`, `handler` (in addition to the original `function|class|module|component|feature|api|endpoint|service|test|script|file`). Additionally, the pattern now allows up to 3 intermediate words between the action verb and the entity type (e.g. `implement a login page`, `create a user auth service`). This improves real-world match rate for common user phrasings.
-
-**Open item (reviewer Finding 3)**: `emitEvent('query_classified', ...)` for the visualizer was specified in the sprint plan but not yet implemented. Currently only logs to file (`[CLASSIFY]` INFO entry). Coder must add one `emitEvent` call in `queue-processor.ts` before this item is closed.
+**Status**: Cancelled per CTO over-engineering audit. Regex-based query classification is not required for LITE tier. The pattern was designed but not implemented. Future enhancement for STANDARD+ tier if routing optimization becomes needed.
 
 ---
 
@@ -123,17 +109,9 @@ Keeping them separate allows independent enable/disable and avoids conflating se
 
 ---
 
-### ADR-012: Deterministic History Compaction (Pattern B)
+### ~~ADR-012: Deterministic History Compaction (Pattern B)~~ — CANCELLED
 
-**Decision**: Create `src/lib/history-compactor.ts` using extractive summarization (first paragraph + truncation). No LLM call. Triggered when `conv.responses.length > 10`.
-
-**Rationale**: Keeps the system simple and predictable. Avoids adding latency or cost. The compaction operates on `conv.responses` (aggregated user-facing output), not on individual agent conversation context (managed by CLI's `-c` flag).
-
-**Alternatives considered**:
-- LLM summarization → adds latency, cost, and non-determinism
-- Token counting → requires tokenizer dependency, varies by model
-
-**Trade-offs**: Extractive summarization loses nuance compared to LLM summarization. Acceptable since compacted messages are prefixed with `[Compacted]` for transparency.
+**Status**: Cancelled per CTO over-engineering audit. Premature optimization for LITE tier. The existing 50-message conversation cap is sufficient. Future enhancement if conversation context size becomes a measurable bottleneck.
 
 ---
 
@@ -195,18 +173,18 @@ Keeping them separate allows independent enable/disable and avoids conflating se
 
 ## Implementation Reference
 
-| Component | File | Change |
-|-----------|------|--------|
-| Credential scrubber | `src/lib/credential-scrubber.ts` | New module (11 regex patterns) |
-| Env scrubber | `src/lib/env-scrubber.ts` | New module (20+ sensitive vars as `Set<string>`, 8 suffix patterns, preserve list) |
-| Query classifier | `src/lib/query-classifier.ts` | New module (5 categories, weighted patterns) |
-| Processing status | `src/lib/processing-status.ts` | New module (file-based IPC) |
-| History compactor | `src/lib/history-compactor.ts` | New module (extractive summarization) |
-| Queue processor | `src/queue-processor.ts` | Hook points for A, E (external block); F (writeStatus/clearStatus around invokeAgent); B at conversation completion + periodic in-flight every 5 messages; ADR-013: `initPlugins()`, `writeMessageToIncoming()`, `deliverPluginResponses()` |
-| Agent invocation | `src/lib/invoke.ts` | Replace env cleanup (lines 36-37) with `scrubEnv()` |
-| Types | `src/lib/types.ts` | Config flags + `query_category` field + `channels.zalo` + `channels.zalouser` |
-| Telegram client | `src/channels/telegram-client.ts` | Status polling in typing refresh loop |
-| WhatsApp client | `src/channels/whatsapp-client.ts` | Status polling |
-| Discord client | `src/channels/discord-client.ts` | Status polling |
-| Zalo OA plugin | `src/channels/plugins/zalo.ts` | ADR-013: `ZaloPlugin` — long-poll bridge, single-object response parsing, `event_name` field |
-| Zalo Personal plugin | `src/channels/plugins/zalouser.ts` | ADR-013: `ZaloUserPlugin` — zca-cli subprocess wrapper with JSON-line streaming |
+| Component | File | Change | Status |
+|-----------|------|--------|--------|
+| Credential scrubber | `src/lib/credential-scrubber.ts` | New module (11 regex patterns) | **Delivered** |
+| Env scrubber | `src/lib/env-scrubber.ts` | New module (20+ sensitive vars as `Set<string>`, 8 suffix patterns, preserve list) | **Delivered** |
+| ~~Query classifier~~ | ~~`src/lib/query-classifier.ts`~~ | ~~New module (5 categories, weighted patterns)~~ | ~~CANCELLED~~ |
+| Processing status | `src/lib/processing-status.ts` | New module (file-based IPC) | **Delivered** |
+| ~~History compactor~~ | ~~`src/lib/history-compactor.ts`~~ | ~~New module (extractive summarization)~~ | ~~CANCELLED~~ |
+| Queue processor | `src/queue-processor.ts` | Hook points for A (external block); F (writeStatus/clearStatus around invokeAgent); ADR-013: `initPlugins()`, `writeMessageToIncoming()`, `deliverPluginResponses()` | **Delivered** |
+| Agent invocation | `src/lib/invoke.ts` | Replace env cleanup (lines 36-37) with `scrubEnv()` | **Delivered** |
+| Types | `src/lib/types.ts` | Config flags (`credential_scrubbing_enabled`, `processing_status_enabled`) + `channels.zalo` + `channels.zalouser` | **Delivered** |
+| Telegram client | `src/channels/telegram-client.ts` | Status polling in typing refresh loop | **Delivered** |
+| WhatsApp client | `src/channels/whatsapp-client.ts` | Status polling | **Delivered** |
+| Discord client | `src/channels/discord-client.ts` | Status polling | **Delivered** |
+| Zalo OA plugin | `src/channels/plugins/zalo.ts` | ADR-013: `ZaloPlugin` — long-poll bridge, single-object response parsing, `event_name` field | **Delivered** |
+| Zalo Personal plugin | `src/channels/plugins/zalouser.ts` | ADR-013: `ZaloUserPlugin` — zca-cli subprocess wrapper with JSON-line streaming | **Delivered** |

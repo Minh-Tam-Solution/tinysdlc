@@ -1,13 +1,13 @@
 # TinySDLC Documentation
 
-**SDLC Framework**: 6.1.0 (LITE Tier)
+**SDLC Methodology**: [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) v1.0.0 (SDLC 6.1.0, LITE Tier)
 **Project Version**: 0.0.5
 
 ---
 
 ## Documentation Structure
 
-This project follows the SDLC Enterprise Framework v6.1.0 documentation standard.
+This project follows [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) documentation standards (based on SDLC 6.1.0).
 
 | Stage | Folder | Purpose | Status |
 |-------|--------|---------|--------|
@@ -21,10 +21,11 @@ This project follows the SDLC Enterprise Framework v6.1.0 documentation standard
 ## Quick Links
 
 **Planning** (Stage 01):
-- [Requirements](./01-planning/requirements.md) - Core + SDLC Framework requirements
-- [SDLC Agent Roles](./01-planning/sdlc-agent-roles.md) - 6 role definitions, SE4A/SE4H mapping
+- [Requirements](./01-planning/requirements.md) - Core + MTS-SDLC-Lite requirements
+- [SDLC Agent Roles](./01-planning/sdlc-agent-roles.md) - 12 role definitions, SE4A/SE4H mapping
 - [Sprint Plan — SDLC Support](./01-planning/sprint-plan-sdlc-support.md) - S01 sprint plan
 - [Sprint Plan — Ecosystem Upgrade](./01-planning/sprint-plan-ecosystem-upgrade.md) - S02 sprint plan (CTO-2026-002)
+- [Sprint Plan — ZeroClaw Patterns](./01-planning/sprint-plan-zeroclaw-patterns.md) - S04 sprint plan (security + UX)
 
 **Architecture** (Stage 02):
 - [Agent Architecture](./02-design/agent-architecture.md) - Multi-agent system design
@@ -32,7 +33,8 @@ This project follows the SDLC Enterprise Framework v6.1.0 documentation standard
 - [Queue System Design](./02-design/queue-system-design.md) - File-based queue architecture
 - [Team Communication Design](./02-design/team-communication-design.md) - Team collaboration design
 - [SDLC Team Archetypes](./02-design/sdlc-team-archetypes.md) - 4 team templates, flows, gate mapping
-- [ADR: SDLC Framework Support](./02-design/adr-sdlc-framework-support.md) - Architecture decisions for v6.1.0 support
+- [ADR: SDLC Support](./02-design/adr-sdlc-framework-support.md) - Architecture decisions for MTS-SDLC-Lite integration
+- [ADR: ZeroClaw Security Patterns](./02-design/adr-zeroclaw-security-patterns.md) - ADR-008 to ADR-012 (credential/env scrubbing, classification, status, compaction)
 
 **Integration** (Stage 03):
 - [Channel Integration Contracts](./03-integrate/channel-integration-contracts.md) - Discord/Telegram/WhatsApp APIs

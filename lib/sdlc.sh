@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SDLC Framework v6.1.0 commands for TinySDLC
+# MTS-SDLC-Lite (SDLC 6.1.0) commands for TinySDLC
 # Sourced by tinysdlc.sh
 
 # Requires: jq, SETTINGS_FILE, SCRIPT_DIR (from common.sh)
@@ -15,7 +15,7 @@ sdlc_status() {
         echo -e "${RED}Error: jq is required.${NC}"; return 1
     fi
 
-    echo -e "${BLUE}TinySDLC — SDLC Framework v6.1.0 Status${NC}"
+    echo -e "${BLUE}TinySDLC — MTS-SDLC-Lite (SDLC 6.1.0) Status${NC}"
     echo ""
 
     # Agents with sdlc_role
@@ -61,7 +61,7 @@ sdlc_status() {
 # ─── sdlc roles ──────────────────────────────────────────────────────────────
 
 sdlc_roles() {
-    echo -e "${BLUE}SDLC Framework v6.1.0 — 12-Role SASE Classification${NC}"
+    echo -e "${BLUE}MTS-SDLC-Lite (SDLC 6.1.0) — 12-Role SASE Classification${NC}"
     echo ""
     echo -e "${GREEN}SE4A — Agent Executors (8 roles, active at LITE tier):${NC}"
     printf "  %-10s %-20s %-22s %-15s %-30s\n" "Role" "Title" "Stage" "Gate" "Key Constraint"
@@ -106,7 +106,7 @@ sdlc_init() {
         return 1
     fi
 
-    echo -e "${BLUE}TinySDLC SDLC Init — applying SDLC Framework v6.1.0 defaults${NC}"
+    echo -e "${BLUE}TinySDLC SDLC Init — applying MTS-SDLC-Lite defaults${NC}"
     echo ""
     echo "This will add the following to your settings.json:"
     echo "  Agents: researcher, pm, pjm, architect, coder, reviewer, tester, devops"

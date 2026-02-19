@@ -359,7 +359,7 @@ for agent_id in "${ADDITIONAL_AGENTS[@]}"; do
     echo -e "${GREEN}✓ Created agent directory: $AGENT_DIR${NC}"
 done
 
-# ─── Auto-apply SDLC Framework v6.1.0 defaults ─────────────────────────────
+# ─── Auto-apply MTS-SDLC-Lite defaults ────────────────────────────────────────
 # Built-in: 8 SDLC agents + 4 teams are always included out of the box.
 # Users can add/modify/remove agents later via 'tinysdlc agent' commands.
 
@@ -368,7 +368,7 @@ SDLC_TEMPLATE="$PROJECT_ROOT/templates/settings.sdlc-default.json"
 if [ -f "$SDLC_TEMPLATE" ] && command -v jq &> /dev/null; then
     echo ""
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${GREEN}  Applying SDLC Framework v6.1.0 Defaults${NC}"
+    echo -e "${GREEN}  Applying MTS-SDLC-Lite Defaults (SDLC 6.1.0)${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 

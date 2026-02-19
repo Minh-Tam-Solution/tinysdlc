@@ -9,7 +9,7 @@
 
 ## Overview
 
-This guide explains how to set up TinySDLC with SDLC Framework v6.1.0 agents and teams. After following this guide, you will have a fully configured multi-agent environment that any SDLC practitioner can use immediately.
+This guide explains how to set up TinySDLC with [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) agents and teams. After following this guide, you will have a fully configured multi-agent environment that any SDLC practitioner can use immediately.
 
 ---
 
