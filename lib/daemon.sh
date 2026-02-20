@@ -123,6 +123,9 @@ start_daemon() {
     for ch in "${ACTIVE_CHANNELS[@]}"; do
         echo -e "  ${GREEN}✓${NC} ${CHANNEL_DISPLAY[$ch]}"
     done
+    for ch in "${ACTIVE_PLUGINS[@]}"; do
+        echo -e "  ${GREEN}✓${NC} ${CHANNEL_DISPLAY[$ch]} (plugin)"
+    done
     echo ""
 
     # Build log tail command
@@ -247,7 +250,8 @@ start_daemon() {
     echo ""
 
     local ch_list
-    ch_list=$(IFS=','; echo "${ACTIVE_CHANNELS[*]}")
+    local all_enabled=("${ACTIVE_CHANNELS[@]}" "${ACTIVE_PLUGINS[@]}")
+    ch_list=$(IFS=','; echo "${all_enabled[*]}")
     log "Daemon started with $total_panes panes (channels=$ch_list)"
 }
 
@@ -292,6 +296,9 @@ restart_daemon() {
 
 # Status
 status_daemon() {
+    # Load settings to populate ACTIVE_PLUGINS
+    load_settings 2>/dev/null
+
     echo -e "${BLUE}TinySDLC Status${NC}"
     echo "==============="
     echo ""
@@ -329,6 +336,22 @@ status_daemon() {
         fi
     done
 
+    # Plugin channel status (run inside queue processor)
+    for ch in "${ACTIVE_PLUGINS[@]}"; do
+        local display="${CHANNEL_DISPLAY[$ch]}"
+        local pad=""
+        while [ $((${#display} + ${#pad})) -lt 16 ]; do pad="$pad "; done
+
+        if pgrep -f "dist/queue-processor.js" > /dev/null && \
+           grep -q "\[$ch\].*connected" "$LOG_DIR/queue.log" 2>/dev/null; then
+            echo -e "${display}:${pad}${GREEN}Running (plugin)${NC}"
+        elif pgrep -f "dist/queue-processor.js" > /dev/null; then
+            echo -e "${display}:${pad}${YELLOW}Enabled (plugin)${NC}"
+        else
+            echo -e "${display}:${pad}${RED}Not Running${NC}"
+        fi
+    done
+
     # Core processes
     if pgrep -f "dist/queue-processor.js" > /dev/null; then
         echo -e "Queue Processor: ${GREEN}Running${NC}"
@@ -352,6 +375,18 @@ status_daemon() {
         fi
     done
 
+    # Recent activity for plugin channels (from queue.log)
+    for ch in "${ACTIVE_PLUGINS[@]}"; do
+        local recent
+        recent=$(grep "\[$ch\]" "$LOG_DIR/queue.log" 2>/dev/null | tail -n 5)
+        if [ -n "$recent" ]; then
+            echo ""
+            echo "Recent ${CHANNEL_DISPLAY[$ch]} Activity:"
+            printf '%0.s─' {1..24}; echo ""
+            echo "$recent"
+        fi
+    done
+
     echo ""
     echo "Recent Heartbeats:"
     printf '%0.s─' {1..18}; echo ""
@@ -365,6 +400,11 @@ status_daemon() {
         while [ $((${#display} + ${#pad})) -lt 10 ]; do pad="$pad "; done
         echo "  ${display}:${pad}tail -f $LOG_DIR/${ch}.log"
     done
+    if [ ${#ACTIVE_PLUGINS[@]} -gt 0 ]; then
+        local plugin_names
+        plugin_names=$(printf '%s,' "${ACTIVE_PLUGINS[@]}")
+        echo "  Plugins:   tail -f $LOG_DIR/queue.log  (${plugin_names%,})"
+    fi
     echo "  Heartbeat: tail -f $LOG_DIR/heartbeat.log"
     echo "  Daemon:    tail -f $LOG_DIR/daemon.log"
 }

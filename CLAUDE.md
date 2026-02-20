@@ -92,7 +92,7 @@ tinysdlc sdlc init     # Creates 6 agents + 4 teams with SDLC roles
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │                     Message Channels                        │
-│         (Discord, Telegram, WhatsApp, Heartbeat)            │
+│    (Discord, Telegram, WhatsApp, Zalo OA, Zalo Personal)    │
 └────────────────────┬────────────────────────────────────────┘
                      │ Write message.json
                      ↓
@@ -204,14 +204,22 @@ The central pattern. All messages flow through `~/.tinysdlc/queue/`:
 - `incoming/` → `processing/` → `outgoing/` (atomic renames via `fs.renameSync`)
 - Queue processor (`src/queue-processor.ts`) polls every 1s, processes agents in parallel but messages per-agent sequentially via promise chains
 
-### Channel Client Pattern
+### Channel Architecture (Legacy + Plugin)
 
-Each channel (`src/channels/{discord,telegram,whatsapp}-client.ts`) follows the same pattern:
+Two types of channels:
+
+- **Legacy channels** (Discord, Telegram, WhatsApp) — standalone Node.js processes, each gets its own tmux pane. Registered in `ALL_CHANNELS` in `lib/common.sh`.
+- **Plugin channels** (Zalo OA, Zalo Personal) — managed by the queue processor internally via `src/channels/plugin-loader.ts`. Registered in `PLUGIN_CHANNELS` in `lib/common.sh`. No separate pane; logs go to `queue.log`.
+
+Legacy channels (`src/channels/{discord,telegram,whatsapp}-client.ts`) follow the same pattern:
 
 1. Listen for DMs → apply sender pairing check → write JSON to `queue/incoming/`
 2. Poll `queue/outgoing/` every 1s → deliver responses (splitting long messages, file attachments)
 
-To add a new channel: create `src/channels/<name>-client.ts`, then add the channel ID and fill in `CHANNEL_*` registry arrays in `lib/common.sh`.
+Plugin channels (`src/channels/plugins/{zalo,zalouser}.ts`) are instantiated by the queue processor at startup and write incoming messages directly to the queue. The queue processor also handles outgoing delivery for plugin channels.
+
+To add a new legacy channel: create `src/channels/<name>-client.ts`, add to `ALL_CHANNELS` in `lib/common.sh`.
+To add a new plugin channel: create `src/channels/plugins/<name>.ts`, add to `PLUGIN_CHANNELS` in `lib/common.sh`, register in `queue-processor.ts`.
 
 ### Agent Invocation
 
@@ -235,7 +243,7 @@ Agents communicate via `[@teammate: message]` tags parsed by `src/lib/routing.ts
 
 ### Runtime
 
-Runs inside a `tmux` session ("tinysdlc") with panes for each enabled channel, queue processor, heartbeat cron, and log tailing. Auto-builds TypeScript on start if source is newer than compiled output.
+Runs inside a `tmux` session ("tinysdlc") with panes for each enabled legacy channel, queue processor, heartbeat cron, and log tailing. Plugin channels (Zalo) run inside the queue processor pane. Auto-builds TypeScript on start if source is newer than compiled output.
 
 ### TypeScript Configuration
 

@@ -30,13 +30,20 @@ NC='\033[0m'
 
 # --- Channel registry ---
 # Single source of truth. Add new channels here and everything else adapts.
+#
+# Two kinds of channels:
+#   ALL_CHANNELS  — legacy clients with standalone Node.js processes (own tmux pane)
+#   PLUGIN_CHANNELS — managed by the queue processor internally (no separate pane)
 
 ALL_CHANNELS=(discord whatsapp telegram)
+PLUGIN_CHANNELS=(zalo zalouser)
 
 declare -A CHANNEL_DISPLAY=(
     [discord]="Discord"
     [whatsapp]="WhatsApp"
     [telegram]="Telegram"
+    [zalo]="Zalo OA"
+    [zalouser]="Zalo Personal"
 )
 declare -A CHANNEL_SCRIPT=(
     [discord]="dist/channels/discord-client.js"
@@ -47,6 +54,8 @@ declare -A CHANNEL_ALIAS=(
     [discord]="dc"
     [whatsapp]="wa"
     [telegram]="tg"
+    [zalo]="zl"
+    [zalouser]="zu"
 )
 declare -A CHANNEL_TOKEN_KEY=(
     [discord]="discord_bot_token"
@@ -58,7 +67,8 @@ declare -A CHANNEL_TOKEN_ENV=(
 )
 
 # Runtime state: filled by load_settings
-ACTIVE_CHANNELS=()
+ACTIVE_CHANNELS=()   # legacy channels (get own tmux pane)
+ACTIVE_PLUGINS=()    # plugin channels (managed by queue processor)
 declare -A CHANNEL_TOKENS=()
 WORKSPACE_PATH=""
 
@@ -101,10 +111,19 @@ load_settings() {
         return 1
     fi
 
-    # Parse into array
+    # Parse into arrays — separate legacy channels from plugin channels
     ACTIVE_CHANNELS=()
+    ACTIVE_PLUGINS=()
     while IFS= read -r ch; do
-        ACTIVE_CHANNELS+=("$ch")
+        local is_plugin=false
+        for pc in "${PLUGIN_CHANNELS[@]}"; do
+            if [ "$ch" = "$pc" ]; then is_plugin=true; break; fi
+        done
+        if [ "$is_plugin" = true ]; then
+            ACTIVE_PLUGINS+=("$ch")
+        else
+            ACTIVE_CHANNELS+=("$ch")
+        fi
     done <<< "$channels_json"
 
     # Load tokens for each channel from nested structure

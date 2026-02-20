@@ -28,6 +28,15 @@ logs() {
         fi
     done
 
+    # Check plugin channels — filter queue.log by plugin id
+    for ch in "${PLUGIN_CHANNELS[@]}"; do
+        if [ "$target" = "$ch" ] || [ "$target" = "${CHANNEL_ALIAS[$ch]:-}" ]; then
+            echo "Showing [$ch] entries from queue.log (Ctrl+C to stop)..."
+            tail -f "$LOG_DIR/queue.log" | grep --line-buffered "\[$ch\]"
+            return
+        fi
+    done
+
     # Built-in log types
     case "$target" in
         heartbeat|hb) tail -f "$LOG_DIR/heartbeat.log" ;;
@@ -35,8 +44,9 @@ logs() {
         queue) tail -f "$LOG_DIR/queue.log" ;;
         all) tail -f "$LOG_DIR"/*.log ;;
         *)
+            local all_names=("${ALL_CHANNELS[@]}" "${PLUGIN_CHANNELS[@]}")
             local channel_names
-            channel_names=$(IFS='|'; echo "${ALL_CHANNELS[*]}")
+            channel_names=$(IFS='|'; echo "${all_names[*]}")
             echo "Usage: $0 logs [$channel_names|heartbeat|daemon|queue|all]"
             ;;
     esac

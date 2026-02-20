@@ -287,7 +287,7 @@ See [SDLC Agent Setup Guide](./sdlc-agent-setup-guide.md) for detailed role conf
 |---------|-------------|
 | `tinysdlc send "<message>"` | Send message via CLI (for testing) |
 | `tinysdlc channels reset <channel>` | Reset channel auth (e.g., WhatsApp QR) |
-| `tinysdlc logs [type]` | View logs: `all`, `queue`, `discord`, `telegram`, `whatsapp`, `heartbeat`, `daemon` |
+| `tinysdlc logs [type]` | View logs: `all`, `queue`, `discord`, `telegram`, `whatsapp`, `zalo`, `zalouser`, `heartbeat`, `daemon` |
 
 ---
 
