@@ -42,6 +42,7 @@ This project follows [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SD
 - [CTO Directive — Ecosystem Upgrade V4](./03-integrate/CTO-DIRECTIVE-ECOSYSTEM-UPGRADE-V4.md) - 3-product ecosystem strategy (CTO-2026-002)
 
 **Development** (Stage 04):
+- [Usage Guide](./04-build/usage-guide.md) - Day-to-day usage, CLI reference, channel setup, configuration
 - [Installation Guide](./04-build/installation-guide.md) - Setup and installation
 - [Troubleshooting Guide](./04-build/troubleshooting-guide.md) - Common issues and fixes
 - [SDLC Agent Setup Guide](./04-build/sdlc-agent-setup-guide.md) - Configure SDLC roles, Ollama, system prompts

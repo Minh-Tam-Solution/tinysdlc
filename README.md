@@ -326,7 +326,7 @@ tinysdlc/
 | 01 Planning | [Requirements](docs/01-planning/requirements.md), [SDLC Agent Roles](docs/01-planning/sdlc-agent-roles.md) |
 | 02 Design | [Agent Architecture](docs/02-design/agent-architecture.md), [Queue System](docs/02-design/queue-system-design.md), [Team Archetypes](docs/02-design/sdlc-team-archetypes.md) |
 | 03 Integrate | [Channel Contracts](docs/03-integrate/channel-integration-contracts.md), [Zalo Setup](docs/03-integrate/zalo-channel-setup.md) |
-| 04 Build | [Installation](docs/04-build/installation-guide.md), [Troubleshooting](docs/04-build/troubleshooting-guide.md), [SDLC Setup](docs/04-build/sdlc-agent-setup-guide.md) |
+| 04 Build | [Usage Guide](docs/04-build/usage-guide.md), [Installation](docs/04-build/installation-guide.md), [Troubleshooting](docs/04-build/troubleshooting-guide.md), [SDLC Setup](docs/04-build/sdlc-agent-setup-guide.md) |
 
 Full index: [docs/README.md](docs/README.md)
 
