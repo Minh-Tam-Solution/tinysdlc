@@ -28,3 +28,6 @@ MTS-SDLC-Lite/
 
 # Local Claude settings (may contain API keys)
 .claude/settings.local.json
+
+# Symlinks to external repos (local convenience only)
+docs/06-community
