@@ -349,13 +349,33 @@ See [SDLC Agent Setup Guide](./sdlc-agent-setup-guide.md) for detailed role conf
 
 ### Zalo Personal
 
+**Option A: Zalo Bot Manager (Recommended)**
+
+1. Go to [Zalo Bot Manager](https://bot.zaloplatforms.com) and sign in with your Zalo account
+2. Create a new bot and configure its settings
+3. Copy the bot token (format: `12345689:abc-xyz`)
+4. Add to `settings.json`:
+   ```json
+   "channels": { "enabled": ["zalouser"], "zalouser": { "token": "YOUR_BOT_TOKEN" } }
+   ```
+5. Or set via environment variable: `ZALO_BOT_TOKEN=12345689:abc-xyz`
+
+No binary to install, no QR code — just a web dashboard and a token. Free tier: up to 3 bots, 50 users per bot, 3,000 messages/month.
+
+**Option B: zca-cli (Advanced)**
+
+For users who need direct access to the Zalo Personal API without going through the Bot Platform:
+
 1. Install [zca-cli](https://github.com/nicepkg/zca-cli) separately
-2. Run `zca auth login` (external to TinySDLC)
+2. Run `zca auth login` (QR code auth, external to TinySDLC)
 3. Enable in `settings.json`:
    ```json
    "channels": { "enabled": ["zalouser"] }
    ```
 
+zca-cli gives full control but requires installing a binary and managing auth sessions manually.
+
+- Long-polling by default (no public endpoint needed)
 - Auto-restart with exponential backoff on crash
 - Text only, 2000 character limit
 - See [Zalo Channel Setup](../03-integrate/zalo-channel-setup.md) for details

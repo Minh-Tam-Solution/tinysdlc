@@ -14,7 +14,7 @@ TinySDLC supports two Zalo channels:
 | Channel | Plugin ID | API | Auth Method | Use Case |
 |---------|-----------|-----|-------------|----------|
 | **Zalo OA** | `zalo` | Bot Platform API (HTTP) | Token (`app_id:secret_key`) | Official Account bots |
-| **Zalo Personal** | `zalouser` | zca-cli (subprocess) | QR code via `zca auth login` | Personal account automation |
+| **Zalo Personal** | `zalouser` | Zalo Bot Manager (recommended) or zca-cli | Token or QR code | Personal account bots |
 
 Both channels support **text messages only** (Phase 1) and **DM/1:1 conversations only**.
 
@@ -70,7 +70,42 @@ If the default Bot Platform endpoint (`https://bot-api.zapps.me/bot`) is unavail
 
 ## Zalo Personal
 
-### Prerequisites
+Two setup options are available. **Zalo Bot Manager** is recommended for simplicity; **zca-cli** is available for advanced users who need direct API access.
+
+### Option A: Zalo Bot Manager (Recommended)
+
+No binary to install, no QR code — just a web dashboard and a token.
+
+#### Setup
+
+1. Go to [Zalo Bot Manager](https://bot.zaloplatforms.com) and sign in with your Zalo account
+2. Create a new bot and configure its settings
+3. Copy the bot token (format: `12345689:abc-xyz`)
+
+#### Configuration
+
+Add to your `settings.json`:
+
+```json
+{
+  "channels": {
+    "zalouser": {
+      "enabled": true,
+      "token": "12345689:abc-xyz"
+    }
+  }
+}
+```
+
+Or set via environment variable: `ZALO_BOT_TOKEN=12345689:abc-xyz`
+
+**Free tier limits**: Up to 3 bots, 50 users per bot, 3,000 messages/month.
+
+### Option B: zca-cli (Advanced)
+
+For users who need direct access to the Zalo Personal API without going through the Bot Platform.
+
+#### Prerequisites
 
 1. Install `zca-cli`:
 
@@ -90,7 +125,7 @@ If the default Bot Platform endpoint (`https://bot-api.zapps.me/bot`) is unavail
 
    Scan the QR code with your Zalo mobile app.
 
-### Configuration
+#### Configuration
 
 Add to your `settings.json`:
 
@@ -104,7 +139,7 @@ Add to your `settings.json`:
 }
 ```
 
-### Optional: Custom Binary Path and Profile
+#### Optional: Custom Binary Path and Profile
 
 ```json
 {
@@ -118,16 +153,7 @@ Add to your `settings.json`:
 }
 ```
 
-### How It Works
-
-- Spawns `zca listen -r -k` as a child process
-- Reads JSON lines from stdout (one message per line)
-- Filters for text messages (`type: 1`) in DM conversations (`threadType: 1`)
-- Sends via `zca msg send <threadId> <content>`
-- Auto-restarts listener on process exit (exponential backoff: 5s to 5 min)
-- Messages chunked at **2000 characters**
-
-### Multi-Account Support
+#### Multi-Account Support (zca-cli only)
 
 Use the `profile` field to specify which zca profile to use. Manage profiles with:
 
@@ -135,6 +161,14 @@ Use the `profile` field to specify which zca profile to use. Manage profiles wit
 zca account list        # List profiles
 zca account switch work # Switch active profile
 ```
+
+### How It Works
+
+- **Bot Manager mode**: Long-polling via Zalo Bot Platform API
+- **zca-cli mode**: Spawns `zca listen -r -k` as a child process, reads JSON lines from stdout
+- Filters for text messages (`type: 1`) in DM conversations (`threadType: 1`)
+- Auto-restarts on process exit (exponential backoff: 5s to 5 min)
+- Messages chunked at **2000 characters**
 
 ---
 
@@ -148,7 +182,15 @@ zca account switch work # Switch active profile
 | `HTTP 401` on connect | Invalid token | Regenerate token from OA dashboard |
 | Messages not received | Polling interrupted | Check logs for backoff errors; restart TinySDLC |
 
-### Zalo Personal
+### Zalo Personal (Bot Manager)
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| `HTTP 401` on connect | Invalid or expired token | Regenerate token at [bot.zaloplatforms.com](https://bot.zaloplatforms.com) |
+| Messages not received | Bot not active | Check bot status in Bot Manager dashboard |
+| Rate limit errors | Exceeded free tier (3,000 msgs/month) | Upgrade plan or wait for reset |
+
+### Zalo Personal (zca-cli)
 
 | Issue | Cause | Fix |
 |-------|-------|-----|
