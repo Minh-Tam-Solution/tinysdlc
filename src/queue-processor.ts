@@ -506,6 +506,7 @@ async function processMessage(messageFile: string): Promise<void> {
                 teamContext,
                 startTime: Date.now(),
                 outgoingMentions: new Map(),
+                agentsInChain: new Set<string>(),
                 configSnapshot: settings,      // Constraint 6.4: freeze config for conversation lifetime
                 correlation_id: correlationId, // ACTION 5: correlation tracking
             };
@@ -517,14 +518,15 @@ async function processMessage(messageFile: string): Promise<void> {
             emitEvent('team_chain_start', { teamId: teamContext.teamId, teamName: teamContext.team.name, agents: teamContext.team.agents, leader: teamContext.team.leader_agent });
         }
 
-        // Record this agent's response
+        // Record this agent's response and track participation
         conv.responses.push({ agentId, response });
         conv.totalMessages++;
+        conv.agentsInChain.add(agentId);
         collectFiles(response, conv.files);
 
-        // Check for teammate mentions
+        // Check for agent/team mentions (supports cross-team routing in v1.1.0)
         const teammateMentions = extractTeammateMentions(
-            response, agentId, conv.teamContext.teamId, teams, agents
+            response, agentId, conv.teamContext.teamId, teams, agents, conv.agentsInChain
         );
 
         // CTO-2026-002 ACTION 5: Check delegation depth before enqueuing
@@ -538,8 +540,12 @@ async function processMessage(messageFile: string): Promise<void> {
             conv.pending += teammateMentions.length;
             conv.outgoingMentions.set(agentId, teammateMentions.length);
             for (const mention of teammateMentions) {
-                log('INFO', `@${agentId} → @${mention.teammateId} (depth: ${currentDepth + 1})`);
-                emitEvent('chain_handoff', { teamId: conv.teamContext.teamId, fromAgent: agentId, toAgent: mention.teammateId });
+                const targetTeam = findTeamForAgent(mention.teammateId, teams);
+                const isCrossTeam = targetTeam && targetTeam.teamId !== conv.teamContext.teamId;
+                const tag = isCrossTeam ? '[CROSS-TEAM] ' : '';
+                const teamInfo = isCrossTeam ? ` (${conv.teamContext.teamId} → ${targetTeam.teamId})` : '';
+                log('INFO', `${tag}@${agentId} → @${mention.teammateId}${teamInfo} (depth: ${currentDepth + 1})`);
+                emitEvent('chain_handoff', { teamId: conv.teamContext.teamId, fromAgent: agentId, toAgent: mention.teammateId, crossTeam: !!isCrossTeam });
 
                 const internalMsg = `[Message from teammate @${agentId}]:\n${mention.message}`;
                 enqueueInternalMessage(conv.id, agentId, mention.teammateId, internalMsg, messageData);

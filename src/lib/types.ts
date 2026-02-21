@@ -104,6 +104,8 @@ export interface Conversation {
     startTime: number;
     // Track how many mentions each agent sent out (for inbox draining)
     outgoingMentions: Map<string, number>;
+    // Track all agents who participated in this conversation (circular detection, v1.1.0)
+    agentsInChain: Set<string>;
     // CTO-2026-002 Constraint 6.4: Config snapshot for conversation lifetime
     configSnapshot?: Settings;
     // CTO-2026-002 ACTION 5: Correlation tracking

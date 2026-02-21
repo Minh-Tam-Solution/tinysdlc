@@ -147,6 +147,42 @@ Keeping them separate allows independent enable/disable and avoids conflating se
 
 ---
 
+### ADR-014: Cross-Team Agent Routing (v1.1.0)
+
+**Problem**: In v1.0.0, agents can only mention teammates within the same team. `isTeammate()` in `routing.ts` checks `team.agents.includes(mentionedId)` — cross-team mentions are silently dropped. This means coder (team `dev`) cannot escalate to PM (team `planning`); the user must manually re-route between teams, acting as the workflow bridge.
+
+**Decision**: Allow `[@agent_id: msg]` to route to any known agent regardless of team membership. Also allow `[@team_id: msg]` to route to the target team's leader. Add circular detection and enforce delegation depth limits.
+
+**Mention resolution order** (in `resolveTarget()`):
+1. Same-team agent (existing `isTeammate()` check — fastest path)
+2. Cross-team agent (agent exists in config but not in current team)
+3. Team ID → team leader agent (e.g., `[@planning: msg]` → PM as planning leader)
+4. `null` if target not found (mention silently dropped, same as v1.0.0)
+
+**Safety guards**:
+- **Circular detection**: `Conversation.agentsInChain: Set<string>` tracks all agents who have participated. If target is already in the set, mention is blocked with log `Circular delegation blocked: A → B`.
+- **Delegation depth**: Existing `max_delegation_depth` (default 5) applies across all teams — depth increments on every handoff regardless of team boundary.
+- **Conversation cap**: Existing 50-message limit applies to the entire conversation including cross-team branches.
+- **Self-mention blocked**: Agent cannot mention itself (existing guard in `isTeammate()`).
+
+**Implementation**:
+- `routing.ts`: New `resolveTarget()` function replaces `isTeammate()` in mention extraction. `extractTeammateMentions()` gains `agentsInChain?: Set<string>` parameter.
+- `types.ts`: `Conversation` interface gains `agentsInChain: Set<string>`.
+- `queue-processor.ts`: Initialize `agentsInChain` on conversation start. Add current agent to set before extracting mentions. Log `[CROSS-TEAM]` prefix for cross-team handoffs.
+
+**Consequences**:
+- Agents can escalate (coder→pm), request reviews (pm→architect), and delegate across team boundaries
+- Team conversations may now involve agents from multiple teams — responses are still aggregated into a single conversation
+- The `teamContext` on the conversation remains the originating team (for logging and event emission) — it does not change mid-conversation
+- No new files created; all changes in existing routing.ts, types.ts, queue-processor.ts
+
+**Alternatives considered**:
+- Create sub-conversations per team → too complex for v1.1.0, breaks response aggregation
+- Require explicit syntax `[@team/agent: msg]` → unnecessary friction, agent IDs are globally unique
+- Port full OpenClaw workflow engine (S22-S25, 8,300 lines) → overkill for LITE tier community release
+
+---
+
 ## Consequences
 
 ### Positive

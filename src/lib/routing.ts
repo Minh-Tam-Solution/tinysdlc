@@ -33,21 +33,40 @@ export function isTeammate(
 }
 
 /**
- * Extract the first valid @teammate mention from a response text.
- * Returns the teammate agent ID and the rest of the message, or null if no teammate mentioned.
+ * Resolve a mention target to an agent ID.
+ * Resolution order: same-team agent → cross-team agent → team ID (→ leader) → null.
+ */
+export function resolveTarget(
+    candidateId: string,
+    currentAgentId: string,
+    teamId: string,
+    teams: Record<string, TeamConfig>,
+    agents: Record<string, AgentConfig>
+): string | null {
+    // 1. Same-team agent (fast path)
+    if (isTeammate(candidateId, currentAgentId, teamId, teams, agents)) return candidateId;
+    // 2. Cross-team agent (agent exists but not in current team)
+    if (candidateId !== currentAgentId && agents[candidateId]) return candidateId;
+    // 3. Team ID → route to team leader
+    if (teams[candidateId] && teams[candidateId].leader_agent !== currentAgentId) return teams[candidateId].leader_agent;
+    return null;
+}
+
+/**
+ * Extract valid @agent or @team mentions from an agent's response text.
+ * Supports same-team, cross-team, and team-leader routing.
+ * Optional agentsInChain blocks circular delegation.
  */
 export function extractTeammateMentions(
     response: string,
     currentAgentId: string,
     teamId: string,
     teams: Record<string, TeamConfig>,
-    agents: Record<string, AgentConfig>
+    agents: Record<string, AgentConfig>,
+    agentsInChain?: Set<string>
 ): { teammateId: string; message: string }[] {
     const results: { teammateId: string; message: string }[] = [];
     const seen = new Set<string>();
-
-    // TODO: Support cross-team communication — allow agents to mention agents
-    // on other teams or use [@team_id: message] to route to another team's leader.
 
     // Tag format: [@agent_id: message] or [@agent1,agent2: message]
     const tagRegex = /\[@(\S+?):\s*([\s\S]*?)\]/g;
@@ -63,10 +82,12 @@ export function extractTeammateMentions(
         // Support comma-separated agent IDs: [@coder,reviewer: message]
         const candidateIds = tagMatch[1].toLowerCase().split(',').map(id => id.trim()).filter(Boolean);
         for (const candidateId of candidateIds) {
-            if (!seen.has(candidateId) && isTeammate(candidateId, currentAgentId, teamId, teams, agents)) {
-                results.push({ teammateId: candidateId, message: fullMessage });
-                seen.add(candidateId);
-            }
+            const resolvedId = resolveTarget(candidateId, currentAgentId, teamId, teams, agents);
+            if (!resolvedId || seen.has(resolvedId)) continue;
+            // Circular detection: skip if agent already participated in this conversation
+            if (agentsInChain?.has(resolvedId)) continue;
+            results.push({ teammateId: resolvedId, message: fullMessage });
+            seen.add(resolvedId);
         }
     }
     return results;

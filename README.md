@@ -276,10 +276,16 @@ Each agent workspace at `~/tinysdlc-workspace/{agent_id}/` contains:
 <details>
 <summary>Zalo Personal</summary>
 
+**Option A: Zalo Bot Manager (Recommended)** — no binary, no QR code:
+1. Sign in at [Zalo Bot Manager](https://bot.zaloplatforms.com), create a bot, copy the token
+2. Add to settings: `channels.zalouser.token = "YOUR_BOT_TOKEN"`
+
+**Option B: zca-cli (Advanced)** — direct API access:
 1. Install zca-cli: `curl -fsSL https://get.zca-cli.dev/install.sh | bash`
 2. Authenticate: `zca auth login` (scan QR with Zalo mobile app)
 3. Enable in settings: `channels.zalouser.enabled = true`
-4. See [Zalo Channel Setup](docs/03-integrate/zalo-channel-setup.md) for details
+
+See [Zalo Channel Setup](docs/03-integrate/zalo-channel-setup.md) for details.
 
 </details>
 

@@ -590,10 +590,62 @@ process.on('SIGTERM', async () => {
 
 ---
 
+## Cross-Team Routing (v1.1.0)
+
+In v1.0.0, `[@agent: msg]` tags only resolve within the current team. In v1.1.0, agents can mention any agent or team across team boundaries.
+
+### Mention Resolution Order
+
+```
+[@target: message] in agent response
+  ↓
+resolveTarget(target, currentAgent, currentTeam, teams, agents)
+  1. Same-team agent?  → target (fast path, same as v1.0.0)
+  2. Cross-team agent? → target (agent exists but in different team)
+  3. Team ID?          → teams[target].leader_agent
+  4. Not found         → null (mention silently dropped)
+```
+
+### Cross-Team Flow
+
+```
+User → @dev "implement login + update requirements"
+  ↓
+coder (team: dev) implements, responds:
+  "Done. [@pm: please update requirements doc for login feature]"
+  ↓
+resolveTarget("pm") → pm exists, not in dev team → cross-team allowed
+  ↓
+enqueueInternalMessage(conv.id, "coder", "pm", message, data)
+  ↓                                            [CROSS-TEAM] coder (dev) → pm (planning)
+pm (team: planning) processes, responds:
+  "Requirements updated."
+  ↓
+conv.pending-- → 0 → completeConversation()
+  ↓
+Aggregated response delivered to user
+```
+
+### Safety Guards
+
+- **Circular detection**: `Conversation.agentsInChain` (Set) tracks all agents who participated. If target already in set → blocked.
+- **Delegation depth**: `max_delegation_depth` (default 5) applies across all teams.
+- **Conversation cap**: 50-message limit applies to entire conversation including cross-team branches.
+- **Self-mention**: Agent cannot mention itself.
+
+### Design Decision: Single Conversation
+
+Cross-team messages stay in the **same conversation** — they do not spawn sub-conversations. The `teamContext` remains the originating team for the lifetime of the conversation. This keeps response aggregation simple: all branches (same-team and cross-team) converge into one `completeConversation()` call.
+
+See [ADR-014](adr-zeroclaw-security-patterns.md) for full rationale.
+
+---
+
 ## See Also
 
 - [Agent Architecture](agent-architecture.md) - Agent configuration and management
 - [Channel Integration Contracts](../03-integrate/channel-integration-contracts.md) - Per-channel API details
+- [ADR-014: Cross-Team Routing](adr-zeroclaw-security-patterns.md) - Architecture decision
 - [README.md](../README.md) - Main project documentation
 - [src/queue-processor.ts](../src/queue-processor.ts) - Implementation
 - [src/channels/plugins/](../src/channels/plugins/) - ChannelPlugin implementations

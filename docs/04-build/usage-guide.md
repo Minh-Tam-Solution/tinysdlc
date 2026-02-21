@@ -127,16 +127,40 @@ Or use separate tags for different instructions:
 [@tester: prepare test cases for the endpoint]
 ```
 
+### Cross-Team Routing (v1.1.0)
+
+Agents can mention any agent or team, even across team boundaries. The mention resolution order is:
+
+1. **Same-team agent** (fastest path): `[@reviewer: msg]` when reviewer is in your team
+2. **Cross-team agent**: `[@pm: msg]` when PM is in a different team (e.g., `planning`)
+3. **Team leader**: `[@planning: msg]` routes to the planning team's leader agent
+
+**Example**: Coder (team `dev`) asks PM (team `planning`) to update requirements:
+
+```
+You → @dev "implement login and update requirements"
+  → coder (dev team leader) implements login
+  → coder responds with [@pm: please update requirements for login]
+    → pm (planning team) receives the message       ← CROSS-TEAM
+    → pm updates requirements, responds
+  → consolidated response sent back to you
+```
+
+**Safety guards**:
+- **Circular detection**: If PM responds with `[@coder: ...]`, the mention is blocked because coder already participated in this conversation
+- **Depth limit**: Delegation chains are limited to `max_delegation_depth` (default 5) across all teams
+- **Conversation cap**: 50 messages total per conversation (same as v1.0.0)
+
 ### Team Chain Execution
 
-When an agent mentions a teammate:
+When an agent mentions another agent (same-team or cross-team):
 1. The shared context (text outside `[@...]` tags) is preserved
 2. The directed message is appended after a separator
-3. The teammate receives both shared context and directed message
-4. The teammate can further mention other teammates
+3. The target agent receives both shared context and directed message
+4. The target agent can further mention other agents (if not already in the chain)
 5. Once all branches complete, responses are aggregated and sent back
 
-**Loop guard**: Conversations are capped at 50 messages to prevent infinite loops.
+**Loop guard**: Conversations are capped at 50 messages to prevent infinite loops. Circular mentions (agent A → B → A) are automatically blocked.
 
 **Example flow** with `@dev implement user search`:
 
