@@ -10,7 +10,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { Settings, AgentConfig, TeamConfig, ProjectConfig } from './types';
-import { getSettings, getAgents, getTeams, getActiveProject, writeSettings, expandTilde, SETTINGS_FILE } from './config';
+import { getSettings, getAgents, getTeams, getActiveProject, writeSettings, expandTilde, resolveSprintFile, SETTINGS_FILE } from './config';
 
 export interface CommandResult {
     response: string;
@@ -48,6 +48,10 @@ export function handleCommand(messageText: string, workspacePath: string): Comma
     // /workspace commands
     const wsResult = handleWorkspaceCommand(text, workspacePath);
     if (wsResult) return wsResult;
+
+    // /sprint commands
+    const sprintResult = handleSprintCommand(text, workspacePath);
+    if (sprintResult) return sprintResult;
 
     return null;
 }
@@ -332,4 +336,115 @@ function removeProject(alias: string): CommandResult {
     writeSettings({ projects });
 
     return { response: `Removed project '${normalizedAlias}' from registry.` };
+}
+
+// --- Sprint commands (S05) ---
+
+function handleSprintCommand(text: string, workspacePath: string): CommandResult | null {
+    // /sprint — show current sprint info
+    if (text.match(/^[!/]sprint$/i)) {
+        return showSprintInfo(workspacePath);
+    }
+
+    // /sprint status — show full status with deliverables
+    if (text.match(/^[!/]sprint\s+status$/i)) {
+        return showSprintStatus(workspacePath);
+    }
+
+    // /sprint set <number> <goal>
+    const setMatch = text.match(/^[!/]sprint\s+set\s+(\S+)\s+(.+)$/i);
+    if (setMatch) {
+        return setSprintInfo(workspacePath, setMatch[1], setMatch[2]);
+    }
+
+    // /sprint with unknown subcommand — show help
+    if (text.match(/^[!/]sprint\s/i)) {
+        return {
+            response: [
+                'Sprint Commands:',
+                '',
+                '/sprint -- Show current sprint info',
+                '/sprint status -- Show deliverables and agent status',
+                '/sprint set <number> <goal> -- Update sprint number and goal',
+            ].join('\n'),
+        };
+    }
+
+    return null;
+}
+
+function getSprintFilePath(workspacePath: string): string | null {
+    const settings = getSettings();
+    return resolveSprintFile(settings, workspacePath);
+}
+
+function showSprintInfo(workspacePath: string): CommandResult {
+    const sprintFile = getSprintFilePath(workspacePath);
+    if (!sprintFile) {
+        return {
+            response: 'No CURRENT-SPRINT.md found.\n\nCreate one with: tinysdlc sdlc init\nOr place CURRENT-SPRINT.md in your project/workspace directory.',
+        };
+    }
+
+    const content = fs.readFileSync(sprintFile, 'utf8');
+    // Extract header fields
+    const sprintMatch = content.match(/\*\*Sprint\*\*:\s*(.+)/);
+    const goalMatch = content.match(/\*\*Goal\*\*:\s*(.+)/);
+    const statusMatch = content.match(/\*\*Status\*\*:\s*(.+)/);
+    const startMatch = content.match(/\*\*Start\*\*:\s*(.+)/);
+    const endMatch = content.match(/\*\*End\*\*:\s*(.+)/);
+
+    const lines = [
+        `Sprint: ${sprintMatch?.[1] || '(not set)'}`,
+        `Goal: ${goalMatch?.[1] || '(not set)'}`,
+        `Status: ${statusMatch?.[1] || 'PLANNED'}`,
+        `Start: ${startMatch?.[1] || '-'}`,
+        `End: ${endMatch?.[1] || '-'}`,
+        '',
+        `File: ${sprintFile}`,
+    ];
+
+    return { response: lines.join('\n') };
+}
+
+function showSprintStatus(workspacePath: string): CommandResult {
+    const sprintFile = getSprintFilePath(workspacePath);
+    if (!sprintFile) {
+        return {
+            response: 'No CURRENT-SPRINT.md found.\n\nCreate one with: tinysdlc sdlc init',
+        };
+    }
+
+    const content = fs.readFileSync(sprintFile, 'utf8');
+    // Return first 50 lines (same cap as context injection)
+    const lines = content.split('\n').slice(0, 50);
+    return { response: lines.join('\n') };
+}
+
+function setSprintInfo(workspacePath: string, sprintNumber: string, goal: string): CommandResult {
+    const sprintFile = getSprintFilePath(workspacePath);
+    if (!sprintFile) {
+        return {
+            response: 'No CURRENT-SPRINT.md found.\n\nCreate one with: tinysdlc sdlc init',
+        };
+    }
+
+    let content = fs.readFileSync(sprintFile, 'utf8');
+
+    // Update Sprint field
+    content = content.replace(/(\*\*Sprint\*\*:\s*).+/, `$1${sprintNumber}`);
+    // Update Goal field
+    content = content.replace(/(\*\*Goal\*\*:\s*).+/, `$1${goal}`);
+    // Update Status to IN_PROGRESS
+    content = content.replace(/(\*\*Status\*\*:\s*).+/, `$1IN_PROGRESS`);
+    // Update Start date
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    content = content.replace(/(\*\*Start\*\*:\s*).+/, `$1${dateStr}`);
+
+    fs.writeFileSync(sprintFile, content);
+
+    return {
+        response: `Sprint updated:\n  Sprint: ${sprintNumber}\n  Goal: ${goal}\n  Status: IN_PROGRESS\n  Start: ${dateStr}`,
+    };
 }

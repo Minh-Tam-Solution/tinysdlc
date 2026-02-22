@@ -72,28 +72,30 @@ while true; do
         HEARTBEAT_FILE="$AGENT_DIR/heartbeat.md"
         if [ -f "$HEARTBEAT_FILE" ]; then
             PROMPT=$(cat "$HEARTBEAT_FILE")
-            log "  → Agent @$AGENT_ID: using custom heartbeat.md"
+            log "  > Agent @$AGENT_ID: using custom heartbeat.md"
         else
             PROMPT="Quick status check: Any pending tasks? Keep response brief."
-            log "  → Agent @$AGENT_ID: using default prompt"
+            log "  > Agent @$AGENT_ID: using default prompt"
         fi
 
         # Generate unique message ID
         MESSAGE_ID="heartbeat_${AGENT_ID}_$(date +%s)_$$"
 
         # Write to queue with @agent_id routing prefix
+        # Use jq -Rs to properly escape prompt content for JSON safety
+        PROMPT_ESCAPED=$(printf '%s' "@${AGENT_ID} ${PROMPT}" | jq -Rs .)
         cat > "$QUEUE_INCOMING/${MESSAGE_ID}.json" << EOF
 {
   "channel": "heartbeat",
   "sender": "System",
   "senderId": "heartbeat_${AGENT_ID}",
-  "message": "@${AGENT_ID} ${PROMPT}",
+  "message": ${PROMPT_ESCAPED},
   "timestamp": $(date +%s)000,
   "messageId": "$MESSAGE_ID"
 }
 EOF
 
-        log "  ✓ Queued for @$AGENT_ID: $MESSAGE_ID"
+        log "  + Queued for @$AGENT_ID: $MESSAGE_ID"
     done
 
     log "Heartbeat sent to $AGENT_COUNT agent(s)"
@@ -110,7 +112,7 @@ EOF
             if [ -f "$RESPONSE_FILE" ]; then
                 RESPONSE=$(cat "$RESPONSE_FILE" | jq -r '.message' 2>/dev/null || echo "")
                 if [ -n "$RESPONSE" ]; then
-                    log "  ← @$AGENT_ID: ${RESPONSE:0:80}..."
+                    log "  < @$AGENT_ID: ${RESPONSE:0:80}..."
                     # Clean up response file
                     rm "$RESPONSE_FILE"
                 fi

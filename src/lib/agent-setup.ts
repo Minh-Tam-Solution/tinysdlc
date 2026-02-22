@@ -93,6 +93,13 @@ export function ensureAgentDirectory(agentDir: string, agent?: AgentConfig, forc
     if (fs.existsSync(sourceSoul)) {
         fs.copyFileSync(sourceSoul, path.join(targetTinysdlc, 'SOUL.md'));
     }
+
+    // S05: Copy CURRENT-SPRINT.md template if not already present
+    const sourceSprint = path.join(SCRIPT_DIR, 'templates', 'CURRENT-SPRINT.md');
+    const targetSprint = path.join(agentDir, 'CURRENT-SPRINT.md');
+    if (fs.existsSync(sourceSprint) && !fs.existsSync(targetSprint)) {
+        fs.copyFileSync(sourceSprint, targetSprint);
+    }
 }
 
 /**

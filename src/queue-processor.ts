@@ -23,7 +23,8 @@ import {
     QUEUE_INCOMING, QUEUE_OUTGOING, QUEUE_PROCESSING,
     LOG_FILE, EVENTS_DIR, CHATS_DIR, FILES_DIR,
     getSettings, getAgents, getTeams,
-    DEFAULT_MAX_DELEGATION_DEPTH, DEFAULT_INPUT_SANITIZATION_ENABLED
+    DEFAULT_MAX_DELEGATION_DEPTH, DEFAULT_INPUT_SANITIZATION_ENABLED,
+    resolveSprintFile
 } from './lib/config';
 import { log, emitEvent } from './lib/logging';
 import { parseAgentRouting, findTeamForAgent, getAgentResetFlag, extractTeammateMentions } from './lib/routing';
@@ -141,6 +142,54 @@ function collectFiles(response: string, fileSet: Set<string>): void {
 }
 
 /**
+ * S05: Append an entry to CURRENT-SPRINT.md Activity Log section.
+ * Best-effort — race condition possible if multiple conversations complete simultaneously
+ * (acceptable at LITE tier).
+ */
+function appendActivityLog(sprintFile: string, agentIds: string[], responseLength: number): void {
+    try {
+        let content = fs.readFileSync(sprintFile, 'utf8');
+        const marker = '## Activity Log';
+        const markerIdx = content.indexOf(marker);
+        if (markerIdx === -1) return;
+
+        const now = new Date();
+        const ts = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const agentStr = agentIds.map(id => `@${id}`).join(', ');
+        const entry = `- [${ts}] ${agentStr}: conversation completed (${responseLength} chars)`;
+
+        // Find insertion point (after marker line + any comment line)
+        const afterMarker = content.indexOf('\n', markerIdx);
+        if (afterMarker === -1) return;
+        let insertAt = afterMarker + 1;
+        // Skip <!-- comment --> line if present
+        const nextLine = content.substring(insertAt).split('\n')[0];
+        if (nextLine.trim().startsWith('<!--')) {
+            const commentEnd = content.indexOf('\n', insertAt);
+            if (commentEnd !== -1) insertAt = commentEnd + 1;
+        }
+
+        // Collect existing entries
+        const beforeInsert = content.substring(0, insertAt);
+        const afterInsert = content.substring(insertAt);
+        const existingLines = afterInsert.split('\n').filter(l => l.startsWith('- ['));
+
+        // Cap at 20 entries (keep newest, trim oldest)
+        const MAX_LOG_ENTRIES = 20;
+        const allEntries = [entry, ...existingLines].slice(0, MAX_LOG_ENTRIES);
+
+        // Rebuild content
+        const remainingContent = afterInsert.split('\n').filter(l => !l.startsWith('- [')).join('\n');
+        content = beforeInsert + allEntries.join('\n') + '\n' + remainingContent;
+
+        fs.writeFileSync(sprintFile, content);
+        log('DEBUG', `[SPRINT] Activity log appended: ${agentStr} (${responseLength} chars)`);
+    } catch (e) {
+        log('WARN', `[SPRINT] Failed to append activity log: ${(e as Error).message}`);
+    }
+}
+
+/**
  * Complete a conversation: aggregate responses, write to outgoing queue, save chat history.
  */
 function completeConversation(conv: Conversation): void {
@@ -199,6 +248,15 @@ function completeConversation(conv: Conversation): void {
         log('INFO', `Chat history saved`);
     } catch (e) {
         log('ERROR', `Failed to save chat history: ${(e as Error).message}`);
+    }
+
+    // S05: Append to CURRENT-SPRINT.md activity log
+    const workspacePath = settings?.workspace?.path || path.join(require('os').homedir(), 'tinysdlc-workspace');
+    const sprintFilePath = resolveSprintFile(settings, workspacePath);
+    if (sprintFilePath) {
+        const agentIds = conv.responses.map(s => s.agentId);
+        const totalChars = conv.responses.reduce((sum, s) => sum + s.response.length, 0);
+        appendActivityLog(sprintFilePath, agentIds, totalChars);
     }
 
     // Detect file references
@@ -567,14 +625,22 @@ async function processMessage(messageFile: string): Promise<void> {
         fs.unlinkSync(processingFile);
 
     } catch (error) {
-        log('ERROR', `Processing error: ${(error as Error).message}`);
+        const errMsg = (error as Error).message || '';
+        log('ERROR', `Processing error: ${errMsg}`);
 
-        // Move back to incoming for retry
         if (fs.existsSync(processingFile)) {
-            try {
-                fs.renameSync(processingFile, messageFile);
-            } catch (e) {
-                log('ERROR', `Failed to move file back: ${(e as Error).message}`);
+            // Non-retryable errors (corrupt JSON, parse failures): discard to prevent infinite retry loop
+            const isParseError = errMsg.includes('JSON') || errMsg.includes('Unexpected token') || errMsg.includes('Bad control character');
+            if (isParseError) {
+                log('WARN', `Discarding corrupt message file: ${path.basename(processingFile)}`);
+                try { fs.unlinkSync(processingFile); } catch (e) { /* ignore */ }
+            } else {
+                // Retryable errors (agent timeout, network): move back to incoming for retry
+                try {
+                    fs.renameSync(processingFile, messageFile);
+                } catch (e) {
+                    log('ERROR', `Failed to move file back: ${(e as Error).message}`);
+                }
             }
         }
     }

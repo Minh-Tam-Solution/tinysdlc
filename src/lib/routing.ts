@@ -70,10 +70,12 @@ export function extractTeammateMentions(
 
     // Tag format: [@agent_id: message] or [@agent1,agent2: message]
     const tagRegex = /\[@(\S+?):\s*([\s\S]*?)\]/g;
+
+    // Pre-compute shared context ONCE (strip all tags) — avoids resetting lastIndex inside exec loop
+    const sharedContext = response.replace(/\[@\S+?:\s*[\s\S]*?\]/g, '').trim();
+
     let tagMatch: RegExpExecArray | null;
     while ((tagMatch = tagRegex.exec(response)) !== null) {
-        // Strip all [@teammate: ...] tags from the full response to get shared context
-        const sharedContext = response.replace(tagRegex, '').trim();
         const directMessage = tagMatch[2].trim();
         const fullMessage = sharedContext
             ? `${sharedContext}\n\n------\n\nDirected to you:\n${directMessage}`

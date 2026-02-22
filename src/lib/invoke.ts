@@ -53,6 +53,7 @@ export async function runCommand(command: string, args: string[], cwd?: string, 
         const timer = setTimeout(() => {
             if (settled) return;
             settled = true;
+            clearInterval(progressTimer);
             child.kill('SIGKILL');
             reject(new Error(`Agent timed out after ${timeoutMs / 1000}s`));
         }, timeoutMs);
@@ -60,18 +61,28 @@ export async function runCommand(command: string, args: string[], cwd?: string, 
         child.stdout.setEncoding('utf8');
         child.stderr.setEncoding('utf8');
 
+        // Periodic progress logging — detect hung processes
+        let lastActivity = Date.now();
+        const progressTimer = setInterval(() => {
+            const elapsed = Math.round((Date.now() - lastActivity) / 1000);
+            log('DEBUG', `[AGENT] ${command} (pid=${child.pid}) still running, ${elapsed}s since last output`);
+        }, 30_000);
+
         child.stdout.on('data', (chunk: string) => {
             stdout += chunk;
+            lastActivity = Date.now();
         });
 
         child.stderr.on('data', (chunk: string) => {
             stderr += chunk;
+            lastActivity = Date.now();
         });
 
         child.on('error', (error) => {
             if (settled) return;
             settled = true;
             clearTimeout(timer);
+            clearInterval(progressTimer);
             reject(error);
         });
 
@@ -79,6 +90,7 @@ export async function runCommand(command: string, args: string[], cwd?: string, 
             if (settled) return;
             settled = true;
             clearTimeout(timer);
+            clearInterval(progressTimer);
             if (code === 0) {
                 resolve(stdout);
                 return;
@@ -165,6 +177,15 @@ export async function invokeAgent(
         } else if (fs.existsSync(safeProjDir)) {
             effectiveMessage = `[Project Directory: ${safeProjDir}]\n\n${message}`;
         }
+    }
+
+    // --- S05: Inject CURRENT-SPRINT.md context if available ---
+    const sprintFile = path.join(workingDir, 'CURRENT-SPRINT.md');
+    if (fs.existsSync(sprintFile)) {
+        const sprintContent = fs.readFileSync(sprintFile, 'utf8');
+        const lines = sprintContent.split('\n').slice(0, 50); // Cap at 50 lines
+        effectiveMessage = `[Sprint Context]\n${lines.join('\n')}\n---\n\n${effectiveMessage}`;
+        log('DEBUG', `[SPRINT] Injected ${lines.length} lines of sprint context for agent ${agentId}`);
     }
 
     const provider = agent.provider || 'anthropic';

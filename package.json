@@ -1,6 +1,6 @@
 {
   "name": "tinysdlc",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Multi-agent, multi-team, multi-channel 24/7 AI assistant orchestrator with MTS-SDLC-Lite governance",
   "scripts": {
     "build": "./node_modules/.bin/tsc && ./node_modules/.bin/tsc -p tsconfig.visualizer.json && echo '{\"type\":\"module\"}' > dist/visualizer/package.json",

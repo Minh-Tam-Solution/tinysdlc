@@ -163,6 +163,14 @@ sdlc_init() {
             mkdir -p "$workspace/$role"
         done
         echo -e "${GREEN}Workspace directories created:${NC} $workspace/{researcher,pm,pjm,architect,coder,reviewer,tester,devops}"
+
+        # S05: Copy CURRENT-SPRINT.md template to workspace root (shared by all agents)
+        local sprint_template="$SCRIPT_DIR/templates/CURRENT-SPRINT.md"
+        local sprint_target="$workspace/CURRENT-SPRINT.md"
+        if [ -f "$sprint_template" ] && [ ! -f "$sprint_target" ]; then
+            cp "$sprint_template" "$sprint_target"
+            echo -e "${GREEN}Sprint template created:${NC} $sprint_target"
+        fi
     fi
 }
 

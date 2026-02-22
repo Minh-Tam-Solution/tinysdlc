@@ -24,8 +24,8 @@
     },
     "pm": {
       "name": "Product Manager",
-      "provider": "openai",
-      "model": "o3-mini",
+      "provider": "anthropic",
+      "model": "sonnet",
       "sdlc_role": "pm",
       "working_directory": "~/tinysdlc-workspace/pm"
     },
@@ -52,8 +52,8 @@
     },
     "reviewer": {
       "name": "Code Reviewer",
-      "provider": "openai",
-      "model": "o3-mini",
+      "provider": "anthropic",
+      "model": "sonnet",
       "sdlc_role": "reviewer",
       "working_directory": "~/tinysdlc-workspace/reviewer"
     },

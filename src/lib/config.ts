@@ -150,6 +150,19 @@ export function getActiveProject(settings: Settings): { alias: string; name: str
 }
 
 /**
+ * Resolve the path to CURRENT-SPRINT.md in the active project or workspace root.
+ * Returns the file path if it exists, null otherwise.
+ */
+export function resolveSprintFile(settings: Settings, workspacePath: string): string | null {
+    const activeProject = getActiveProject(settings);
+    const baseDir = activeProject
+        ? expandTilde(activeProject.path)
+        : expandTilde(workspacePath);
+    const sprintFile = path.join(baseDir, 'CURRENT-SPRINT.md');
+    return fs.existsSync(sprintFile) ? sprintFile : null;
+}
+
+/**
  * Write settings to disk atomically (OBS-2: temp + renameSync).
  * Re-reads current settings before write to avoid stale overwrites.
  */

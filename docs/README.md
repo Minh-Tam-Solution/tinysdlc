@@ -1,7 +1,7 @@
 # TinySDLC Documentation
 
 **SDLC Methodology**: [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SDLC-Lite) v1.0.0 (SDLC 6.1.0, LITE Tier)
-**Project Version**: 0.0.5
+**Project Version**: 1.2.0
 
 ---
 
@@ -26,6 +26,7 @@ This project follows [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SD
 - [Sprint Plan — SDLC Support](./01-planning/sprint-plan-sdlc-support.md) - S01 sprint plan
 - [Sprint Plan — Ecosystem Upgrade](./01-planning/sprint-plan-ecosystem-upgrade.md) - S02 sprint plan (CTO-2026-002)
 - [Sprint Plan — ZeroClaw Patterns](./01-planning/sprint-plan-zeroclaw-patterns.md) - S04 sprint plan (security + UX)
+- [Sprint Plan — Sprint Context](./01-planning/sprint-plan-sprint-context.md) - S05 sprint plan (CURRENT-SPRINT.md maintenance)
 
 **Architecture** (Stage 02):
 - [Agent Architecture](./02-design/agent-architecture.md) - Multi-agent system design
@@ -35,6 +36,7 @@ This project follows [MTS-SDLC-Lite](https://github.com/Minh-Tam-Solution/MTS-SD
 - [SDLC Team Archetypes](./02-design/sdlc-team-archetypes.md) - 4 team templates, flows, gate mapping
 - [ADR: SDLC Support](./02-design/adr-sdlc-framework-support.md) - Architecture decisions for MTS-SDLC-Lite integration
 - [ADR: ZeroClaw Security Patterns](./02-design/adr-zeroclaw-security-patterns.md) - ADR-008 to ADR-012 (credential/env scrubbing, classification, status, compaction)
+- [Sprint Context Design](./02-design/sprint-context-design.md) - CURRENT-SPRINT.md context injection, activity log, /sprint command
 
 **Integration** (Stage 03):
 - [Channel Integration Contracts](./03-integrate/channel-integration-contracts.md) - Discord/Telegram/WhatsApp APIs
